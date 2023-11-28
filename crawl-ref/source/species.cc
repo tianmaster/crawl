@@ -128,7 +128,7 @@ namespace species
 
     bool is_elven(species_type species)
     {
-        return species == SP_DEEP_ELF;
+        return species == SP_DEEP_ELF || species == SP_STEEL_ELF;
     }
 
     bool is_undead(species_type species)
@@ -507,7 +507,7 @@ namespace species
             break;
         }
         // remaining should be armour only
-        if (species == SP_OCTOPODE && eq != EQ_HELMET && eq != EQ_SHIELD)
+        if (species == SP_OCTOPODE && eq != EQ_HELMET && eq != EQ_OFFHAND)
             return true;
 
         if (is_draconian(species) && eq == EQ_BODY_ARMOUR)
