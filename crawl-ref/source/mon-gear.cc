@@ -562,7 +562,7 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
         } } },
         { MONS_DEEP_ELF_KNIGHT,         { DE_KNIGHT_WEAPONS } },
         { MONS_DEEP_ELF_HIGH_PRIEST,    { DE_KNIGHT_WEAPONS } },
-        { MONS_DEEP_ELF_BLADEMASTER,
+        { MONS_STEEL_ELF_BLADEMASTER,
             { { { WPN_RAPIER,           20 },
                 { WPN_SHORT_SWORD,      5 },
                 { WPN_QUICK_BLADE,      1 },
@@ -1355,7 +1355,7 @@ static void _give_weapon(monster *mon, int level, bool second_weapon = false)
 {
     ASSERT(mon); // TODO: change to monster &mon
 
-    if (mon->type == MONS_DEEP_ELF_BLADEMASTER && mon->weapon())
+    if (mon->type == MONS_STEEL_ELF_BLADEMASTER && mon->weapon())
     {
         const item_def &first_sword = *mon->weapon();
         ASSERT(first_sword.base_type == OBJ_WEAPONS);
@@ -1804,7 +1804,7 @@ int make_mons_armour(monster_type type, int level)
     switch (type)
     {
     case MONS_DEEP_ELF_ARCHER:
-    case MONS_DEEP_ELF_BLADEMASTER:
+    case MONS_STEEL_ELF_BLADEMASTER:
     case MONS_DEEP_ELF_MASTER_ARCHER:
     case MONS_MERFOLK_JAVELINEER:
     case MONS_EUSTACHIO:
