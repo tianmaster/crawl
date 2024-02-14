@@ -257,8 +257,8 @@ bool fill_status_info(int status, status_info& inf)
         {
             inf.light_text   = "-Swift";
             inf.light_colour = RED;
-            inf.short_text   = "sluggish";
-            inf.long_text    = "You are moving sluggishly.";
+            inf.short_text   = "unswift";
+            inf.long_text    = "You are covering ground slowly.";
         }
         break;
 
@@ -276,6 +276,16 @@ bool fill_status_info(int status, status_info& inf)
 
     case STATUS_AIRBORNE:
         _describe_airborne(inf);
+        break;
+
+    case STATUS_STIFF:
+        if (you.legs_stiff())
+        {
+            inf.light_colour = BROWN;
+            inf.light_text   = "Stiff";
+            inf.short_text   = "stiff-legged";
+            inf.long_text    = "Your next movement will be very slow.";
+        }
         break;
 
     case STATUS_BEHELD:

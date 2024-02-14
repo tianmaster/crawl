@@ -778,10 +778,19 @@ static const mutation_def mut_data[] =
   {"", "", ""},
 },
 
-{ MUT_WARMUP_STRIKES, 0, 1, mutflag::bad, false,
+{ MUT_WARMUP_STRIKES, 0, 1, mutflag::bad, true,
   "warmup strikes",
 
   {"Your first few attacks do less damage.",
+   "", ""},
+  {"", "", ""},
+  {"", "", ""},
+},
+
+{ MUT_WARMUP_MOVES, 0, 1, mutflag::bad, true,
+  "warmup strides",
+
+  {"Your first movements take longer.",
    "", ""},
   {"", "", ""},
   {"", "", ""},

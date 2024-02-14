@@ -884,6 +884,10 @@ public:
     void rev_up(int time_taken);
     void rev_down(int time_taken);
 
+    bool legs_stiff() const;
+    void check_deliberate_move();
+    void note_deliberate_move();
+
     bool allies_forbidden();
 
     // TODO: move this somewhere else

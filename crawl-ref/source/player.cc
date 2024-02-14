@@ -1886,6 +1886,9 @@ int player_movement_speed(bool check_terrain, bool temp)
     if (temp && you.duration[DUR_FROZEN])
         mv += 3;
 
+    if (temp && you.legs_stiff())
+        mv += 10; // yikes!
+
     // Mutations: -2, -3, -4, unless innate and shapechanged.
     if (int fast = you.get_mutation_level(MUT_FAST))
         mv -= fast + 1;
@@ -1944,6 +1947,32 @@ int player_speed()
     }
 
     return ps;
+}
+
+#define LEGS_STIFF_KEY "legs_stiff"
+
+bool player::legs_stiff() const
+{
+    return you.props.exists(LEGS_STIFF_KEY);
+}
+
+#define MOVED_DELIBERATELY "moved_deliberately_key"
+
+void player::note_deliberate_move()
+{
+    if (!you.has_mutation(MUT_WARMUP_MOVES))
+        return;
+    you.props[MOVED_DELIBERATELY] = true;
+    you.props.erase(LEGS_STIFF_KEY);
+}
+
+void player::check_deliberate_move()
+{
+    if (!you.has_mutation(MUT_WARMUP_MOVES))
+        return;
+    if (!you.props.exists(MOVED_DELIBERATELY))
+        you.props[LEGS_STIFF_KEY] = true;
+    you.props.erase(MOVED_DELIBERATELY);
 }
 
 bool is_effectively_light_armour(const item_def *item)

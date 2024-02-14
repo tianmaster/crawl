@@ -1072,6 +1072,7 @@ void player_reacts()
     _handle_fugue(you.time_taken);
     if (you.has_mutation(MUT_WARMUP_STRIKES))
         you.rev_down(you.time_taken);
+    you.check_deliberate_move();
 
     if (x_chance_in_y(you.time_taken, 10 * BASELINE_DELAY))
     {
