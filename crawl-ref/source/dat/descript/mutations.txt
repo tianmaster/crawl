@@ -825,7 +825,7 @@ reducing the complex movements which would otherwise be required.
 (The encumbrance rating of all armour you wear is reduced by 1/2 for purposes
 of spell success.)
 %%%%
-off-hand wielding
+off-hand wielding mutation
 
 You can wield a one-handed weapon in your off-hand, if not wielding a
 two-handed weapon or wearing a shield or orb. You will follow up attacks from
@@ -833,23 +833,23 @@ your primary weapon with your off-hand weapon, with attack delay determined
 by the average of the two. Ranged weapons can only follow attacks by ranged
 weapons, and likewise melee weapons.
 %%%%
-slow wielding
+slow wielding mutation
 
 You must attune with the spirits of your weapons when you wield them, and
 apologize when you unwield them. This takes as long as donning armour.
 %%%%
-initially attractive
+initially attractive mutation
 
 The first time you see a monster, it may be magically pulled toward you by
 the grace of the spirits. This does not wake sleeping monsters.
 %%%%
-warmup strikes
+warmup strikes mutation
 
 Your metal-braced arms need time to limber up, making your first few attacks
 in each fight less effective. Slow, heavy attacks help more than fast
 attacks. Both weapon-based and unarmed attacks are affected.
 %%%%
-warmup strides
+warmup strides mutation
 
 Your metal-braced legs need time to limber up, making you take longer to
 move whenever you end a turn in the same place you began. This only affects
