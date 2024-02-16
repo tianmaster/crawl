@@ -575,8 +575,7 @@ namespace quiver
                 return;
 
             target.isEndpoint = true; // is this needed? imported from autofight code
-            const reach_type reach_range = !weapon ? REACH_NONE
-                                                    : weapon_reach(*weapon);
+            const reach_type reach_range = you.reach_range();
 
             direction_chooser_args args;
             args.restricts = DIR_TARGET;

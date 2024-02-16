@@ -6886,9 +6886,10 @@ bool player::nightvision() const
 reach_type player::reach_range() const
 {
     const item_def *wpn = weapon();
-    if (wpn)
-        return weapon_reach(*wpn);
-    return REACH_NONE;
+    const item_def *off = offhand_weapon();
+    const reach_type wpn_reach = wpn ? weapon_reach(*wpn) : REACH_NONE;
+    const reach_type off_reach = off ? weapon_reach(*off) : REACH_NONE;
+    return max(wpn_reach, off_reach);
 }
 
 monster_type player::mons_species(bool /*zombie_base*/) const
