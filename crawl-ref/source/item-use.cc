@@ -1493,18 +1493,56 @@ static bool _try_wield_weapon(item_def *to_wield, bool nonweapons_ok)
     return unwield_weapon(*old_wpn);
 }
 
+static bool _prompt_wield_weapon(item_def &wpn,
+                                 const item_def &old_wpn,
+                                 const item_def &old_offhand)
+{
+    const int slot = prompt_invent_item("You're wielding all the weapons you can."
+                                        " Replace which one?",
+                                        menu_type::invlist, OSEL_WIELD, OPER_WIELD,
+                                        invprompt_flag::no_warning
+                                        | invprompt_flag::hide_known);
+    if (slot < 0) // cancelled
+    {
+        canned_msg(MSG_OK);
+        return false;
+    }
+    ASSERT_RANGE(slot, 0, ENDOFPACK);
+
+    item_def &to_replace = you.inv[slot];
+    if (!to_replace.defined()
+        || to_replace.link != old_wpn.link
+           && to_replace.link != old_offhand.link)
+    {
+        mprf(MSGCH_PROMPT, "You aren't wielding that.");
+        return false;
+    }
+    return _do_wield_weapon(wpn, &to_replace, to_replace.link == old_wpn.link);
+}
+
+// XXX dedup with _pick_unwield_weapon
 static bool _pick_wield_weapon(item_def &wpn,
                                const item_def *old_wpn,
                                const item_def *old_offhand)
 {
+    // TODO: add an equivalent to Options.jewellery_prompt to toggle whether to
+    // always add a prompt.
+    // TODO: treat cursed weapons as nonexistent.
+    if (!old_wpn)
+        return _do_wield_weapon(wpn, old_offhand, false);
+    if (!old_offhand)
+        return _do_wield_weapon(wpn, old_wpn, false);
+
     const string onhand = old_wpn ?
         make_stringf(" (now %s)", old_wpn->name(DESC_PLAIN).c_str()).c_str() : "";
     // XXX: show shield (if applicable)...?
     const string offhand = old_offhand ?
         make_stringf(" (now %s)", old_offhand->name(DESC_PLAIN).c_str()).c_str() : "";
-    mprf(MSGCH_PROMPT, "Wield in which hand? (<w>Esc</w> to cancel)");
-    mprf(MSGCH_PROMPT, "<w><<</w> for primary%s; <w>></w> for off-hand%s.",
-         onhand.c_str(), offhand.c_str());
+    mprf(MSGCH_PROMPT, "You're wielding all the weapons you can. Replace which one?");
+    mprf(MSGCH_PROMPT, "(<w>?</w> for menu, <w>Esc</w> to cancel)");
+    mprf_nocap("<w><<</w> or %s; <w>></w> or %s",
+               old_wpn->name(DESC_INVENTORY).c_str(),
+               old_offhand->name(DESC_INVENTORY).c_str());
     flush_prev_message();
 
     // Deactivate choice from tile inventory.
@@ -1519,11 +1557,22 @@ static bool _pick_wield_weapon(item_def &wpn,
         {
         case '<': clear_messages(); return _do_wield_weapon(wpn, old_wpn);
         case '>': clear_messages(); return _do_wield_weapon(wpn, old_offhand, false);
+        case '?': clear_messages(); return _prompt_wield_weapon(wpn, *old_wpn, *old_offhand);
         default:
             if (key_is_escape(c))
             {
                 clear_messages();
                 return false;
+            }
+            if (c == index_to_letter(old_wpn->link))
+            {
+                clear_messages();
+                return _do_wield_weapon(wpn, old_wpn);
+            }
+            if (c == index_to_letter(old_offhand->link))
+            {
+                clear_messages();
+                return _do_wield_weapon(wpn, old_offhand, false);
             }
             break;
         }
@@ -1553,6 +1602,7 @@ static bool _prompt_unwield_weapon(const item_def &wpn, const item_def &offhand)
     return unwield_weapon(to_unwield);
 }
 
+// XXX dedup with _pick_wield_weapon
 static bool _pick_unwield_weapon(const item_def *wpn, const item_def *offhand)
 {
     // TODO: add an equivalent to Options.jewellery_prompt to toggle whether to
@@ -1562,6 +1612,7 @@ static bool _pick_unwield_weapon(const item_def *wpn, const item_def *offhand)
         canned_msg(MSG_EMPTY_HANDED_ALREADY);
         return false;
     }
+    // TODO: check if we have exactly one uncursed weapon and don't prompt.
     if (!wpn)
         return unwield_weapon(*offhand);
     if (!offhand)
