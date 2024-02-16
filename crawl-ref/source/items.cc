@@ -4910,7 +4910,7 @@ bool maybe_identify_base_type(item_def &item)
 
 void name_weapon(item_def &item)
 {
-    string name = getRandNameString("steelspirit", " name");
+    string name = getRandMonNameString("steelspirit");
     if (name == "RANDGEN")
         name = make_name();
     item.props[WEAPON_NAME_KEY] = name;
