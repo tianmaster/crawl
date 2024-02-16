@@ -1285,12 +1285,16 @@ bool can_wield(const item_def *weapon, bool say_reason,
         return false;
     }
 
+    const item_def *old_wpn = you.weapon();
     if (!ignore_temporary_disability
-        && you.weapon()
-        && is_weapon(*you.weapon())
-        && you.weapon()->cursed())
+        && old_wpn
+        && old_wpn->cursed()
+        && (!you.has_mutation(MUT_WIELD_OFFHAND)
+            || you.hands_reqd(*old_wpn) == HANDS_TWO
+            || you.offhand_weapon() && you.offhand_weapon()->cursed()))
     {
-        SAY(mprf(MSGCH_PROMPT, "You can't unwield your weapon%s!",
+        SAY(mprf(MSGCH_PROMPT, "You can't unwield your weapon%s%s!",
+                 you.offhand_weapon() ? "s" : "",
                  !unwield ? " to draw a new one" : ""));
         return false;
     }
@@ -1527,11 +1531,22 @@ static bool _pick_wield_weapon(item_def &wpn,
 {
     // TODO: add an equivalent to Options.jewellery_prompt to toggle whether to
     // always add a prompt.
-    // TODO: treat cursed weapons as nonexistent.
     if (!old_wpn)
-        return _do_wield_weapon(wpn, old_offhand, false);
+        return _do_wield_weapon(wpn, old_wpn);
     if (!old_offhand)
-        return _do_wield_weapon(wpn, old_wpn, false);
+        return _do_wield_weapon(wpn, old_offhand, false);
+
+    if (old_wpn->cursed())
+    {
+        if (old_offhand->cursed())
+        {
+            mprf(MSGCH_PROMPT, "Both of your weapons are cursed!");
+            return false;
+        }
+        return _do_wield_weapon(wpn, old_offhand, false);
+    }
+    if (old_offhand->cursed())
+        return _do_wield_weapon(wpn, old_wpn);
 
     const string onhand = old_wpn ?
         make_stringf(" (now %s)", old_wpn->name(DESC_PLAIN).c_str()).c_str() : "";
@@ -1612,10 +1627,21 @@ static bool _pick_unwield_weapon(const item_def *wpn, const item_def *offhand)
         canned_msg(MSG_EMPTY_HANDED_ALREADY);
         return false;
     }
-    // TODO: check if we have exactly one uncursed weapon and don't prompt.
     if (!wpn)
         return unwield_weapon(*offhand);
     if (!offhand)
+        return unwield_weapon(*wpn);
+
+    if (wpn->cursed())
+    {
+        if (offhand->cursed())
+        {
+            mprf(MSGCH_PROMPT, "Both of your weapons are cursed!");
+            return false;
+        }
+        return unwield_weapon(*offhand);
+    }
+    if (offhand->cursed())
         return unwield_weapon(*wpn);
 
     clear_messages();
@@ -1672,8 +1698,10 @@ bool unwield_weapon(const item_def &wpn)
         // check specifically for !u inscriptions:
         || needs_handle_warning(wpn, OPER_UNEQUIP, penance))
     {
-        string prompt =
-            "Really unwield " + wpn.name(DESC_INVENTORY) + "?";
+        string prompt = "Really unwield ";
+        if (wpn.cursed())
+            prompt += "and destroy ";
+        prompt += wpn.name(DESC_INVENTORY) + "?";
         if (penance)
             prompt += " This could place you under penance!";
 

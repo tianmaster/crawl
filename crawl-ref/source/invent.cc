@@ -1494,6 +1494,9 @@ bool check_old_item_warning(const item_def& item,
     bool penance = false;
     if (oper == OPER_WIELD) // can we safely unwield old item?
     {
+        if (you.has_mutation(MUT_WIELD_OFFHAND))
+            return true; // defer until unwielding
+
         if (!you.slot_item(EQ_WEAPON, check_melded))
             return true;
 
