@@ -1040,7 +1040,7 @@ void attack_multiple_targets(actor &attacker, list<actor*> &targets,
         {
             melee_attack attck(&attacker, def, attack_number,
                                ++effective_attack_number);
-            if (weapon)
+            if (weapon && attacker->is_player())
                 attck.set_weapon(weapon, true);
 
             attck.wu_jian_attack = wu_jian_attack;
