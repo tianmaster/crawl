@@ -898,12 +898,13 @@ bool melee_attack::handle_phase_end()
     return attack::handle_phase_end();
 }
 
-// Copy over parameters.
+// Copy over initial attack parameters, not state set later.
 void melee_attack::copy_to(melee_attack &other)
 {
     other.cleaving = cleaving;
     other.is_multihit = is_multihit;
     other.is_riposte = is_riposte;
+    other.is_projected = is_projected;
     other.wu_jian_attack = wu_jian_attack;
     other.wu_jian_number_of_targets = wu_jian_number_of_targets;
 }
