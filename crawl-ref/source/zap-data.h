@@ -306,6 +306,38 @@ static const zap_info zap_data[] =
 },
 
 {
+    ZAP_PERMAFROST_ERUPTION_ICE,
+    "ice shards",
+    200,
+    new calcdice_calculator<4, 8, 1, 2>,
+    new tohit_calculator<40>,
+    nullptr,
+    nullptr,
+    WHITE,
+    false,
+    BEAM_ICE,
+    DCHAR_FIRED_ZAP,
+    false,
+    true,
+},
+
+{
+    ZAP_PERMAFROST_ERUPTION_EARTH,
+    "mass of rock",
+    200,
+    new calcdice_calculator<4, 8, 1, 2>,
+    new tohit_calculator<40>,
+    nullptr,
+    nullptr,
+    LIGHTGREY,
+    false,
+    BEAM_MMISSILE,
+    DCHAR_FIRED_MISSILE,
+    false,
+    false,
+},
+
+{
     ZAP_SPIT_LAVA,
     "glob of lava",
     200,

@@ -6426,6 +6426,10 @@ const map<spell_type, explosion_sfx> spell_explosions = {
         "The mass of ice explodes!",
         "an explosion",
     } },
+    { SPELL_PERMAFROST_ERUPTION, {
+        "Shards of ice explode outward!",
+        "an explosion",
+    } },
     { SPELL_GHOSTLY_SACRIFICE, {
         "The ghostly flame explodes!",
         "the shriek of haunting fire",
