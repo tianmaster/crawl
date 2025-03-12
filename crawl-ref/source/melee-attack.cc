@@ -1962,8 +1962,11 @@ bool melee_attack::player_aux_test_hit()
             to_hit = -1;
     }
 
-    if (to_hit >= evasion || auto_hit)
+    if (to_hit >= evasion || auto_hit
+        || wu_jian_has_momentum(wu_jian_attack))
+    {
         return true;
+    }
 
     mprf("Your %s misses %s.", aux_attack.c_str(),
          defender->name(DESC_THE).c_str());
