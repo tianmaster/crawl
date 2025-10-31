@@ -335,6 +335,12 @@ namespace quiver
             return !you.confused();
         }
 
+        bool is_piercing() const override
+        {
+            const item_def* wpn = you.weapon();
+            return wpn && is_penetrating_attack(*wpn);
+        }
+
         bool allow_autofight() const override
         {
             return is_enabled();
@@ -883,6 +889,11 @@ namespace quiver
         bool is_targeted() const override
         {
             return !you.confused();
+        }
+
+        bool is_piercing() const override
+        {
+            return item_slot >= 0 && item_slot < MAX_GEAR && is_penetrating_attack(you.inv[item_slot]);
         }
 
         bool allow_autofight() const override

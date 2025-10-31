@@ -685,6 +685,8 @@ void aim_player_ranged_attack(quiver::action &a)
         args.behaviour = &beh;
         args.mode = TARG_HOSTILE;
         args.self = confirm_prompt_type::cancel;
+        args.is_ranged_attack = true;
+        args.is_piercing = is_penetrating_attack(*item);
         direction(a.target, args);
     }
     if (!a.target.isValid || a.target.isCancel)

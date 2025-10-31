@@ -54,6 +54,8 @@ shared_ptr<quiver::action> get_ammo_to_shoot(int item, dist &target, bool telepo
 void untargeted_fire(quiver::action &a);
 void fire_item_no_quiver(dist *target=nullptr);
 
+coord_def best_ranged_aim(const coord_def& target, bool pierce);
+
 void aim_player_ranged_attack(quiver::action &a);
 bool do_player_ranged_attack(const coord_def& targ, item_def* thrown_projectile = nullptr,
                              const ranged_attack* prototype = nullptr,
