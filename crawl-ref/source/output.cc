@@ -2709,7 +2709,7 @@ static string _rampage_passive_string()
     const int rampage = you.rampaging();
     if (rampage)
     {
-        desc += you.has_mutation(MUT_ROLLPAGE) ? "roll" : "rampage";
+        desc += you.has_mutation(MUT_STAMPEDE) ? "stampede" : "rampage";
 
         const bool infinite = you.unrand_equipped(UNRAND_SEVEN_LEAGUE_BOOTS);
         const char *inf = Options.char_set == CSET_ASCII ? "+inf"

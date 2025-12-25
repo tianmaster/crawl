@@ -140,8 +140,8 @@ function callback.five_deadly_venoms(data, triggerable, triggerer, marker, ev)
 end
 
 function species_mock(e)
-  if you.race() == "Armataur" then
-    return "rat"
+  if you.race() == "Anemocentaur" then
+    return "wind drake"
   elseif you.race() == "Barachi" then
     return "cane toad"
   elseif you.race() == "Coglin" then

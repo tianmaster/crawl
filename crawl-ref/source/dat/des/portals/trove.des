@@ -960,7 +960,7 @@ local gen_armour = ""
 if species_has_size_limits(_G) == false then
   gen_armour = "plate armour " .. pon .. " / crystal plate armour " .. pon
 end
-if you.race() == "armataur" or you.race() == "naga" then
+if you.race() == "anemocentaur" or you.race() == "naga" then
   gen_armour = gen_armour .. " / barding good_item / barding randart w:2"
 elseif you.mutation("hooves") ~= 3 and you.mutation("talons") ~= 3 then
   gen_armour = gen_armour .. " / pair of boots good_item w:4 " ..

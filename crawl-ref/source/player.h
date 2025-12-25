@@ -54,7 +54,6 @@
 #define DESCENT_DEBT_KEY "descent_debt"
 #define DESCENT_WATER_BRANCH_KEY "descent_water_branch"
 #define DESCENT_POIS_BRANCH_KEY "descent_poison_branch"
-#define RAMPAGE_HEAL_KEY "rampage_heal_strength"
 #define RAMPAGE_HEAL_MAX 7
 #define BLIND_COLOUR_KEY "blind_colour"
 #define TRICKSTER_POW_KEY "trickster_power"
@@ -449,6 +448,13 @@ public:
     spell_type last_cast_spell;
     map<int,int> last_pickup;
     int last_unequip;
+
+    // Highest skill level for each of anemocentaur winds
+    FixedVector<int, 4> wind_category_weight;
+    // Whether a category increased since the last call to update_four_winds()
+    FixedVector<bool, 4> wind_category_inc;
+    int prevailing_wind;
+    bool gave_wind_change_warning;
 
     // ---------------------------
     // Volatile (same-turn) state:
@@ -1274,8 +1280,6 @@ void dec_elixir_player(int delay);
 void dec_ambrosia_player(int delay);
 void dec_channel_player(int delay);
 void dec_frozen_ramparts(int delay);
-void reset_rampage_heal_duration();
-void apply_rampage_heal(int distance_moved);
 void trickster_trigger(const monster& victim, enchant_type ench);
 int trickster_bonus();
 int enkindle_max_charges();

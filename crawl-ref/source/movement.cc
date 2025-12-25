@@ -724,8 +724,8 @@ static string _get_move_verb(bool is_rampage)
     {
         if (you.unrand_equipped(UNRAND_SEVEN_LEAGUE_BOOTS))
             return "stride";
-        else if (you.has_mutation(MUT_ROLLPAGE))
-            return "roll";
+        else if (you.has_mutation(MUT_STAMPEDE))
+            return "stampede";
         else
             return "rampage";
     }
@@ -746,9 +746,103 @@ static bool _cannot_step_into(const coord_def& pos)
                 || env.grid(pos) == DNGN_SLIMY_WALL);
 }
 
+static vector<monster*> _get_stampede_line(const coord_def& start, const coord_def& delta, bool only_known = false)
+{
+    // Iterate to find how many connected monsters are in a row that the player can see.
+    vector<monster*> move_targets;
+    coord_def pos = start;
+    while (monster* mon = monster_at(pos))
+    {
+        // Don't count things outside the player's LoS if checking known monsters.
+        if (only_known && !you.can_see(*mon))
+            break;
+
+        // Can't move anything with a stationary monster in its cluster.
+        if (mon->is_stationary())
+            return vector<monster*>();
+
+        // Add this monster to the line and advance one step
+        move_targets.push_back(mon);
+        pos += delta;
+    }
+
+    return move_targets;
+}
+
+// Determine how many tiles the player would expect to move if they stampeded now
+static int _stampede_move_check(const coord_def& delta)
+{
+    if (!you.duration[DUR_STAMPEDE])
+        return 0;
+
+    // If the player can't move into the next tile, bail early.
+    if (is_feat_dangerous(env.grid(you.pos() + delta)))
+        return 0;
+
+    vector<monster*> move_targets = _get_stampede_line(you.pos() + delta, delta, true);
+
+    if (move_targets.empty())
+        return 0;
+
+    for (monster* mon : move_targets)
+        if (!monster_habitable_grid(mon, mon->pos() + delta))
+            return 0;
+
+    // Now we know we can stampede at least one tile. Check if we can stampede 2.
+
+    // Only bother checking the second step if the player can step there.
+    if (is_feat_dangerous(env.grid(you.pos() + delta + delta)))
+        return 1;
+
+    vector<monster*> second_move_targets = _get_stampede_line(move_targets.back()->pos() + delta + delta, delta, true);
+
+    for (monster* mon : second_move_targets)
+        if (!monster_habitable_grid(mon, mon->pos() + delta))
+            return 1;
+    for (monster* mon : move_targets)
+        if (!monster_habitable_grid(mon, mon->pos() + delta + delta))
+            return 1;
+
+    return 2;
+}
+
+static bool _try_stampede(const coord_def& target)
+{
+    if (you.is_constricted() || you.cannot_move() || you.caught())
+        return false;
+
+    const coord_def delta = target - you.pos();
+    vector<monster*> move_targets = _get_stampede_line(target, delta);
+
+    // Check if we have targets that can be pushed.
+    if (move_targets.empty())
+        return false;
+    if (is_feat_dangerous(env.grid(you.pos() + delta)) || !you.can_pass_through(you.pos() + delta))
+        return false;
+    for (monster* mon : move_targets)
+        if (!monster_habitable_grid(mon, mon->pos() + delta))
+            return false;
+
+    // Now move everyone (and ourselves).
+    const coord_def old_pos = you.pos();
+    for (int i = (int)move_targets.size() - 1; i >= 0; --i)
+        move_targets[i]->move_to(old_pos + delta * (i + 2), MV_DEFAULT, true);
+    you.move_to(old_pos + delta, MV_DELIBERATE, true);
+
+    // Now finalise movement (to avoid dispersal traps causing all sorts of
+    // problems with keeping everyone together in the middle)
+    for (size_t i = 0; i < move_targets.size(); ++i)
+        if (move_targets[i]->alive())
+            move_targets[i]->finalise_movement();
+    you.finalise_movement();
+
+    return true;
+}
+
 // Handles the player trying to move/attack/swap into a given location.
 // Returns true if handling of further steps should continue after this.
 static bool _handle_player_step(const coord_def& targ, int& delay, bool rampaging,
+                                bool& did_stampede,
                                 bool& did_move, bool& did_attack, bool& did_open_door)
 {
     const coord_def initial_pos = you.pos();
@@ -772,6 +866,22 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
         // Attempt to attack the monster.
         if (!mon->wont_attack() || you.confused())
         {
+            if (you.duration[DUR_STAMPEDE] && !you.confused() && !rampaging
+                && _try_stampede(targ))
+            {
+                // Accumulate cost of moving across terrain, then average it.
+                int stampede_delay = player_movement_speed();
+                // Move a second time (assuming we ended up where we expected to).
+                if (you.pos() == targ && _try_stampede(you.pos() + (targ - initial_pos)))
+                    stampede_delay = div_rand_round(stampede_delay + player_movement_speed(), 2);
+                did_move = true;
+                did_stampede = true;
+                delay += stampede_delay;
+
+                // Check that the target we were trampling still there.
+                if (!mon || (mon->pos() - you.pos()) != (targ - initial_pos))
+                    return false;
+            }
             if (!player_fight(mon, rampaging))
             {
                 stop_running();
@@ -980,10 +1090,14 @@ void move_player_action(coord_def move)
     const bool rampage_attack = mon_target && grid_distance(you.pos(), mon_target->pos()) == num_steps;
 
     // Now, calculate any warnings we want to give the player for each step they will take.
+    const int stampede_steps = _stampede_move_check(move);
     coord_def targ = you.pos();
-    string move_verb = _get_move_verb(num_steps > 1);
-    const int end_step = rampage_attack ? num_steps - 2 : num_steps - 1;
-    for (int i = 0; i < num_steps; ++i)
+    string move_verb = _get_move_verb(num_steps + stampede_steps > 1);
+    const int end_step = rampage_attack ? num_steps - 2 : max(num_steps, stampede_steps) - 1 ;
+
+    // For the purposes of printing proper warnings, pretend we are taking
+    // additional normal steps.
+    for (int i = 0; i < max(num_steps, stampede_steps); ++i)
     {
         if (you.cannot_move())
             break;
@@ -997,10 +1111,11 @@ void move_player_action(coord_def move)
         if (monster* mon_at = monster_at(targ))
         {
             coord_def dummy;
-            if (you.can_see(*mon_at)
-                && !mon_at->wont_attack()
-                   || !(fedhas_passthrough(mon_at)
-                        || swap_check(mon_at, dummy, true)))
+            if (!stampede_steps
+                && you.can_see(*mon_at)
+                && (!mon_at->wont_attack()
+                    || !(fedhas_passthrough(mon_at)
+                         || swap_check(mon_at, dummy, true))))
             {
                 break;
             }
@@ -1019,7 +1134,7 @@ void move_player_action(coord_def move)
     }
 
     // Print a message, if rampaging.
-    if (num_steps > 1)
+    if (num_steps > 1 && mon_target)
     {
         mprf("You %s towards %s!", move_verb.c_str(), mon_target->name(DESC_THE, true).c_str());
 
@@ -1038,6 +1153,7 @@ void move_player_action(coord_def move)
     bool did_move = false;
     bool did_attack = false;
     bool did_open_door = false;
+    bool did_stampede = false;
     for (; steps_taken < num_steps; ++steps_taken)
     {
         // If we have somehow ended up somewhere other than where we tried
@@ -1055,9 +1171,15 @@ void move_player_action(coord_def move)
             break;
         }
 
-        if (!_handle_player_step(targ, delay, num_steps > 1, did_move, did_attack, did_open_door))
+        if (!_handle_player_step(targ, delay, num_steps > 1,
+                                 did_stampede,
+                                 did_move, did_attack, did_open_door))
+        {
+            // Need to mark another step here so that move delay will avoid a div-by-0
+            if (did_stampede)
+                ++steps_taken;
             break;
-
+        }
     }
 
     // Movement delay is the average of the delay of all steps we took, unless
@@ -1087,7 +1209,7 @@ void move_player_action(coord_def move)
             you.duration[DUR_MESMERISM_COOLDOWN] += you.time_taken;
 
         if (you.unrand_equipped(UNRAND_LIGHTNING_SCALES)
-            || num_steps > 1 && !you.has_mutation(MUT_ROLLPAGE))
+            || num_steps > 1 && !you.has_mutation(MUT_STAMPEDE))
         {
             did_god_conduct(DID_HASTY, 1, true);
         }
@@ -1095,8 +1217,9 @@ void move_player_action(coord_def move)
         if (!did_attack)
             update_acrobat_status();
 
-        if (num_steps > 1)
-            apply_rampage_heal(steps_taken);
+        // Either a rampage movement or a stampede push will sustain stampede.
+        if ((num_steps > 1 || did_stampede) && you.has_mutation(MUT_STAMPEDE))
+            you.duration[DUR_STAMPEDE] = you.time_taken + 1;
     }
 
     if (!did_move && !did_attack && !did_open_door)

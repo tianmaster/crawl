@@ -4971,6 +4971,7 @@ static void _ru_kill_skill(skill_type skill)
     you.can_currently_train.set(skill, false);
     reset_training();
     check_selected_skills();
+    update_four_winds(true);
 }
 
 static void _extra_sacrifice_code(ability_type sac)

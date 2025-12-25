@@ -1015,6 +1015,21 @@ accursed mutation
 
 Your accursed nature makes it harder to dispel malignant energies from your
 being, reducing the rate at which you can recover from Doom and Banes.
+%%%%
+stampede mutation
+
+You rampage swiftly towards enemies and can continue to trampling forward once
+you reach them, pushing entire lines of enemies backwards as you attack.
+
+Performing any action besides a rampage movement will end your stampede.
+
+The second level of this mutation augments your stampede with the blessing of
+one of the four winds, based on your highest skill:
+
+ North Wind: Melee weapon skills (except Short Blades)\n
+South Wind: Short Blades or Stealth\n
+East Wind:  Magic skills (except Spellcasting)\n
+West Wind:  Ranged Weapons skill\n
 # ------ Fakemut descriptions ------
 %%%%
 vampire fangs mutation

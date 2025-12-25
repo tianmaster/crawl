@@ -1213,13 +1213,6 @@ static int _player_bonus_regen()
     if (you.duration[DUR_ENGORGED])
         rr += get_form()->get_effect_size();
 
-    // Rampage healing grants a variable regen boost while active.
-    if (you.get_mutation_level(MUT_ROLLPAGE) > 1
-        && you.duration[DUR_RAMPAGE_HEAL])
-    {
-        rr += you.props[RAMPAGE_HEAL_KEY].get_int() * 65;
-    }
-
     if (you.duration[DUR_OOZE_REGEN])
         rr += you.hp_max * 4;
 
@@ -1309,10 +1302,6 @@ int player_mp_regen()
         if (is_artefact(*item))
             regen_amount += 40 * artefact_property(*item, ARTP_MANA_REGENERATION);
     }
-
-    // Rampage healing grants a variable regen boost while active.
-    if (you.duration[DUR_RAMPAGE_HEAL])
-        regen_amount += you.props[RAMPAGE_HEAL_KEY].get_int() * 33;
 
     if (you.duration[DUR_OOZE_REGEN])
         regen_amount += you.max_magic_points * 4;
@@ -5200,23 +5189,6 @@ void dec_frozen_ramparts(int delay)
     }
 }
 
-void reset_rampage_heal_duration()
-{
-    const int heal_dur = random_range(3, 6);
-    you.set_duration(DUR_RAMPAGE_HEAL, heal_dur);
-}
-
-void apply_rampage_heal(int distance_moved)
-{
-    if (!you.has_mutation(MUT_ROLLPAGE))
-        return;
-
-    reset_rampage_heal_duration();
-
-    const int heal = you.props[RAMPAGE_HEAL_KEY].get_int();
-    you.props[RAMPAGE_HEAL_KEY] = min(RAMPAGE_HEAL_MAX, heal + distance_moved);
-}
-
 bool invis_allowed(bool quiet, string *fail_reason, bool temp)
 {
     string msg;
@@ -5642,6 +5614,11 @@ player::player()
 
     zot_orb_monster_known = false;
 
+    wind_category_weight.init(0);
+    wind_category_inc.init(false);
+    prevailing_wind = -1;
+    gave_wind_change_warning = false;
+
     reset_escaped_death();
     on_current_level    = true;
     seen_portals        = 0;
@@ -5789,7 +5766,7 @@ int player::rampaging() const
     int rampage = 0;
     rampage += actor::rampaging();
 
-    if (you.has_mutation(MUT_ROLLPAGE))
+    if (you.has_mutation(MUT_STAMPEDE))
         rampage++;
 
     if (you.form == transformation::spider)

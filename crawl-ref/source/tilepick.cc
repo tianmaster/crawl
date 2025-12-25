@@ -2911,7 +2911,7 @@ tileidx_t tileidx_player_shadow()
 
     switch (you.species)
     {
-        case SP_ARMATAUR:       return TILEP_MONS_PLAYER_SHADOW_ARMATAUR;
+        case SP_ANEMOCENTAUR:   return TILEP_MONS_PLAYER_SHADOW_ANEMOCENTAUR;
         case SP_BARACHI:        return TILEP_MONS_PLAYER_SHADOW_BARACHI;
         case SP_COGLIN:         return TILEP_MONS_PLAYER_SHADOW_COGLIN;
         case SP_DEMIGOD:        return TILEP_MONS_PLAYER_SHADOW_DEMIGOD;
@@ -4757,8 +4757,6 @@ static tileidx_t _tileidx_player_species_base(const species_type species)
             return TILEG_SP_TROLL;
         case SP_BASE_DRACONIAN:
             return TILEG_SP_DRACONIAN;
-        case SP_ARMATAUR:
-            return TILEG_SP_ARMATAUR;
         case SP_DEMIGOD:
             return TILEG_SP_DEMIGOD;
         case SP_SPRIGGAN:
@@ -4800,6 +4798,8 @@ static tileidx_t _tileidx_player_species_base(const species_type species)
             return TILEG_SP_POLTERGEIST;
         case SP_REVENANT:
             return TILEG_SP_REVENANT;
+        case SP_ANEMOCENTAUR:
+            return TILEG_SP_ANEMOCENTAUR;
         default:
             return TILEP_ERROR;
     }
