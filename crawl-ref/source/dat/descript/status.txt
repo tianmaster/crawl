@@ -1288,3 +1288,7 @@ Multiple vicious blades are growing out of your body.
 Spore status
 
 Your arm is a mass of multicoloured fungus.
+%%%%
+Indom status
+
+You are rapidly regenerating damage you sustained while stampeding.

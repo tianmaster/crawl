@@ -1283,6 +1283,14 @@ int player_regen()
     return rr;
 }
 
+int player_indomitable_regen_rate()
+{
+    if (!you.duration[DUR_INDOMITABLE])
+        return 0;
+
+    return you.hp_max / 7 + 15;
+}
+
 int player_mp_regen()
 {
     if (you.has_mutation(MUT_HP_CASTING))

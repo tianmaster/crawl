@@ -1119,6 +1119,7 @@ int player_prot_life(bool allow_random = true, bool temp = true,
 
 bool regeneration_is_inhibited(const monster *m=nullptr);
 int player_regen();
+int player_indomitable_regen_rate();
 int player_mp_regen();
 
 bool player_kiku_res_torment();

@@ -1100,6 +1100,14 @@ static void _maybe_scream(mid_t source)
     }
 }
 
+static void _handle_indomitable(int dam)
+{
+    if (!you.duration[DUR_STAMPEDE] || !you.has_mutation(MUT_NORTH_WIND))
+        return;
+
+    you.duration[DUR_INDOMITABLE] += dam * 70;
+}
+
 static void _place_player_corpse(bool explode)
 {
     if (!in_bounds(you.pos()))
@@ -1444,6 +1452,7 @@ void ouch(int dam, kill_method_type death_type, mid_t source, const char *aux,
             take_note(Note(NOTE_HP_CHANGE, you.hp, you.hp_max, damage_desc.c_str()));
         }
 
+        _handle_indomitable(dam);
         _handle_poor_constitution(dam);
         _maybe_ru_retribution(dam, source);
         _maybe_inflict_anguish(dam, source);

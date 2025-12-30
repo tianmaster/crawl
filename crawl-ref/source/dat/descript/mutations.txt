@@ -1030,6 +1030,11 @@ one of the four winds, based on your highest skill:
 South Wind: Short Blades or Stealth\n
 East Wind:  Magic skills (except Spellcasting)\n
 West Wind:  Ranged Weapons skill\n
+%%%%
+North Wind's embodiment mutation
+
+You rapidly regenerate up to 70% of all damage you suffer while Stampeding. The
+rate of this regeneration increases with your maximum HP.
 # ------ Fakemut descriptions ------
 %%%%
 vampire fangs mutation

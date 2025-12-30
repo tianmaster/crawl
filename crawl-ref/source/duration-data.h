@@ -871,6 +871,7 @@ static const duration_def duration_data[] =
        {{"Your slimification abates."}}},
     { DUR_OOZE_REGEN, LIGHTBLUE, "OozeRegen", "ooze regen", "ooze regen", "coated in regenerative ooze", D_NO_FLAGS,
        {{"The regenerative ooze finishes dripping off of you."}}},
+    { DUR_INDOMITABLE, LIGHTBLUE, "Indom", "", "", "", D_NO_FLAGS},
 
 #if TAG_MAJOR_VERSION == 34
     // And removed ones

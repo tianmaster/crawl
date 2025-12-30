@@ -1199,6 +1199,14 @@ static void _regenerate_hp_and_mp(int delay)
         you.hit_points_regeneration += div_rand_round(base_val * delay, BASELINE_DELAY);
     }
 
+    if (you.duration[DUR_INDOMITABLE])
+    {
+        const int per_aut = player_indomitable_regen_rate();
+        const int total = min(per_aut * delay, you.duration[DUR_INDOMITABLE]);
+        you.duration[DUR_INDOMITABLE] -= total;
+        you.hit_points_regeneration += total;
+    }
+
     while (you.hit_points_regeneration >= 100)
     {
         // at low mp, "mana link" restores mp in place of hp

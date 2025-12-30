@@ -2599,9 +2599,12 @@ static vector<formatted_string> _get_overview_resistances(
 
     out += _stealth_bar(cwidth, 20) + "\n";
 
-    const int regen = player_regen(); // round up
+    const int regen = player_regen() + (player_indomitable_regen_rate() * 10); // round up
     out += chop_string("HPRegen", cwidth);
-    out += make_stringf("%d.%02d/turn\n", regen/100, regen%100);
+    out += make_stringf("%s%d.%02d%s/turn\n",
+                            you.duration[DUR_INDOMITABLE] ? "<lightblue>" : "",
+                            regen/100, regen%100,
+                            you.duration[DUR_INDOMITABLE] ? "</lightblue>" : "");
 
     if (!you.has_mutation(MUT_HP_CASTING))
     {
