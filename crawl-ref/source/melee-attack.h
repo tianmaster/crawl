@@ -110,7 +110,7 @@ private:
     bool using_weapon() const override;
     int weapon_damage() const override;
     int calc_mon_to_hit_base() override;
-    int apply_damage_modifiers(int damage) override;
+    int apply_mon_damage_modifiers(int damage) override;
     int calc_damage() override;
     bool apply_damage_brand(const char *what = nullptr) override;
 

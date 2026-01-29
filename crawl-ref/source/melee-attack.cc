@@ -5085,10 +5085,9 @@ int melee_attack::calc_mon_to_hit_base()
 }
 
 /**
- * Add modifiers to the base damage.
- * Currently only relevant for monsters.
+ * Add modifiers to a monster's base damage.
  */
-int melee_attack::apply_damage_modifiers(int damage)
+int melee_attack::apply_mon_damage_modifiers(int damage)
 {
     ASSERT(attacker->is_monster());
     monster *as_mon = attacker->as_monster();

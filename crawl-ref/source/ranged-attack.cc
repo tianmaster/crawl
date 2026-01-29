@@ -374,7 +374,7 @@ int ranged_attack::calc_mon_to_hit_base()
     return mon_to_hit_base(attacker->get_hit_dice(), attacker->as_monster()->is_archer());
 }
 
-int ranged_attack::apply_damage_modifiers(int damage)
+int ranged_attack::apply_mon_damage_modifiers(int damage)
 {
     ASSERT(attacker->is_monster());
 
