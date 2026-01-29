@@ -25,6 +25,8 @@ public:
 
     string projectile_name() const;
 
+    void copy_params_to(ranged_attack &other) const;
+
 private:
     /* Attack Phases */
     bool handle_phase_attempted() override;

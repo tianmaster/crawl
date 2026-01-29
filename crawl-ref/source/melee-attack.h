@@ -63,10 +63,6 @@ public:
     int          charge_pow;      // electric charge bonus damage
     bool         never_cleave;    // if this attack shouldn't trigger cleave
                                   // followups, even if it ordinariy would.
-    int          dmg_mult;        // percentage multiplier to max damage roll
-                                  // (0 = +0% damage, 50 = +50% damage, etc.)
-    int          flat_dmg_bonus;  // flat damage to add to this attack, pre-AC
-    int          to_hit_bonus;    // flat to-hit bonus on this attack
     bool         is_involuntary;  // whether this attack was forced (eg: by Vex)
                                   // and should neither prompt the player nor
                                   // upset their god.
@@ -226,7 +222,7 @@ private:
     item_def *offhand_weapon() const;
 
     // XXX: set up a copy constructor instead?
-    void copy_params_to(melee_attack &other);
+    void copy_params_to(melee_attack &other) const;
 
     bool do_followup_attacks(list<actor*>& targets, bool is_cleaving);
 

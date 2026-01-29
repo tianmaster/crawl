@@ -8006,7 +8006,7 @@ void bolt::do_ranged_attack(actor& targ)
         foes_hurt++;
 
     ranged_attack attk(ag, &targ, ranged_atk->weapon, use_target_as_pos, agent());
-    attk.will_mulch = ranged_atk->will_mulch;
+    ranged_atk->copy_params_to(attk);
 
     attk.attack();
     // XXX: hit_verb is used later to make Damnation bolts only explode on it.

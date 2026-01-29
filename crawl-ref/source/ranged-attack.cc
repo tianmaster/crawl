@@ -67,6 +67,14 @@ ranged_attack::ranged_attack(actor *attk, actor *defn,
     needs_message = defender_visible;
 }
 
+void ranged_attack::copy_params_to(ranged_attack &other) const
+{
+    other.teleport     = teleport;
+    other.will_mulch   = will_mulch;
+
+    attack::copy_params_to(other);
+}
+
 int ranged_attack::post_roll_to_hit_modifiers(int mhit, bool random)
 {
     int modifiers = attack::post_roll_to_hit_modifiers(mhit, random);
@@ -398,7 +406,7 @@ int ranged_attack::player_apply_final_multipliers(int damage, bool /*aux*/)
     {
         damage = damage * 3 / 2;
     }
-    return damage;
+    return attack::player_apply_final_multipliers(damage);
 }
 
 bool ranged_attack::mulch_bonus() const

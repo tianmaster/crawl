@@ -83,7 +83,7 @@ melee_attack::melee_attack(actor *attk, actor *defn,
     cleaving(false), is_followup(false), is_riposte(false),
     is_projected(false), is_bestial_takedown(false), is_sunder(false),
     charge_pow(0),
-    never_cleave(false), dmg_mult(0), flat_dmg_bonus(0), to_hit_bonus(0),
+    never_cleave(false),
     is_involuntary(false),
     wu_jian_attack(WU_JIAN_ATTACK_NONE),
     wu_jian_number_of_targets(1),
@@ -1443,7 +1443,7 @@ void melee_attack::handle_phase_end()
 // Copy over initial melee-specific attack parameters (ie: things that must be
 // defined before attack() or launch_attack_set() are called). Things calculated
 // after this point should not be copied.
-void melee_attack::copy_params_to(melee_attack &other)
+void melee_attack::copy_params_to(melee_attack &other) const
 {
     other.cleaving              = cleaving;
     other.is_followup           = is_followup;
@@ -1453,13 +1453,11 @@ void melee_attack::copy_params_to(melee_attack &other)
     other.is_sunder             = is_sunder;
     other.charge_pow            = charge_pow;
     other.never_cleave          = never_cleave;
-    other.dmg_mult              = dmg_mult;
-    other.flat_dmg_bonus        = flat_dmg_bonus;
-    other.to_hit_bonus          = to_hit_bonus;
     other.is_involuntary        = is_involuntary;
     other.wu_jian_attack        = wu_jian_attack;
     other.wu_jian_number_of_targets = wu_jian_number_of_targets;
-    other.simu                  = simu;
+
+    attack::copy_params_to(other);
 }
 
 // Perform followup attacks (from cleaving or quick blades).
@@ -2754,8 +2752,6 @@ int melee_attack::player_apply_misc_modifiers(int damage)
     if (you.duration[DUR_MIGHT] || you.duration[DUR_BERSERK])
         damage += 1 + random2(10);
 
-    damage += flat_dmg_bonus;
-
     return damage;
 }
 
@@ -2784,9 +2780,6 @@ int melee_attack::player_apply_final_multipliers(int damage, bool aux)
         damage = div_rand_round(damage * 3, 4);
 
     apply_rev_penalty(damage);
-
-    if (dmg_mult)
-        damage = damage * (100 + dmg_mult) / 100;
 
     if (you.has_mutation(MUT_RECKLESS) && weapon
         && hands_reqd(&you, weapon->base_type, weapon->sub_type) == HANDS_TWO)
@@ -3500,7 +3493,7 @@ int melee_attack::post_roll_to_hit_modifiers(int mhit, bool random)
     if (charge_pow > 0)
         modifiers += 5;
 
-    return modifiers + to_hit_bonus;
+    return modifiers;
 }
 
 void melee_attack::player_stab_check()

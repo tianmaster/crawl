@@ -68,6 +68,7 @@ attack::attack(actor *attk, actor *defn, actor *blame)
       attacker_to_hit_penalty(0), attack_verb("bug"), verb_degree(),
       no_damage_message(), special_damage_message(), aux_attack(), aux_verb(),
       defender_shield(nullptr), simu(false),
+      dmg_mult(0), flat_dmg_bonus(0), to_hit_bonus(0),
       aux_source(""), kill_type(KILLED_BY_MONSTER)
 {
     // No effective code should execute, we'll call init_attack again from
@@ -248,6 +249,8 @@ int attack::post_roll_to_hit_modifiers(int mhit, bool /*random*/)
     // Penalties for both players and monsters:
     modifiers -= attacker->inaccuracy_penalty();
 
+    modifiers += to_hit_bonus;
+
     if (attacker->confused())
         modifiers += CONFUSION_TO_HIT_MALUS;
 
@@ -424,6 +427,17 @@ void attack::init_attack(int attack_number)
         attk_type    = AT_HIT;
         attk_flavour = AF_PLAIN;
     }
+}
+
+// Copy over initial attack parameters (ie: things that must be defined before
+// attack() or launch_attack_set() are called). Things calculated after that
+// point should not be copied.
+void attack::copy_params_to(attack &other) const
+{
+    other.dmg_mult              = dmg_mult;
+    other.flat_dmg_bonus        = flat_dmg_bonus;
+    other.to_hit_bonus          = to_hit_bonus;
+    other.simu                  = simu;
 }
 
 void attack::alert_defender()
@@ -806,6 +820,8 @@ string attack::defender_name(bool allow_reflexive)
 
 int attack::player_apply_misc_modifiers(int damage)
 {
+    damage += flat_dmg_bonus;
+
     return damage;
 }
 
@@ -863,6 +879,9 @@ int attack::player_apply_final_multipliers(int damage, bool /*aux*/)
     // owner would, matching cleaving.
     if (attacker->type == MONS_SPECTRAL_WEAPON)
         damage = div_rand_round(damage * 7, 10);
+
+    if (dmg_mult)
+        damage = damage * (100 + dmg_mult) / 100;
 
     return damage;
 }

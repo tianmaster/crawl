@@ -81,6 +81,13 @@ public:
 
     bool simu;
 
+    // Parameters that may be edited outside of attack and must be included in
+    // attack::copy_params_to()
+    int          dmg_mult;        // percentage multiplier to max damage roll
+                                  // (0 = +0% damage, 50 = +50% damage, etc.)
+    int          flat_dmg_bonus;  // flat damage to add to this attack, pre-AC
+    int          to_hit_bonus;    // flat to-hit bonus on this attack
+
 // Public Methods
 public:
     attack(actor *attk, actor *defn, actor *blame = 0);
@@ -101,6 +108,8 @@ public:
     // until we refactor the whole pronoun / desc usage from these lowly
     // classes all the way up to monster/player (and actor) classes.
     string defender_name(bool allow_reflexive);
+
+    void copy_params_to(attack &other) const;
 
 // Private Properties
     string aux_source;
