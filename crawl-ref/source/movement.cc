@@ -772,7 +772,7 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
         // Attempt to attack the monster.
         if (!mon->wont_attack() || you.confused())
         {
-            if (!fight_melee(&you, mon, rampaging))
+            if (!player_fight(mon, rampaging))
             {
                 stop_running();
                 return false;
@@ -1062,7 +1062,7 @@ void move_player_action(coord_def move)
 
     // Movement delay is the average of the delay of all steps we took, unless
     // we attacked without moving (in which case use the delay already set by
-    // fight_melee())
+    // player_fight())
     if (did_move)
     {
         delay = div_rand_round(delay, steps_taken);

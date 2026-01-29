@@ -748,7 +748,7 @@ namespace quiver
 
                 // something to attack, let's do it:
                 you.turn_is_over = true;
-                if (!fight_melee(&you, mons) && targ_mid)
+                if (!player_fight(mons) && targ_mid)
                 {
                     // turn_is_over may have been reset to false by fight_melee, but
                     // a failed attempt to reach further should not be free; instead,

@@ -4209,7 +4209,7 @@ void paragon_attack_trigger()
         return;
 
     mpr("Your paragon attacks with you!");
-    fight_melee(paragon, targ);
+    mons_fight(paragon, targ);
     paragon->speed_increment += paragon->action_energy(EUT_ATTACK);
     you.did_trigger(DID_PARAGON);
 }
