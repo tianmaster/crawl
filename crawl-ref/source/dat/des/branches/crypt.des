@@ -1982,40 +1982,41 @@ MAP
           cccccccccccc
 ENDMAP
 
-NAME: cheibrodos_crypt_draghalla
-TAGS: no_item_gen no_monster_gen
-DEPTH: Crypt, !Crypt:$
+NAME:   cheibrodos_crypt_draghalla
+TAGS:   no_item_gen no_monster_gen no_wall_fixup
+DEPTH:  Crypt, !Crypt:$
 ORIENT: float
 # Monster density might be off here
-MONS: flayed ghost w:5 / phantasmal warrior, skeletal warrior
-MONS: hell knight / necromancer w:2, bone dragon
+MONS:   flayed ghost w:5 / phantasmal warrior, skeletal warrior
+MONS:   hell knight / necromancer w:2, bone dragon
 : mons("reaper ; " .. scythe("flaming"))
-MONS: lich
-KMONS: A0 = fire dragon draugr w:12 / quicksilver dragon draugr w:4 / \
-            laughing skull w:6
-KFEAT: A = l
+MONS:   lich
+KMONS:  A0 = fire dragon draugr w:12 / quicksilver dragon draugr w:4 / \
+             laughing skull w:6
+KFEAT:  A = l
 NSUBST: - = 1:0 / 2=0. / 2:1 / 1=1. / 1:2 / 1=2. / 6:3 / 2=3.
 NSUBST: " = 4:A / 2=Al / *:l, ' = 2:0 / 2=1. / 2:5, ; = 1:4 / 1=5. / 1:6
 NSUBST: ` = 1:| / 2=|* / 5:* / 2=*% / *:$
+TILE:   x = wall_baleful
 MAP
-  xxxxxxxxxxxxxxxxxxxxxxxxxxx
- xxllllllxxxxxx""""""""""""xx
- xllxxxGllxxxx"""""""""""""xx
-xxlxx`xx'llxxx""--------"""xx
-xllx```x'.llxx"----------""xx
-xlxx```x'.llxx"---""""---""xx
-xlx...xx'..lll"--""""""--""xx.
-xlx;;.x.....ll.--""xx""--."xG.
-xln;;.+........--""xx""--....@
-xln;;.+........--""xx""--....@
-xlx;;.x.....ll.--""xx""--."xG.
-xlx...xx'..lll"--""""""--""xx.
-xlxx```x'.llxx"---""""---""xx
-xllx```x'.llxx"----------""xx
-xxlxx`xx'llxxx""--------"""xx
- xllxxxGllxxxx"""""""""""""xx
- xxllllllxxxxxx""""""""""""xx
-  xxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ccccccccccccccccccccccccccc
+ ccllllllcccccc""""""""""""cc
+ cllcccxllcccc"""""""""""""cc
+cclcc`cc'llccc""--------"""cc
+cllc```c'.llcc"----------""cc
+clcc```c'.llcc"---""""---""cc
+clc...cc'..lll"--""""""--""cc.
+clc;;.c.....ll.--""cc""--."cx.
+cln;;.+........--""cc""--....@
+cln;;.+........--""cc""--....@
+clc;;.c.....ll.--""cc""--."cx.
+clc...cc'..lll"--""""""--""cc.
+clcc```c'.llcc"---""""---""cc
+cllc```c'.llcc"----------""cc
+cclcc`cc'llccc""--------"""cc
+ cllcccxllcccc"""""""""""""cc
+ ccllllllcccccc""""""""""""cc
+  ccccccccccccccccccccccccccc
 ENDMAP
 
 NAME:    nicolae_crypt_knee_deep_in_the_dead

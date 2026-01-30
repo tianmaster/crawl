@@ -159,7 +159,12 @@ function trove.portal(e)
     e.lua_marker("O", stair)
     e.kfeat("O = enter_trove")
     e.colour(". = blue")
-    e.ftile(".OcG+ = floor_marble")
+    if you.in_branch("Shoals") then
+      e.ftile(".12$%OcbG+ = floor_sprouting_ruin")
+    else
+      e.ftile(".12$%OcbG+ = floor_marble")
+    end
+    e.colour(".12$% = blue")
     e.tile("c = wall_stone_dark")
 end
 
@@ -549,16 +554,12 @@ ENDMAP
 # Of course, not everyone is willing for you to take their treasure...
 NAME:   enter_trove_5
 TAGS:   transparent no_descent
-: trove.portal(_G)
-: if you.absdepth() <= 15 then
 # Got drafted in from Vaults, while the mages try and close the portal down.
-KMONS:  e = vault guard
-: else
-# And this time he brought some friends...
-KMONS:  el = vault guard
+KMONS:  12 = vault guard
+: if you.absdepth() >= 15 then
+SUBST:  l = 2
 : end
-COLOUR: e1 = blue
-FTILE:  e1 = floor_marble
+: trove.portal(_G)
 MAP
 ccccc
 c...c
@@ -566,7 +567,7 @@ c.O.c
 c...c
 cc+cc
 cl.lc
-c.e.c
+c.2.c
 cl.lc
 cc+cc
 ENDMAP
@@ -575,15 +576,14 @@ ENDMAP
 NAME:   enter_trove_6
 TAGS:   transparent no_descent
 : trove.portal(_G)
-KFEAT:  X = +
-MARKER: X = lua: props_marker { connected_exclude="true" }
-COLOUR: $X = blue
+MARKER: + = lua: props_marker { connected_exclude="true" }
+COLOUR: $+ = blue
 MAP
 ccccccc
 c$$$$$c
-c$XXX$c
-c$XOX$c
-c$XXX$c
+c$+++$c
+c$+O+$c
+c$+++$c
 c$$$$$c
 ccc+ccc
 ENDMAP
@@ -636,8 +636,6 @@ ENDMAP
 NAME: nicolae_trove_entry_free_sample
 TAGS: transparent no_descent
 : trove.portal(_G)
-COLOUR: % = blue
-FTILE: % = floor_marble
 MAP
 %.%
 .O.
@@ -648,7 +646,6 @@ NAME: nicolae_trove_entry_isolated
 TAGS: no_pool_fixup transparent no_descent
 KPROP: .O = no_tele_into
 KMASK: .O = opaque
-KFEAT: ' = .
 : trove.portal(_G)
 MAP
 '''''''
@@ -662,17 +659,15 @@ ENDMAP
 
 NAME: nicolae_trove_entry_path_of_doom
 TAGS: transparent no_descent
-KMONS: O = patrolling guardian mummy
-KMONS: m = patrolling guardian mummy / nothing w:20
+KMONS: O1 = patrolling guardian mummy
+SUBST: 1 = 1..
 : trove.portal(_G)
-COLOUR: $m = blue
-FTILE: $m = floor_marble
 MAP
   ccccc
  cc.O.cc
 cc.....cc
 c$.G.G.$c
-c$..m..$c
+c$..1..$c
 c$.G.G.$c
 cc.....cc
  cc...cc
