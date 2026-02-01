@@ -10,6 +10,7 @@ public:
     bool reflected;
 
     bool will_mulch;
+    bool pierce;
 
 // Public Methods
 public:
@@ -23,7 +24,9 @@ public:
 
     bool did_net() const;
 
+    void set_projectile_prefix(string prefix);
     string projectile_name() const;
+    bool is_piercing() const;
 
     void copy_params_to(ranged_attack &other) const;
 

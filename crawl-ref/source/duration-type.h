@@ -307,5 +307,6 @@ enum duration_type
     DUR_ENGORGED,
     DUR_EELJOLT_COOLDOWN,
     DUR_INDOMITABLE,
+    DUR_SALVO,
     NUM_DURATIONS
 };

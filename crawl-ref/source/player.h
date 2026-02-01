@@ -63,6 +63,7 @@
 #define WEREFURY_KEY "werefury_bonus"
 #define DEVIOUS_KEY "devious_stacks"
 #define FORCED_MESMERISE_KEY "forced_mesmerise"
+#define SALVO_KEY "salvo_stacks"
 
 constexpr int ENKINDLE_CHARGE_COST = 40;
 #define ENKINDLE_CHARGES_KEY "enkindle_charges"
@@ -127,11 +128,12 @@ enum reprisal_type
 
 enum player_trigger_type
 {
-    DID_PARAGON,        // Platinum Paragon follow-up attack
-    DID_DITH_SHADOW,    // Dithmenos shadow mimic
-    DID_MEDUSA_STINGER, // Medusa form stinger attack
-    DID_SOLAR_EMBER,    // Sun scarab ember attack
-    DID_REV_UP,         // Coglin rev
+    DID_PARAGON,         // Platinum Paragon follow-up attack
+    DID_DITH_SHADOW,     // Dithmenos shadow mimic
+    DID_MEDUSA_STINGER,  // Medusa form stinger attack
+    DID_SOLAR_EMBER,     // Sun scarab ember attack
+    DID_REV_UP,          // Coglin rev
+    DID_WEST_WIND_SHOT,  // Anemocentaur West Wind ranged attack
     NUM_PLAYER_TRIGGER_TYPES,
 };
 
@@ -471,6 +473,9 @@ public:
     // Position from which the player made an involuntary shout this turn.
     // (To reduce message spam when encountering many monsters at once.)
     coord_def shouted_pos;
+
+    // Position of the player before performing any movement in a turn.
+    coord_def pos_at_turn_start;
 
     // If true, player has triggered a trap effect by exploring.
     bool trapped;

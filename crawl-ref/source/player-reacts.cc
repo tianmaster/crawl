@@ -797,6 +797,12 @@ static void _decrement_durations()
         reset_powered_by_death_duration();
     }
 
+    if (_decrement_a_duration(DUR_SALVO, delay))
+    {
+        if (--you.props[SALVO_KEY].get_int() > 0)
+            you.duration[DUR_SALVO] = random_range(20, 40);
+    }
+
     dec_ambrosia_player(delay);
     dec_channel_player(delay);
     dec_slow_player(delay);

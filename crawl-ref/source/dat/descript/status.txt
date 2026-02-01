@@ -1292,3 +1292,8 @@ Your arm is a mass of multicoloured fungus.
 Indom status
 
 You are rapidly regenerating damage you sustained while stampeding.
+%%%%
+Salvo status
+
+Your next several ranged attacks will cause you to fire a flurry of additional
+shots at other targets in sight.

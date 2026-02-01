@@ -429,7 +429,9 @@ bool player_fight(monster* defender, bool is_rampage,
         // If wielding a ranged weapon, perform a ranged attack instead.
         if (_can_shoot_with(you.weapon()) && !you.duration[DUR_CONFUSING_TOUCH])
         {
-            if (do_player_ranged_attack(defender->pos()))
+            if (do_west_wind_shot())
+                return true;
+            else if (do_player_ranged_attack(defender->pos()))
             {
                 you.time_taken = you.attack_delay().roll();
                 you.turn_is_over = true;
@@ -463,7 +465,7 @@ bool player_fight(monster* defender, bool is_rampage,
         const int attack_delay = you.attack_delay().roll() * BASELINE_DELAY;
         const int move_delay = player_movement_speed() * player_speed();
         if (attack_delay > move_delay)
-            attk.dmg_mult =  (move_delay * 100 / attack_delay) - 100;
+            attk.dmg_mult = (move_delay * 100 / attack_delay) - 100;
     }
 
     const bool success = attk.launch_attack_set();

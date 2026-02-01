@@ -787,6 +787,7 @@ static const duration_def duration_data[] =
       "Your maw is digesting a delicious meal.", D_NO_FLAGS,
       {{ "You finish digesting your meal." }}},
     { DUR_STAMPEDE, WHITE, "Stampede", "", "", "", D_NO_FLAGS, {{"You stop stampeding."}}},
+    { DUR_SALVO, LIGHTBLUE, "Salvo", "", "", "", D_NO_FLAGS},
 
     // The following are visible in wizmode only, or are handled
     // specially in the status lights and/or the % or @ screens.

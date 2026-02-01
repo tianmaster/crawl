@@ -50,6 +50,7 @@
 #include "spl-summoning.h"
 #include "target-compass.h"
 #include "terrain.h"
+#include "throw.h"
 #include "traps.h"
 #include "travel.h"
 #include "travel-open-doors-type.h"
@@ -1213,6 +1214,9 @@ void move_player_action(coord_def move)
         {
             did_god_conduct(DID_HASTY, 1, true);
         }
+
+        if (!did_attack && (num_steps > 1 || did_stampede) && you.has_mutation(MUT_STAMPEDE))
+            did_attack |= do_west_wind_shot();
 
         if (!did_attack)
             update_acrobat_status();

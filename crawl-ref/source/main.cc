@@ -2515,6 +2515,7 @@ static void _prep_input()
     you.reprisals.clear();
     you.triggers_done.init(0);
     you.attempted_attack = false;
+    you.pos_at_turn_start = you.pos();
 
     you.redraw_status_lights = true;
     you.redraw_title = true;

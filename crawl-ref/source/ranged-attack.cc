@@ -32,7 +32,8 @@ ranged_attack::ranged_attack(actor *attk, actor *defn,
                              const item_def *wpn,
                              bool tele, actor *blame)
     : ::attack(attk, defn, blame), range_used(0), reflected(false),
-        will_mulch(false), teleport(tele), _did_net(false)
+        will_mulch(false), pierce(false),
+        teleport(tele), _did_net(false)
 {
     ASSERT(wpn && (wpn->base_type == OBJ_MISSILES || is_range_weapon(*wpn)));
 
@@ -71,6 +72,8 @@ void ranged_attack::copy_params_to(ranged_attack &other) const
 {
     other.teleport     = teleport;
     other.will_mulch   = will_mulch;
+    other.pierce       = pierce;
+    other.proj_name    = proj_name;
 
     attack::copy_params_to(other);
 }
@@ -266,7 +269,7 @@ bool ranged_attack::handle_phase_hit()
 
     if (mulch_bonus()
         // XXX: this kind of hijacks the shield block check
-        || !is_penetrating_attack(*weapon))
+        || !is_piercing())
     {
         range_used = BEAM_STOP;
     }
@@ -434,7 +437,7 @@ bool ranged_attack::ignores_shield()
     if (defender->is_player() && player_omnireflects())
         return false;
 
-    return is_penetrating_attack(*weapon);
+    return is_piercing();
 }
 
 special_missile_type ranged_attack::random_chaos_missile_brand()
@@ -799,7 +802,7 @@ bool ranged_attack::player_good_stab()
 
 void ranged_attack::set_attack_verb(int/* damage*/)
 {
-    attack_verb = !mulch_bonus() && is_penetrating_attack(*weapon) ? "pierces through" : "hits";
+    attack_verb = !mulch_bonus() && is_piercing() ? "pierces through" : "hits";
 }
 
 void ranged_attack::announce_hit()
@@ -816,7 +819,17 @@ void ranged_attack::announce_hit()
          attack_strength_punctuation(damage_done).c_str());
 }
 
+void ranged_attack::set_projectile_prefix(string prefix)
+{
+    proj_name = prefix + " " + proj_name;
+}
+
 string ranged_attack::projectile_name() const
 {
     return proj_name;
+}
+
+bool ranged_attack::is_piercing() const
+{
+    return pierce || is_penetrating_attack(*weapon);
 }

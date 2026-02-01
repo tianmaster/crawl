@@ -1032,6 +1032,11 @@ bool fill_status_info(int status, status_info& inf)
         inf.short_text = make_stringf("indomitable (%d)", you.duration[DUR_INDOMITABLE] / 100);
         break;
 
+    case DUR_SALVO:
+        inf.light_text = make_stringf("Salvo (%d)", you.props[SALVO_KEY].get_int());
+        inf.short_text = make_stringf("salvo (%d)", you.props[SALVO_KEY].get_int());
+    break;
+
     default:
         if (!found)
         {
