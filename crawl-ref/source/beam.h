@@ -488,9 +488,6 @@ int explosion_noise(int rad);
 
 int omnireflect_chance_denom(int SH);
 
-void glaciate_freeze(monster* mon, killer_type englaciator,
-                             int kindex);
-
 void fill_chain_targets(const bolt& beam, coord_def centre,
                         vector<coord_def> &targs, bool random);
 
