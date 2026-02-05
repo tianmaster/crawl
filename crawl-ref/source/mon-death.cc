@@ -2840,6 +2840,11 @@ item_def* monster_die(monster& mons, killer_type killer,
     }
     else if (mons.type == MONS_ERYTHROSPITE && !mons.is_abjurable())
         bleed_onto_floor(mons.pos(), MONS_ERYTHROSPITE, 100, false);
+    else if (mons.type == MONS_ROYAL_JELLY && mons.hit_points > 0
+             && real_death && !summoned)
+    {
+        schedule_trj_spawn_fineff(&you, &mons, mons.pos(), mons.hit_points);
+    }
 
     if (mons.has_ench(ENCH_MAGNETISED))
     {

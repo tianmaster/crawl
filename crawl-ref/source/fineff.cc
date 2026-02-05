@@ -1164,7 +1164,7 @@ void trj_spawn_fineff::fire()
         mpr("One of the Royal Jelly's fragments survives.");
     else
     {
-        mprf("The dying Royal Jelly spits out %s more jellies.",
+        mprf("%s of the Royal Jelly's fragments survive.",
              number_in_words(spawned).c_str());
     }
 }
