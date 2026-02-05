@@ -3184,18 +3184,18 @@ void bolt::internal_ouch(int dam)
     if (monst && mons_is_wrath_avatar(*monst))
     {
         ouch(dam, KILLED_BY_DIVINE_WRATH, MID_NOBODY,
-             aux_source.empty() ? nullptr : aux_source.c_str(), true,
+             aux_source.empty() ? nullptr : aux_source.c_str(),
              source_name.empty() ? nullptr : source_name.c_str());
     }
     else if (is_death_effect)
     {
         ouch(dam, KILLED_BY_DEATH_EXPLOSION, source_id,
-             aux_source.c_str(), true,
+             aux_source.c_str(),
              source_name.empty() ? nullptr : source_name.c_str());
     }
     else if (flavour == BEAM_MINDBURST || flavour == BEAM_DESTRUCTION)
     {
-        ouch(dam, KILLED_BY_DISINT, source_id, what, true,
+        ouch(dam, KILLED_BY_DISINT, source_id, what,
              source_name.empty() ? nullptr : source_name.c_str());
     }
     else if (YOU_KILL(thrower) && aux_source.empty())
@@ -3214,8 +3214,7 @@ void bolt::internal_ouch(int dam)
     }
     else if (MON_KILL(thrower))
     {
-        ouch(dam, KILLED_BY_BEAM, source_id,
-             what, true,
+        ouch(dam, KILLED_BY_BEAM, source_id, what,
              source_name.empty() ? nullptr : source_name.c_str());
     }
     else // KILL_NON_ACTOR || (YOU_KILL && aux_source)

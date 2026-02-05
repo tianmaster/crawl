@@ -1300,13 +1300,12 @@ static void _print_endgame_messages(scorefile_entry &se)
  *  @param death_type how did you get hurt?
  *  @param source who could do such a thing?
  *  @param aux what did they do it with?
- *  @param see_source whether the attacker was visible to you
  *  @param death_source_name the attacker's name if it is already dead.
  *  @param skip_multipliers Whether to ignore harm/vitrify/etc.
  *  @param skip_awaken Whether this damage will skip waking a sleeping player.
  */
 void ouch(int dam, kill_method_type death_type, mid_t source, const char *aux,
-          bool see_source, const char *death_source_name, bool skip_multipliers,
+          const char *death_source_name, bool skip_multipliers,
           bool skip_awaken)
 {
     ASSERT(!crawl_state.game_is_arena());
@@ -1436,19 +1435,14 @@ void ouch(int dam, kill_method_type death_type, mid_t source, const char *aux,
 
         _xom_checks_damage(death_type, dam, source);
 
-        // for note taking
-        string damage_desc;
-        if (!see_source)
-            damage_desc = make_stringf("something (%d)", dam);
-        else
+        // Sometimes note when significantly injured.
+        if (is_noteworthy_hp(you.hp, you.hp_max))
         {
-            damage_desc = scorefile_entry(dam, source,
-                                            death_type, aux, true)
-                .death_description(scorefile_entry::DDV_TERSE);
-        }
+            string damage_desc = scorefile_entry(dam, source, death_type, aux, true)
+                                    .death_description(scorefile_entry::DDV_TERSE);
 
-        take_note(Note(NOTE_HP_CHANGE, you.hp, you.hp_max,
-                        damage_desc.c_str()));
+            take_note(Note(NOTE_HP_CHANGE, you.hp, you.hp_max, damage_desc.c_str()));
+        }
 
         _handle_poor_constitution(dam);
         _maybe_ru_retribution(dam, source);

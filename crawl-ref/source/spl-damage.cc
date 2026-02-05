@@ -1546,7 +1546,7 @@ spret cast_fragmentation(int pow, const actor *caster,
         mprf("You shatter%s", attack_strength_punctuation(dam).c_str());
 
         ouch(dam, KILLED_BY_BEAM, caster->mid,
-             "by Lee's Rapid Deconstruction", true,
+             "by Lee's Rapid Deconstruction",
              caster->is_player() ? "you"
                                  : caster->name(DESC_A).c_str());
     }
@@ -2320,8 +2320,7 @@ static int _ignite_poison_player(coord_def where, int pow, actor *agent)
         mpr("The poison in your system burns!");
 
     ouch(damage, KILLED_BY_BEAM, agent->mid,
-         "by burning poison", you.can_see(*agent),
-         agent->as_monster()->name(DESC_A, true).c_str());
+         "by burning poison", agent->as_monster()->name(DESC_A, true).c_str());
     if (damage > 0)
         you.expose_to_element(BEAM_FIRE, 2);
 
@@ -2669,7 +2668,7 @@ static int _discharge_monsters(const coord_def &where, int pow,
                                         "static discharge");
             mprf("You are struck by an arc of lightning%s",
                 attack_strength_punctuation(damage).c_str());
-            ouch(damage, KILLED_BY_BEAM, agent.mid, "by static electricity", true,
+            ouch(damage, KILLED_BY_BEAM, agent.mid, "by static electricity",
                 agent.is_player() ? "you" : agent.name(DESC_A).c_str());
             if (damage > 0)
                 victim->expose_to_element(BEAM_ELECTRICITY, 2);
@@ -3588,7 +3587,7 @@ void toxic_radiance_effect(actor* agent, int mult, bool on_cast)
             if (!agent->is_player())
             {
                 ouch(dam, KILLED_BY_BEAM, agent->mid,
-                    "by Olgreb's Toxic Radiance", true,
+                    "by Olgreb's Toxic Radiance",
                     agent->as_monster()->name(DESC_A).c_str());
 
                 int poison = roll_dice(2, 3 + div_rand_round(pow, 24));
