@@ -3297,7 +3297,7 @@ void melee_attack::decapitate()
         }
 
         if (!simu)
-            defender->hurt(attacker, INSTANT_DEATH);
+            monster_die(*defender->as_monster(), attacker);
 
         return;
     }

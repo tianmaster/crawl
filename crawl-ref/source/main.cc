@@ -2466,7 +2466,7 @@ void process_command(command_type cmd, command_type prev_cmd)
                                             ? " and return to the main menu"
                                             : " and quit the game")))
         {
-            ouch(INSTANT_DEATH, KILLED_BY_QUITTING);
+            player_die(KILLED_BY_QUITTING);
         }
         else
             canned_msg(MSG_OK);
@@ -2671,7 +2671,7 @@ void world_reacts()
         // Please do not give it a custom ktyp or make it cool in any way
         // whatsoever, because players are insane. Usually, not being dragged
         // down by sanity is good, but this is not the case here.
-        ouch(INSTANT_DEATH, KILLED_BY_QUITTING);
+        player_die(KILLED_BY_QUITTING);
     }
 
     handle_time();

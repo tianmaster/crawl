@@ -4257,15 +4257,12 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
 
     if (alive())
     {
-        if (amount != INSTANT_DEATH)
-        {
-            if (petrified())
-                amount /= 2;
-            else if (petrifying())
-                amount = amount * 2 / 3;
-        }
+        if (petrified())
+            amount /= 2;
+        else if (petrifying())
+            amount = amount * 2 / 3;
 
-        if (amount != INSTANT_DEATH && has_ench(ENCH_INJURY_BOND))
+        if (has_ench(ENCH_INJURY_BOND))
         {
             actor* guardian = get_ench(ENCH_INJURY_BOND).agent();
             if (guardian && guardian->alive() && mons_aligned(guardian, this))
@@ -4280,33 +4277,26 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
             }
         }
 
-        if (amount == INSTANT_DEATH)
-            amount = hit_points;
-        else if (get_hit_dice() <= 0)
-            amount = hit_points;
-        else if (amount <= 0 && hit_points <= max_hit_points)
+        if (amount <= 0)
             return 0;
 
         // Apply damage multipliers for harm
-        if (amount != INSTANT_DEATH)
+        // +30% damage if opp has one level of harm, +45% with two
+        if (agent && agent->extra_harm())
         {
-            // +30% damage if opp has one level of harm, +45% with two
-            if (agent && agent->extra_harm())
-            {
-                amount = amount * (100
-                                   + outgoing_harm_amount(agent->extra_harm()))
-                         / 100;
-            }
-            // +20% damage if you have one level of harm, +30% with two
-            else if (extra_harm())
-            {
-                amount = amount * (100 + incoming_harm_amount(extra_harm()))
-                         / 100;
-            }
+            amount = amount * (100
+                                + outgoing_harm_amount(agent->extra_harm()))
+                        / 100;
+        }
+        // +20% damage if you have one level of harm, +30% with two
+        else if (extra_harm())
+        {
+            amount = amount * (100 + incoming_harm_amount(extra_harm()))
+                        / 100;
         }
 
         // Apply damage multiplier for vitrify
-        if (amount != INSTANT_DEATH && has_ench(ENCH_VITRIFIED))
+        if (has_ench(ENCH_VITRIFIED))
             amount = amount * 150 / 100;
 
         // Apply damage multipliers for quad damage
@@ -4320,8 +4310,7 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
         }
 
         // Apply damage multiplier from Vessel of Slaughter
-        if (amount != INSTANT_DEATH && agent && agent->is_player()
-            && you.form == transformation::slaughter)
+        if (agent && agent->is_player() && you.form == transformation::slaughter)
         {
             amount = amount * (100 + you.props[MAKHLEB_SLAUGHTER_BOOST_KEY].get_int())
                             / 100;
@@ -4329,12 +4318,6 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
 
         amount = min(amount, hit_points);
         hit_points -= amount;
-
-        if (hit_points > max_hit_points)
-        {
-            amount    += hit_points - max_hit_points;
-            hit_points = max_hit_points;
-        }
 
         if (flavour == BEAM_DESTRUCTION || flavour == BEAM_MINDBURST)
         {

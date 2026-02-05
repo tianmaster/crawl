@@ -39,6 +39,10 @@ void ouch(int dam, kill_method_type death_type, mid_t source = MID_NOBODY,
           bool skip_multipliers = false,
           bool skip_awaken = false);
 
+void player_die(kill_method_type death_type, mid_t source = MID_NOBODY,
+                int dam = 0, const char *aux = nullptr,
+                const char *death_source_name = nullptr);
+
 void lose_level();
 bool drain_player(int power = 25, bool announce_full = true,
                   bool ignore_protection = false, bool quiet = false);

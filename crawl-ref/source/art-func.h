@@ -182,7 +182,7 @@ static void _FINISHER_melee_effects(item_def* /*weapon*/, actor* attacker,
     {
         monster* mons = defender->as_monster();
         mons->flags |= MF_EXPLODE_KILL;
-        mons->hurt(attacker, INSTANT_DEATH);
+        monster_die(*mons, attacker);
     }
 }
 
@@ -226,7 +226,7 @@ static void _THROATCUTTER_melee_effects(item_def* /*weapon*/, actor* attacker,
         }
         if (mons->num_heads > 1)
             mons->num_heads = 1; // mass chop those hydra heads
-        mons->hurt(attacker, INSTANT_DEATH);
+        monster_die(*mons, attacker);
     }
 }
 
