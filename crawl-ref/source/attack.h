@@ -46,6 +46,11 @@ public:
     int     special_damage; // TODO: We'll see if we can remove this
     int     aux_damage;     // TODO: And this too
 
+    // A tally of all direct weapon + brand damage inflicted by this attack
+    // (including damage against cleave targets, both hits of quick blades,
+    // and aux attacks).
+    int       total_damage_done;
+
     beam_type special_damage_flavour;
 
     bool    stab_attempt;

@@ -60,7 +60,7 @@ attack::attack(actor *attk, actor *defn, actor *blame)
       cancel_attack(false), did_hit(false),
       needs_message(false), attacker_visible(false), defender_visible(false),
       perceived_attack(false), obvious_effect(false), to_hit(0),
-      damage_done(0), special_damage(0), aux_damage(0),
+      damage_done(0), special_damage(0), aux_damage(0), total_damage_done(0),
       special_damage_flavour(BEAM_NONE),
       stab_attempt(false), stab_bonus(0), ev_margin(0), weapon(nullptr),
       damage_brand(SPWPN_NORMAL), wpn_skill(SK_UNARMED_COMBAT),
@@ -709,6 +709,8 @@ int attack::inflict_damage(int dam, beam_type flavour)
 
     if (defender->is_monster() && !defender->alive())
         defender->props[ATTACK_KILL_KEY] = true;
+
+    total_damage_done += final;
 
     return final;
 }

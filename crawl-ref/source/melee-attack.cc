@@ -79,7 +79,6 @@ melee_attack::melee_attack(actor *attk, actor *defn,
     ::attack(attk, defn),
 
     attack_number(attack_num), effective_attack_number(effective_attack_num),
-    total_damage_done(0),
     cleaving(false), is_followup(false), is_riposte(false),
     is_projected(false), is_bestial_takedown(false), is_sunder(false),
     charge_pow(0),
@@ -1980,8 +1979,6 @@ bool melee_attack::attack()
     if (!defender->alive())
         handle_phase_killed();
 
-    total_damage_done += damage_done + special_damage;
-
     handle_phase_aux();
 
     handle_phase_end();
@@ -2706,8 +2703,6 @@ bool melee_attack::player_aux_apply(unarmed_attack_type atk)
     }
     else // defender was just alive, so this call should be ok?
         player_announce_aux_hit(atk);
-
-    total_damage_done += damage_done;
 
     if (defender->as_monster()->hit_points < 1)
     {
