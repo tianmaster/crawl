@@ -111,6 +111,9 @@ public:
 
     void copy_params_to(attack &other) const;
 
+    // Generally should not be called externally, but unrand melee effects need this.
+    int inflict_damage(int dam, beam_type flavour = NUM_BEAMS);
+
 // Private Properties
     string aux_source;
     kill_method_type kill_type;
@@ -170,9 +173,6 @@ protected:
     void maybe_trigger_autodazzler();
 
     bool paragon_defends_player();
-
-    virtual int inflict_damage(int dam, beam_type flavour = NUM_BEAMS,
-                               bool clean = false);
 
     /* Output */
     string debug_damage_number();

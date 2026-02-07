@@ -1296,7 +1296,7 @@ void melee_attack::handle_phase_killed()
     if (unrand_entry && weapon && weapon->unrand_idx == UNRAND_WYRMBANE)
     {
         unrand_entry->melee_effects(mutable_wpn, attacker, defender,
-                                    true, special_damage);
+                                    special_damage, nullptr);
     }
 
     // We test this *before* the monster dies, but only trigger afterward,
@@ -1993,16 +1993,14 @@ bool melee_attack::check_unrand_effects()
 {
     if (unrand_entry && unrand_entry->melee_effects && weapon)
     {
-        const bool died = !defender->alive();
-
         // Don't trigger the Wyrmbane death effect yet; that is done in
         // handle_phase_killed().
-        if (weapon->unrand_idx == UNRAND_WYRMBANE && died)
+        if (weapon->unrand_idx == UNRAND_WYRMBANE && !defender->alive())
             return true;
 
-        // Recent merge added damage_done to this method call
+        unwind_var<brand_type> unwind(damage_brand, SPWPN_NORMAL);
         unrand_entry->melee_effects(mutable_wpn, attacker, defender,
-                                    died, damage_done);
+                                    damage_done, this);
         return !defender->alive(); // may have changed
     }
 

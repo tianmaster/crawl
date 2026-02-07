@@ -690,7 +690,7 @@ void attack::drain_defender_speed()
     defender->slow_down(attacker, 5 + random2(7));
 }
 
-int attack::inflict_damage(int dam, beam_type flavour, bool clean)
+int attack::inflict_damage(int dam, beam_type flavour)
 {
     if (flavour == NUM_BEAMS)
         flavour = special_damage_flavour;
@@ -705,7 +705,7 @@ int attack::inflict_damage(int dam, beam_type flavour, bool clean)
         defender->props[REAPER_KEY].get_int() = attacker->mid;
     }
     const int final = defender->hurt(responsible, dam, flavour, kill_type,
-                                     "", aux_source.c_str(), clean);
+                                     "", aux_source.c_str(), false);
 
     if (defender->is_monster() && !defender->alive())
         defender->props[ATTACK_KILL_KEY] = true;
