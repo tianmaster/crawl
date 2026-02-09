@@ -1295,6 +1295,9 @@ void player_reacts()
     if (crawl_state.game_is_descent() && !env.properties.exists(DESCENT_STAIRS_KEY))
         return;
 
+    if (you.did_east_wind > 0)
+        --you.did_east_wind;
+
     // This happens as close as possible after the player acts, for better messaging
     if (you_worship(GOD_BEOGH))
         beogh_ally_healing();

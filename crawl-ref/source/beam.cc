@@ -3479,7 +3479,7 @@ void bolt::tracer_affect_player()
     extra_range_used += range_used_on_hit();
 }
 
-int bolt::apply_lighting(int base_hit, const actor &targ) const
+int bolt::apply_to_hit_modifiers(int base_hit, const actor &targ) const
 {
     if (targ.invisible() && !can_see_invis)
         base_hit /= 2;
@@ -3493,6 +3493,9 @@ int bolt::apply_lighting(int base_hit, const actor &targ) const
     // Malus is already negative so must still be ADDED to the base_hit
     if (!nightvision && targ.umbra())
         base_hit += UMBRA_TO_HIT_MALUS * 2;
+
+    if (targ.is_monster() && targ.as_monster()->has_ench(ENCH_EXPOSED))
+        base_hit *= 2;
 
     return base_hit;
 }
@@ -3515,7 +3518,7 @@ bool bolt::misses_player()
     int real_tohit  = hit;
 
     if (real_tohit != AUTOMATIC_HIT)
-        real_tohit = apply_lighting(real_tohit, you);
+        real_tohit = apply_to_hit_modifiers(real_tohit, you);
 
     const int SH = player_shield_class();
     if ((player_omnireflects() && is_omnireflectable()
@@ -5650,7 +5653,7 @@ void bolt::affect_monster(monster* mon)
     int beam_hit = hit;
 
     if (beam_hit != AUTOMATIC_HIT)
-        beam_hit = apply_lighting(beam_hit, *mon);
+        beam_hit = apply_to_hit_modifiers(beam_hit, *mon);
 
     // The monster may block the beam.
     if (!engulfs && is_blockable() && attempt_block(mon))

@@ -129,6 +129,7 @@
 #include "startup.h"
 #include "stash.h"
 #include "state.h"
+#include "stepdown.h"
 #include "stringutil.h"
 #include "tags.h"
 #include "target.h"

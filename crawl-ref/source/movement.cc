@@ -738,6 +738,26 @@ static string _get_move_verb(bool is_rampage)
            : walk_verb_to_present(lowercase_first(species::walking_verb(you.species)));
 }
 
+void east_wind_expose_monster(monster* mon)
+{
+    if (!mon->is_firewood() && !mon->wont_attack())
+    {
+        if (!mon->has_ench(ENCH_EXPOSED) && you.can_see(*mon))
+            mprf("A bitter wind exposes %s.", mon->name(DESC_THE).c_str());
+        mon->add_ench(mon_enchant(ENCH_EXPOSED, &you, random_range(30, 50)));
+    }
+}
+
+static void _do_east_wind(int num_steps)
+{
+    for (radius_iterator ri(you.pos(), 2, C_SQUARE, LOS_NO_TRANS, true); ri; ++ri)
+        if (monster* mon = monster_at(*ri))
+            east_wind_expose_monster(mon);
+
+    you.magic_points_regeneration += you.max_magic_points * num_steps * random_range(5, 7);
+    you.did_east_wind = 2; // One stage expires immediately, so that the next can remain visually.
+}
+
 static bool _cannot_step_into(const coord_def& pos)
 {
     return !you.can_pass_through(pos)
@@ -1223,7 +1243,11 @@ void move_player_action(coord_def move)
 
         // Either a rampage movement or a stampede push will sustain stampede.
         if ((num_steps > 1 || did_stampede) && you.has_mutation(MUT_STAMPEDE))
+        {
             you.duration[DUR_STAMPEDE] = you.time_taken + 1;
+            if (you.has_mutation(MUT_EAST_WIND))
+                _do_east_wind(did_stampede ? 2 : num_steps);
+        }
     }
 
     if (!did_move && !did_attack && !did_open_door)

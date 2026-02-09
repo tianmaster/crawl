@@ -477,6 +477,11 @@ public:
     // Position of the player before performing any movement in a turn.
     coord_def pos_at_turn_start;
 
+    // Whether the player made a rampage move with the East Wind active last turn.
+    // (Is an int instead of a bool so that the visual for it can persist into
+    // the start of the next turn without more complicated cleanup)
+    int did_east_wind;
+
     // If true, player has triggered a trap effect by exploring.
     bool trapped;
 
@@ -831,7 +836,8 @@ public:
              string source = "",
              string aux = "",
              bool cleanup_dead = true,
-             bool attacker_effects = true) override;
+             bool attacker_effects = true,
+             bool is_attack_damage = false) override;
 
     bool wont_attack() const override { return true; };
     mon_attitude_type temp_attitude() const override { return ATT_FRIENDLY; };

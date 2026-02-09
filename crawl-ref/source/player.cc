@@ -5607,6 +5607,7 @@ player::player()
     reprisals.clear();
     triggers_done.init(0);
     attempted_attack    = false;
+    did_east_wind       = 0;
 
     abyss_speed         = 0;
     game_seed           = 0;
@@ -7299,7 +7300,8 @@ void player::teleport(bool now, bool wizard_tele)
 
 int player::hurt(const actor *agent, int amount, beam_type flavour,
                  kill_method_type kill_type, string source, string aux,
-                 bool /*cleanup_dead*/, bool /*attacker_effects*/)
+                 bool /*cleanup_dead*/, bool /*attacker_effects*/,
+                 bool /*is_attack_damage*/)
 {
     // We ignore cleanup_dead here.
     if (!agent)
