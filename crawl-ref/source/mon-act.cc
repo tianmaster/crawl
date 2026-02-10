@@ -4150,6 +4150,9 @@ void seen_monsters_react()
     if (you.duration[DUR_TIME_STEP] || crawl_state.game_is_arena())
         return;
 
+    if (you.time_taken == 0)
+        return;
+
     const int stealth = player_stealth();
 
 #ifdef DEBUG_STEALTH

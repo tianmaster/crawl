@@ -3888,6 +3888,7 @@ tileidx_t vary_bolt_tile(tileidx_t tile, int dir, int dist)
     case TILE_BOLT_CHAOS_BUFF:
     case TILE_BOLT_GLOOM:
     case TILE_BOLT_SUNDERING:
+    case TILE_BOLT_WIND_HUSH:
         return tile + ui_random(tile_main_count(tile));
 
     case TILE_MI_BOOMERANG0:

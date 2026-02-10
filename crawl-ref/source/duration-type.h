@@ -308,5 +308,6 @@ enum duration_type
     DUR_EELJOLT_COOLDOWN,
     DUR_INDOMITABLE,
     DUR_SALVO,
+    DUR_TAILWIND,
     NUM_DURATIONS
 };

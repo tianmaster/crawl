@@ -3401,6 +3401,9 @@ int player_stealth()
     if (player_has_orb() || you.unrand_equipped(UNRAND_CHARLATANS_ORB))
         stealth /= 3;
 
+    if (you.duration[DUR_STAMPEDE] && you.has_mutation(MUT_SOUTH_WIND))
+        stealth = stealth * 3 / 2;
+
     // Cap minimum stealth during Nightfall at 100. (0, otherwise.)
     stealth = max(you.duration[DUR_PRIMORDIAL_NIGHTFALL] ? 100 : 0, stealth);
 

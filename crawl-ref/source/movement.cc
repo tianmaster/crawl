@@ -13,6 +13,7 @@
 #include "movement.h"
 
 #include "abyss.h"
+#include "act-iter.h"
 #include "art-enum.h"
 #include "bloodspatter.h"
 #include "cloud.h"
@@ -56,6 +57,7 @@
 #include "travel-open-doors-type.h"
 #include "transform.h"
 #include "unwind.h"
+#include "viewchar.h"
 #include "xom.h" // XOM_CLOUD_TRAIL_TYPE_KEY
 
 // Move a monster to a given location, in preparation for the player moving to
@@ -1154,10 +1156,17 @@ void move_player_action(coord_def move)
             return;
     }
 
+    const bool did_tailwind = num_steps > 1 && you.duration[DUR_TAILWIND];
+    if (did_tailwind)
+        you.duration[DUR_TAILWIND] = 0;
+
     // Print a message, if rampaging.
     if (num_steps > 1 && mon_target)
     {
-        mprf("You %s towards %s!", move_verb.c_str(), mon_target->name(DESC_THE, true).c_str());
+        mprf("You %s towards %s%s!",
+                move_verb.c_str(),
+                mon_target->name(DESC_THE, true).c_str(),
+                did_tailwind ? " with incredible speed" : "");
 
         // Prevent full-LoS stabbing with Seven League Boots.
         if (you.unrand_equipped(UNRAND_SEVEN_LEAGUE_BOOTS))
@@ -1244,9 +1253,9 @@ void move_player_action(coord_def move)
         // Either a rampage movement or a stampede push will sustain stampede.
         if ((num_steps > 1 || did_stampede) && you.has_mutation(MUT_STAMPEDE))
         {
-            you.duration[DUR_STAMPEDE] = you.time_taken + 1;
             if (you.has_mutation(MUT_EAST_WIND))
                 _do_east_wind(did_stampede ? 2 : num_steps);
+            you.duration[DUR_STAMPEDE] = you.time_taken + 1;
         }
     }
 
@@ -1255,6 +1264,9 @@ void move_player_action(coord_def move)
         stop_running();
         crawl_state.cancel_cmd_repeat();
     }
+
+    if (did_tailwind)
+        you.time_taken = 0;
 
     if (you.pos() != initial_pos)
         request_autopickup();

@@ -1051,6 +1051,11 @@ damage them this way.
 
 Additionally, casting spells will not cause you to stop Stampeding.
 %%%%
+South Wind's embodiment mutation
+
+Your stealth is increased by 50% while Rampaging and whenever you successfully
+stab an enemy, your next Rampage movement becomes instant.
+%%%%
 # ------ Fakemut descriptions ------
 vampire fangs mutation
 

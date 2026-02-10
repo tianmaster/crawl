@@ -332,6 +332,11 @@ ostracise BOLT_OSTRACISE
 
 umbral_torchlight BOLT_UMBRAL_TORCHLIGHT
 
+wind_hush0 BOLT_WIND_HUSH
+wind_hush1
+wind_hush2
+wind_hush3
+
 ###### Priority indicators (for Fedhas' growth)
 indicator_1 INDICATOR
 indicator_2

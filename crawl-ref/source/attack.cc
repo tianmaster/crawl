@@ -1499,6 +1499,13 @@ int attack::player_stab(int damage)
             stacks = min(stacks + 1, 3);
             you.redraw_evasion = true;
         }
+
+        if (you.has_mutation(MUT_SOUTH_WIND) && !defender->wont_attack())
+        {
+            if (!you.duration[DUR_TAILWIND])
+                mprf(MSGCH_DURATION, "The winds around you quicken.");
+            you.duration[DUR_TAILWIND] = max(you.duration[DUR_TAILWIND], random_range(50, 90));
+        }
     }
     else
         stab_bonus = 0;

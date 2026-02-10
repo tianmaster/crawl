@@ -1297,3 +1297,7 @@ Salvo status
 
 Your next several ranged attacks will cause you to fire a flurry of additional
 shots at other targets in sight.
+%%%%
+Tailwind status
+
+Your next Rampage movement will be instant.
