@@ -956,13 +956,16 @@ void pack_doll_buf(SubmergedTileBuffer& buf, const dolls_data &doll,
         }
     }
 
-    // A higher index here means that the part should be drawn on top.
-    // This is drawn in reverse order because this could be a ghost
-    // or being drawn in water, in which case we want the top-most part
-    // to blend with the background underneath and not with the parts
-    // underneath. Parts drawn afterwards will not obscure parts drawn
-    // previously, because "i" is passed as the depth below.
-    for (int i = TILEP_PART_MAX - 1; i >= 0; --i)
+    // Draw ghosts in reverse order so that parts blend with the background
+    // underneath and not with the parts underneath. Parts drawn afterwards will
+    // not obscure parts drawn previously, because "i" is passed as the depth below.
+    //
+    // Players should be properly drawn back-to-front so that translucent
+    // equipment doesn't erase parts of the player and replace it with floor.
+    const int start =   ghost ? TILEP_PART_MAX - 1 : 0;
+    const int end =     ghost ? -1 : TILEP_PART_MAX;
+    const int step =    ghost ? -1 : 1;
+    for (int i = start; i != end; i += step)
     {
         int p = p_order[i];
 
