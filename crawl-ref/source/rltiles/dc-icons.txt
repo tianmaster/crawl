@@ -119,6 +119,7 @@ sentinel_mark SENTINEL_MARK
 strong_willed STRONG_WILLED
 tesseract_spawn TESSERACT_SPAWN
 sundering SUNDERING
+mute MUTE
 
 something_under SOMETHING_UNDER
 new_stair NEW_STAIR
