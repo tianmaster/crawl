@@ -859,6 +859,16 @@ static void _DAMNATION_launch(bolt* beam)
 
 ///////////////////////////////////////////////////
 
+static void _ZEPHYR_equip(item_def */*item*/, bool *show_msgs, bool /*unmeld*/)
+{
+    _equip_mpr(show_msgs, "You feel the wind guiding your aim.");
+}
+
+static void _ZEPHYR_unequip(item_def */*item*/, bool *show_msgs)
+{
+    _equip_mpr(show_msgs, "The winds around you sigh wistfully and grow still.");
+}
+
 /**
  * Calculate the bonus damage that the Elemental Staff does with an attack of
  * the given flavour.

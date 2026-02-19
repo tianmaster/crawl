@@ -826,7 +826,9 @@ static void _player_shoot(ranged_attack_beam &pbolt, bool allow_salvo)
         count_action(CACT_THROW, item.sub_type, OBJ_MISSILES);
     }
 
-    const bool do_salvo = allow_salvo && you.duration[DUR_SALVO] && is_range_weapon(item);
+    const bool do_salvo = allow_salvo
+                            && (you.duration[DUR_SALVO] && is_range_weapon(item)
+                                || is_unrandom_artefact(item, UNRAND_ZEPHYR));
     const string proj_name = do_salvo ? make_stringf("a salvo of %ss", pbolt.atk.projectile_name().c_str())
                                       : article_a(pbolt.atk.projectile_name()).c_str();
 
@@ -870,10 +872,13 @@ static void _player_shoot(ranged_attack_beam &pbolt, bool allow_salvo)
         if (do_salvo)
         {
             _fire_salvo(pbolt);
-            if (--you.props[SALVO_KEY] == 0)
-                you.duration[DUR_SALVO] = 0;
-            else
-                you.duration[DUR_SALVO] = random_range(30, 50);
+            if (!is_unrandom_artefact(item, UNRAND_ZEPHYR))
+            {
+                if (--you.props[SALVO_KEY] == 0)
+                    you.duration[DUR_SALVO] = 0;
+                else
+                    you.duration[DUR_SALVO] = random_range(30, 50);
+            }
         }
     }
 
