@@ -3,7 +3,7 @@ monster: MONS_REVENANT
 name: Revenant
 short_name: Re
 difficulty: Intermediate
-difficulty_priority: 80
+difficulty_priority: 90
 species_flags:
   - no_hair
   - no_blood

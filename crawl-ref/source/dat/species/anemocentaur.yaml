@@ -5,7 +5,7 @@ short_name: An
 adjective: Equine
 genus: Centaur
 difficulty: Intermediate
-difficulty_priority: 20
+difficulty_priority: 60
 species_flags:
   - small_torso
   - barding
