@@ -186,6 +186,7 @@ struct bolt
     bool   is_death_effect = false; // effect of e.g. ballistomycete spore
     bool   aimed_at_spot = false; // aimed at (x, y), should not cross
     bool   stop_at_allies = false; // Should beam automatically stop before reaching allies
+                                   // (or neutrals that would anger your god to harm.)
     bool   safe_to_user = false;  //
     string aux_source = "";       // source of KILL_NON_ACTOR beams
 

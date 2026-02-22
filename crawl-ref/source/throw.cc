@@ -580,7 +580,7 @@ static vector<ranged_attack_beam> _construct_player_ranged_beams(item_def* throw
 }
 
 // Returns true if the player aborted for any reason.
-static bool _trace_player_ranged_attacks(vector<ranged_attack_beam>& atks, bool auto_abort = false)
+static bool _trace_player_ranged_attacks(vector<ranged_attack_beam>& atks, bool no_harm_allies = false)
 {
     // Don't trace at all when confused.
     if (you.confused())
@@ -591,13 +591,15 @@ static bool _trace_player_ranged_attacks(vector<ranged_attack_beam>& atks, bool 
     for (size_t i = 0; i < atks.size(); ++i)
     {
         atks[i].beam.overshoot_prompt = false;
+        if (no_harm_allies)
+            atks[i].beam.stop_at_allies = true;
         atks[i].beam.fire(tracer);
         if (atks[i].beam.friendly_past_target)
             atks[i].beam.aimed_at_spot = true;
         using_mule |= is_unrandom_artefact(*atks[i].atk.weapon, UNRAND_MULE);
     }
 
-    if (auto_abort && tracer.has_any_warnings())
+    if (no_harm_allies && tracer.has_any_warnings())
         return true;
 
     if (cancel_beam_prompt(atks[0].beam, tracer, atks.size()))
@@ -705,7 +707,7 @@ void aim_player_ranged_attack(quiver::action &a)
 // Make the player immediately perform a ranged attack at a given target, optionally
 // with a specific projectile. Does not handle spending time.
 bool do_player_ranged_attack(const coord_def& targ, item_def* thrown_projectile,
-                             const ranged_attack* prototype, bool auto_abort,
+                             const ranged_attack* prototype, bool no_harm_allies,
                              bool allow_salvo)
 {
     vector<ranged_attack_beam> atks = _construct_player_ranged_beams(thrown_projectile);
@@ -715,7 +717,7 @@ bool do_player_ranged_attack(const coord_def& targ, item_def* thrown_projectile,
         if (prototype)
             prototype->copy_params_to(atk.atk);
     }
-    if (_trace_player_ranged_attacks(atks, auto_abort))
+    if (_trace_player_ranged_attacks(atks, no_harm_allies))
         return false;
     _fire_player_ranged_attacks(atks, allow_salvo);
     return true;

@@ -1300,9 +1300,15 @@ void bolt::do_fire()
             return;
         }
 
-        // If requested to stop before hitting allies, do so now.
+        // If requested to stop before hitting allies (or neutrals our god would
+        // object to us harming), do so now.
         const actor* act_at = actor_at(pos());
-        if (act_at && stop_at_allies && mons_atts_aligned(attitude, act_at->temp_attitude())
+        if (act_at && stop_at_allies
+            && (mons_atts_aligned(attitude, act_at->temp_attitude())
+                || (act_at->temp_attitude() == ATT_NEUTRAL
+                    && (is_good_god(you.religion)
+                        || you_worship(GOD_BEOGH) && mons_genus(act_at->type) == MONS_ORC)
+                    && !(act_at->is_monster() && act_at->as_monster()->has_ench(ENCH_FRENZIED))))
             && can_affect_actor(act_at) && !aimed_at_feet
             && !(act_at->is_player() && ignores_player() || ignores_monster(act_at->as_monster())))
         {
