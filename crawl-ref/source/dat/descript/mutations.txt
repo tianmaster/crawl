@@ -1018,7 +1018,7 @@ being, reducing the rate at which you can recover from Doom and Banes.
 %%%%
 stampede mutation
 
-You rampage swiftly towards enemies and can continue to trampling forward once
+You rampage swiftly towards enemies and can continue to trample forward once
 you reach them, pushing entire lines of enemies backwards as you attack.
 
 Performing any action besides a rampage movement will end your stampede.
