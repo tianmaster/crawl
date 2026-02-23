@@ -1289,6 +1289,18 @@ Spore status
 
 Your arm is a mass of multicoloured fungus.
 %%%%
+Stampede status
+
+You are stampeding forward. Any movement you take into an enemy will trample
+them backwards, but your stampede will end as soon as you perform any action
+{{
+    if you.mutation("East Wind's embodiment") > 0 then
+        return "besides rampaging, stampeding, or casting spells."
+    else
+        return "besides rampaging or stampeding."
+    end
+}}
+%%%%
 Indom status
 
 You are rapidly regenerating damage you sustained while stampeding.
