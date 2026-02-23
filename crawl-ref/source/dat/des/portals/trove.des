@@ -253,7 +253,7 @@ function trove_weap_brand(e, brand, ranged_valid)
     ["quick blade"] = {4, true},
     ["triple sword"] = {2, two_hands and big_enough},
     ["double sword"] = {1, big_for_small},
-    ["demon sword"] = {1, big_for_small},
+    ["demon blade"] = {1, big_for_small},
     ["longbow"] = {4, range and big_enough and two_hands},
     ["hand cannon"] = {2, range},
     ["triple crossbow"] = {2, range and you.race() ~= "Spriggan" and two_hands},
