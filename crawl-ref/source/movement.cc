@@ -769,6 +769,25 @@ static bool _cannot_step_into(const coord_def& pos)
                 || env.grid(pos) == DNGN_SLIMY_WALL);
 }
 
+// Returns true if something is preventing the player from moving to pos.
+static bool _check_beholders(const coord_def& pos, bool quiet = false)
+{
+    if (monster* beholder = you.get_beholder(pos))
+    {
+        if (!quiet)
+            mprf("You cannot move away from %s!", beholder->name(DESC_THE).c_str());
+        return true;
+    }
+    else if (monster* fearmonger = you.get_fearmonger(pos))
+    {
+        if (!quiet)
+            mprf("You cannot move closer to %s!", fearmonger->name(DESC_THE).c_str());
+        return true;
+    }
+
+    return false;
+}
+
 static vector<monster*> _get_stampede_line(const coord_def& start, const coord_def& delta, bool only_known = false)
 {
     // Iterate to find how many connected monsters are in a row that the player can see.
@@ -831,7 +850,7 @@ static int _stampede_move_check(const coord_def& delta)
 
 static bool _try_stampede(const coord_def& target)
 {
-    if (you.is_constricted() || you.cannot_move() || you.caught())
+    if (you.is_constricted() || you.cannot_move() || you.caught() || _check_beholders(target, true))
         return false;
 
     const coord_def delta = target - you.pos();
@@ -978,21 +997,8 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
         }
         // If we're rampaging, we've already determined that the endpoint is at
         // an appropriate range, so don't stop for beholders in the middle.
-        else if (!rampaging)
-        {
-            if (monster* beholder = you.get_beholder(targ))
-            {
-                mprf("You cannot move away from %s!",
-                     beholder->name(DESC_THE).c_str());
-                return false;
-            }
-            else if (monster* fearmonger = you.get_fearmonger(targ))
-            {
-                mprf("You cannot move closer to %s!",
-                    fearmonger->name(DESC_THE).c_str());
-                return false;
-            }
-        }
+        else if (!rampaging && _check_beholders(targ))
+            return false;
     }
 
     if (!you.attempt_escape()) // false means constricted and did not escape
