@@ -1576,10 +1576,12 @@ bool swap_features(const coord_def &pos1, const coord_def &pos2,
 
     // OK, now we guarantee the move.
 
+    const dungeon_feature_type temp_feat = env.grid(temp);
     (void) move_notable_thing(pos1, temp);
     env.markers.move(pos1, temp);
     dungeon_events.move_listeners(pos1, temp);
     env.grid(pos1) = DNGN_UNSEEN;
+    env.grid(temp) = feat1;
     env.pgrid(pos1) = terrain_property_t{};
 
     (void) move_notable_thing(pos2, pos1);
@@ -1591,6 +1593,7 @@ bool swap_features(const coord_def &pos1, const coord_def &pos2,
     (void) move_notable_thing(temp, pos2);
     env.markers.move(temp, pos2);
     dungeon_events.move_listeners(temp, pos2);
+    env.grid(temp) = temp_feat;
 
     // Swap features and colours.
     env.grid(pos2) = feat1;
