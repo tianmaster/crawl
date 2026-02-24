@@ -1204,11 +1204,6 @@ void dgn_move_entities_at(coord_def src, coord_def dst,
     // Move terrain colours and properties.
     env.pgrid(dst) = env.pgrid(src);
     env.grid_colours(dst) = env.grid_colours(src);
-#ifdef USE_TILE
-    tile_env.bk_fg(dst) = tile_env.bk_fg(src);
-    tile_env.bk_bg(dst) = tile_env.bk_bg(src);
-    tile_env.bk_cloud(dst) = tile_env.bk_cloud(src);
-#endif
     tile_env.flv(dst) = tile_env.flv(src);
 
     // Move vault masks.
@@ -1224,6 +1219,8 @@ void dgn_move_entities_at(coord_def src, coord_def dst,
     env.map_knowledge(dst) = env.map_knowledge(src);
     env.map_seen.set(dst, env.map_seen(src));
     StashTrack.move_stash(src, dst);
+
+    redraw_view_at(dst);
 }
 
 static bool _dgn_shift_feature(const coord_def &pos)
