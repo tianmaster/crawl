@@ -867,6 +867,7 @@ static void _abyss_update_transporter(const coord_def &pos,
 // Assumes:
 // a) target can be truncated if not fully in bounds
 // b) source and target areas may overlap
+// c) squares outside the area to move have been cleared
 //
 static void _abyss_move_entities(coord_def target_centre,
                                  map_bitmask *shift_area_mask)
@@ -908,17 +909,12 @@ static void _abyss_move_entities(coord_def target_centre,
             if (map_bounds_with_margin(dst, MAPGEN_BORDER))
             {
                 shift_area_mask->set(dst);
-                // Wipe the destination clean before dropping things on it.
-                _abyss_wipe_square_at(dst);
                 _abyss_move_entities_at(src, dst);
                 _abyss_update_transporter(dst, source_centre, target_centre,
                                           original_area_mask);
             }
-            else
-            {
-                // Wipe the source clean even if the dst is not in bounds.
-                _abyss_wipe_square_at(src);
-            }
+            // Wipe the source clean even if the dst is not in bounds.
+            _abyss_wipe_square_at(src);
         }
     }
 
@@ -1010,13 +1006,6 @@ static void _abyss_shift_level_contents_around_player(
 
     // Move stuff to its new home. This will also move the player.
     _abyss_move_entities(target_centre, &abyss_destruction_mask);
-
-    // [ds] Rezap everything except the shifted area. NOTE: the old
-    // code did not do this, leaving a repeated swatch of Abyss behind
-    // at the old location for every shift; discussions between Linley
-    // and dpeg on IRC confirm that this (repeated swatch of terrain left
-    // behind) was not intentional.
-    _abyss_wipe_unmasked_area(abyss_destruction_mask);
 
     // So far we've used the mask to track the portions of the level we're
     // preserving. The inverse of the mask represents the area to be filled
