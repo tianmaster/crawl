@@ -245,36 +245,27 @@ static void _abyss_postvault_fixup()
 // side-effect
 static bool _sync_rune_knowledge(coord_def p)
 {
-    if (!in_bounds(p))
-        return false;
-    // somewhat convoluted because to update map knowledge properly, we need
-    // an actual rune item
-    const bool already = env.map_knowledge(p).item();
-    const bool rune_memory = already && env.map_knowledge(p).item()->is_type(
-                                                    OBJ_RUNES, RUNE_ABYSSAL);
+    ASSERT(in_bounds(p));
+
+    const item_def* item = env.map_knowledge(p).item();
+    const bool rune_memory = item && item->is_type(OBJ_RUNES, RUNE_ABYSSAL);
+
     for (stack_iterator si(p); si; ++si)
     {
         if (si->is_type(OBJ_RUNES, RUNE_ABYSSAL))
         {
             // found! make sure map memory is up-to-date
             if (!rune_memory)
-                env.map_knowledge(p).set_item(*si, already);
-
-            if (!you.see_cell(p))
-                env.map_knowledge(p).flags |= MAP_DETECTED_ITEM;
+            {
+                env.map_knowledge(p).set_item(*si, item != nullptr);
+                if (!you.see_cell(p))
+                    env.map_knowledge(p).flags |= MAP_DETECTED_ITEM;
+                redraw_view_at(p);
+            }
             return true;
         }
     }
-    // no rune found, clear as needed
-    if (already && (!rune_memory
-                    || !!(env.map_knowledge(p).flags & MAP_MORE_ITEMS)))
-    {
-        // something else seems to have been there, clear the rune but leave
-        // a remnant
-        env.map_knowledge(p).set_detected_item();
-    }
-    else
-        env.map_knowledge(p).clear();
+    // no rune found
     return false;
 }
 
