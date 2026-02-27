@@ -727,13 +727,12 @@ bool do_player_ranged_attack(const coord_def& targ, item_def* thrown_projectile,
     return true;
 }
 
-// Runs a simple tracer from source to target, stopping before any allies and
-// adding affected enemies to the affected param.
+// Runs a simple tracer from source to target, stopping before any allies.
 //
-// Returns true of a given target will hit at least one enemy without also
-// hitting any enemy already stored in affected.
+// Returns true if a given target will hit at least one enemy, and optionally
+// passes out the first target hit as first_hit.
 static bool _salvo_shot_tracer(coord_def source, coord_def target, bool pierce,
-                               set<mid_t>* affected)
+                               mid_t* first_hit = nullptr)
 {
     bolt tracer;
     tracer.attitude = ATT_FRIENDLY;
@@ -750,56 +749,74 @@ static bool _salvo_shot_tracer(coord_def source, coord_def target, bool pierce,
     if (target_tracer.friend_info.power != 0 || target_tracer.foe_info.power == 0)
         return false;
 
-    if (affected)
+    if (first_hit)
     {
-        for (std::map<mid_t,int>::iterator it = tracer.hit_count.begin(); it != tracer.hit_count.end(); ++it)
+        for (const coord_def& pos : tracer.path_taken)
         {
-            if (affected->count(it->first))
-                return false;
-            else
-                affected->insert(it->first);
+            if (actor_at(pos) && tracer.hit_count[actor_at(pos)->mid])
+            {
+                *first_hit = actor_at(pos)->mid;
+                break;
+            }
         }
     }
 
     return true;
 }
 
-static void _fire_salvo(const ranged_attack_beam &pbolt)
+// Get a list of up to num_target additional targets that have some unblocked
+// shot path from the player's current position.
+static vector<coord_def> _get_salvo_targets(const coord_def& orig_target, int num_targets)
 {
-    set<mid_t> affected_mons;
-    vector<monster*> targs;
+    mid_t primary;
+    vector<coord_def> targs;
 
-    // Add affected targets from the originating shot.
-    _salvo_shot_tracer(you.pos(), pbolt.beam.target, false, &affected_mons);
+    // Add primary target from the originating shot.
+    _salvo_shot_tracer(you.pos(), orig_target, false, &primary);
 
-    // Trace all visiable monsters in LoS, starting with the closest, and see
-    // how many 'different' shots are available (without overlapping against
-    // one target)
-    for (radius_iterator ri(you.pos(), LOS_NO_TRANS, true); ri; ++ri)
+    // Scan all visible monsters in LoS for any that *might* have an unblocked
+    // shot path.
+    vector<monster*> to_check;
+    for (monster_near_iterator mi(&you, LOS_SOLID_SEE); mi; ++mi)
     {
-        monster* targ = monster_at(*ri);
-        if (!targ || targ->wont_attack() || targ->is_firewood() || !you.can_see(*targ)
-            || affected_mons.count(targ->mid))
-        {
+        if (mi->wont_attack() || mi->is_firewood() || mi->mid == primary)
             continue;
-        }
 
-        if (_salvo_shot_tracer(you.pos(), targ->pos(), false, &affected_mons))
-            targs.push_back(targ);
+        if (exists_ray(you.pos(), mi->pos(), opc_unblocked_shot, you.current_vision))
+            to_check.push_back(*mi);
     }
 
-    const int MAX_SHOTS = 5;
-    if (targs.size() > MAX_SHOTS)
-        shuffle_array(targs);
+    shuffle_array(to_check);
 
-    // Now fire up to 5 bonus shots at random valid targets.
-    for (size_t i = 0; i < targs.size() && i < MAX_SHOTS; ++i)
+    // For each monster that it might be possible to shoot at, see if we can
+    // find a valid shot.
+    for (monster* mon : to_check)
+    {
+        coord_def aim = best_ranged_aim(mon->pos(), false, true);
+        if (!aim.origin())
+        {
+            targs.push_back(aim);
+
+            // Stop if we've hit our target limit.
+            if ((int)targs.size() >= num_targets)
+                break;
+        }
+    }
+
+    return targs;
+}
+
+static void _fire_salvo(const ranged_attack_beam &pbolt)
+{
+    vector<coord_def> targs = _get_salvo_targets(pbolt.beam.target, 4);
+
+    for (coord_def aim : targs)
     {
         // We copy the ranged_attack_beam and fire manually to avoid
         // printing superfluous messages and triggering conducts repeatedly.
         ranged_attack_beam salvo = pbolt;
         salvo.beam.chose_ray = false;
-        salvo.beam.target = targs[i]->pos();
+        salvo.beam.target = aim;
         salvo.fire();
     }
 }

@@ -67,7 +67,7 @@ static double _angle_between(coord_def origin, coord_def p1, coord_def p2)
 // primary target. This requires an unblocked path to the target, highly prefers
 // paths that hit the intended target first, and lightly prefers hitting as many
 // targets as possible.
-static int _shot_score(coord_def target, coord_def aim, bool pierce)
+static int _shot_score(coord_def target, coord_def aim, bool pierce, bool primary_must_be_first)
 {
     bolt beam;
     beam.set_agent(&you);
@@ -101,7 +101,7 @@ static int _shot_score(coord_def target, coord_def aim, bool pierce)
                 num_blockers++;
         }
     }
-    if (!found_main_target)
+    if (!found_main_target || (primary_must_be_first && !found_main_target_first))
         return -1000;
     else
     {
@@ -112,17 +112,17 @@ static int _shot_score(coord_def target, coord_def aim, bool pierce)
     }
 }
 
-coord_def best_ranged_aim(const coord_def& target, bool pierce)
+coord_def best_ranged_aim(const coord_def& target, bool pierce, bool primary_must_be_first)
 {
     coord_def best_coord = target;
-    int best_score = _shot_score(target, target, pierce);
+    int best_score = _shot_score(target, target, pierce, primary_must_be_first);
     for (radius_iterator ri(you.pos(), you.current_vision, C_SQUARE, LOS_SOLID_SEE, true); ri; ++ri)
     {
         // Quickly exclude aim spots that could not possibly include the main target.
         if (_angle_between(you.pos(), target, *ri) > PI / 6)
             continue;
 
-        int sc = _shot_score(target, *ri, pierce);
+        int sc = _shot_score(target, *ri, pierce, primary_must_be_first);
         if (sc > best_score)
         {
             best_score = sc;

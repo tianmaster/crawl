@@ -505,7 +505,7 @@ TILE:     urand_zephyr
 TILE_EQ:  ZEPHYR
 FB_BRAND: SPWPN_SPEED
 INSCRIP:  Salvo,
-DBRAND:   Salvo: Any attack performed with it also shoots at up to 5 other
+DBRAND:   Salvo: Any attack performed with it also shoots at up to 4 other
  unobstructed targets in range.
 DEX:      5
 BOOL:     fly
