@@ -450,6 +450,7 @@ public:
     spell_type last_cast_spell;
     map<int,int> last_pickup;
     int last_unequip;
+    int last_fired;     // Item slot last used with the 'F'ire command
 
     // Highest skill level for each of anemocentaur winds
     FixedVector<int, 4> wind_category_weight;

@@ -424,8 +424,10 @@ void fire_item_no_quiver(dist *target)
     else
         q.get()->trigger(*target);
 
-    if (target->isCancel)
+    if (q.get()->target.isCancel)
         canned_msg(MSG_OK);
+    else
+        you.last_fired = a->get_item();
 }
 
 static void _player_shoot(ranged_attack_beam &pbolt, bool allow_salvo = true);

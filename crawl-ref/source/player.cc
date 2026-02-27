@@ -5421,6 +5421,7 @@ player::player()
     zig_max          = 0;
 
     last_unequip = -1;
+    last_fired   = -1;
 
     symbol          = MONS_PLAYER;
     form            = transformation::none;
