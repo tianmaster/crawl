@@ -911,11 +911,18 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
             if (you.duration[DUR_STAMPEDE] && !you.confused() && !rampaging
                 && _try_stampede(targ))
             {
+                if (you_worship(GOD_WU_JIAN))
+                    did_attack |= wu_jian_post_move_effects(false, initial_pos, false);
+
                 // Accumulate cost of moving across terrain, then average it.
                 int stampede_delay = player_movement_speed();
                 // Move a second time (assuming we ended up where we expected to).
                 if (you.pos() == targ && _try_stampede(you.pos() + (targ - initial_pos)))
+                {
                     stampede_delay = div_rand_round(stampede_delay + player_movement_speed(), 2);
+                    if (you_worship(GOD_WU_JIAN))
+                        did_attack |= wu_jian_post_move_effects(false, initial_pos, false);
+                }
                 did_move = true;
                 did_stampede = true;
                 delay += stampede_delay;

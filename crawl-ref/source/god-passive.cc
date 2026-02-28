@@ -2058,7 +2058,8 @@ static bool _wu_jian_whirlwind(coord_def old_pos, coord_def new_pos,
 
 static bool _wu_jian_trigger_martial_arts(coord_def old_pos,
                                           coord_def new_pos,
-                                          bool check_only = false)
+                                          bool check_only = false,
+                                          bool allow_lunge = true)
 {
     if (new_pos == old_pos
         || you.duration[DUR_CONF]
@@ -2069,7 +2070,7 @@ static bool _wu_jian_trigger_martial_arts(coord_def old_pos,
 
     bool attacked = false;
 
-    if (have_passive(passive_t::wu_jian_lunge))
+    if (allow_lunge && have_passive(passive_t::wu_jian_lunge))
         attacked = _wu_jian_lunge(old_pos, new_pos, check_only);
 
     if (have_passive(passive_t::wu_jian_whirlwind))
@@ -2147,11 +2148,12 @@ void wu_jian_wall_jump_effects()
 }
 
 bool wu_jian_post_move_effects(bool did_wall_jump,
-                               const coord_def& old_pos)
+                               const coord_def& old_pos,
+                               bool allow_lunge)
 {
     bool attacked = false;
     if (!did_wall_jump)
-        attacked = _wu_jian_trigger_martial_arts(old_pos, you.pos());
+        attacked = _wu_jian_trigger_martial_arts(old_pos, you.pos(), false, allow_lunge);
 
     if (you.attribute[ATTR_SERPENTS_LASH])
         place_cloud(CLOUD_DUST, old_pos, 2 + random2(3) , &you, 1, -1);
