@@ -1562,7 +1562,7 @@ void init_four_winds()
 
     // Set the current prevailing wind based on any mutations the player may
     // already have (in case of ties, on file load).
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 4; ++i)
         if (you.has_mutation(static_cast<mutation_type>(MUT_NORTH_WIND + i)))
             you.prevailing_wind = i;
 }
