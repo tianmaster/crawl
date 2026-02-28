@@ -127,8 +127,11 @@ opacity_type opacity_unblocked_shot::operator()(const coord_def& p) const
 
     if (actor* act = actor_at(p))
     {
-        if (you.can_see(*act) && !shoot_through_actor(&you, act))
+        if (you.can_see(*act) && !shoot_through_actor(&you, act)
+            && act->type != MONS_BUSH)
+        {
             return OPC_OPAQUE;
+        }
     }
 
     return OPC_CLEAR;
