@@ -528,6 +528,11 @@ public:
     // effects against.
     vector<pair<mid_t, reprisal_type>> reprisals;
 
+    // List of monsters the player has performed a WJC Whirlwind attack against
+    // previously on a given turn (to prevent Whirlwinding the same enemy
+    // multiple times while rampaging).
+    set<mid_t> whirlwind_targets;
+
     // List of triggered actions that can happen a limited number of times a turn.
     FixedVector<int, NUM_PLAYER_TRIGGER_TYPES> triggers_done;
 

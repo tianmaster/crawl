@@ -5609,6 +5609,7 @@ player::player()
     time_taken          = 0;
     shield_blocks       = 0;
     reprisals.clear();
+    whirlwind_targets.clear();
     triggers_done.init(0);
     attempted_attack    = false;
     did_east_wind       = 0;

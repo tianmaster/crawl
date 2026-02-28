@@ -1992,8 +1992,9 @@ static vector<monster*> _get_whirlwind_targets(coord_def pos)
 {
     vector<monster*> targets;
     for (adjacent_iterator ai(pos, true); ai; ++ai)
-        if (monster_at(*ai) && _can_attack_martial(monster_at(*ai)))
-            targets.push_back(monster_at(*ai));
+        if (monster* mon = monster_at(*ai))
+            if (_can_attack_martial(mon) && !you.whirlwind_targets.count(mon->mid))
+                targets.push_back(mon);
     sort(targets.begin(), targets.end());
     return targets;
 }
@@ -2032,6 +2033,7 @@ static bool _wu_jian_whirlwind(coord_def old_pos, coord_def new_pos,
                     ", with incredible momentum" : "");
 
         count_action(CACT_ATTACK, ATTACK_WHIRLWIND);
+        you.whirlwind_targets.insert(mons->mid);
 
         for (int i = 0; i < number_of_attacks; i++)
         {
