@@ -142,6 +142,7 @@ protected:
     int adjusted_weapon_damage() const;
     virtual int get_weapon_plus();
     virtual int calc_base_unarmed_damage() const;
+    int target_debuff_count() const;
     virtual int calc_mon_to_hit_base() = 0;
     virtual int apply_mon_damage_modifiers(int damage) = 0;
     int apply_rev_penalty(int damage) const;

@@ -759,6 +759,11 @@ rapier RAPIER
 rapier2 RAPIER_MAGIC
 %enchant_variation RAPIER randart
 rapier3 RAPIER_RANDART
+athame ATHAME
+%enchant_variation ATHAME shiny runed glowing
+athame2 ATHAME_MAGIC
+%enchant_variation ATHAME randart
+athame3 ATHAME_RANDART
 sword_three SWORD3
 sword_breaker SWORD_BREAKER
 sword_jag SWORD_JAG

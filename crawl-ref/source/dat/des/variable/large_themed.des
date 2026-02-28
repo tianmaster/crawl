@@ -3146,7 +3146,7 @@ SHUFFLE: })]!?'"X- / })]!?'"X- / {([?!"'~~
 SUBST:   * = <, ( = (:60 <, [ = [:60 <, ) = ):60 >, ] = ]:60 >, ~ = P
 : end
 # Theme loot includes Vp/Sp's best weapon apt & forested / dark scales / books.
-KITEM:   & = quick blade good_item / rapier randart / \
+KITEM:   & = quick blade good_item / rapier randart w:5 / athame randart w:5 / \
              swamp dragon scales randart / shadow dragon scales randart / \
              randbook disc:necromancy / randbook spells:summon_forest / \
              potion of lignification q:4 pre_id / sanguine talisman randart

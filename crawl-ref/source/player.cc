@@ -9261,7 +9261,7 @@ void refresh_meek_bonus()
     you.redraw_armour_class = true;
 }
 
-static bool _ench_triggers_trickster(enchant_type ench)
+bool ench_triggers_trickster(enchant_type ench)
 {
     switch (ench)
     {
@@ -9325,7 +9325,7 @@ static int _trickster_max_boost()
 // Increment AC boost when applying a negative status effect to a monster.
 void trickster_trigger(const monster& victim, enchant_type ench)
 {
-    if (!_ench_triggers_trickster(ench))
+    if (!ench_triggers_trickster(ench))
         return;
 
     if (!you.can_see(victim) || !you.see_cell_no_trans(victim.pos())

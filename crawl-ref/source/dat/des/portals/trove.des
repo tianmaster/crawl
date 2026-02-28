@@ -250,7 +250,8 @@ function trove_weap_brand(e, brand, ranged_valid)
     ["partisan"] = {1, big_for_small},
     ["demon trident"] = {1, big_for_small and not no_evil},
     ["lajatang"] = {4, two_hands and big_for_small},
-    ["quick blade"] = {4, true},
+    ["quick blade"] = {3, true},
+    ["athame"] = {1, true},
     ["triple sword"] = {2, two_hands and big_enough},
     ["double sword"] = {1, big_for_small},
     ["demon blade"] = {1, big_for_small},
@@ -1183,7 +1184,7 @@ if not no_evil(e) then
 end
 
 trove_offense(_G, trove_weap_brand(_G, "venom", false) .. " / quick blade randart / " ..
-                  "rapier randart w:8 / quick blade ego:devious w:4 / " ..
+                  "athame randart w:8 / quick blade ego:devious w:4 / " ..
                   "manual of Stealth w:8",
                   trove_standard_magic(_G, "Hexes", false) .. " / " ..
                   "orb ego:guile randart artprops:Hexes w:1",

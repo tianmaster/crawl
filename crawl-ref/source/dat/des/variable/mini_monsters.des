@@ -3274,7 +3274,7 @@ ITEM:    manual of maces & flails / manual of axes / manual of polearms / \
          manual of staves / manual of short blades / manual of long blades / \
          manual of ranged weapons / manual of throwing
 ITEM:    great mace randart / battleaxe randart / glaive randart / \
-         lajatang randart / rapier randart / great sword randart
+         lajatang randart / athame randart / great sword randart
 KITEM:   C = wand of digging charges:1
 # Autoexplore will stop to look at a mediocre non-mundane weapon,
 # so players with instant autoexplore can see they've entered a vault.
@@ -4982,7 +4982,7 @@ NAME:    hangedman_aerie_drop
 TAGS:    no_monster_gen no_item_gen no_pool_fixup
 DEPTH:   Elf, Depths
 MONS:    spriggan air mage ; staff of air pre_id . robe
-MONS:    deep elf zephyrmancer ; rapier ego:electrocution . robe
+MONS:    deep elf zephyrmancer ; athame ego:electrocution . robe
 MONS:    spriggan rider ; spear ego:electrocution . buckler . robe
 MONS:    lightning spire
 KMONS:   5 = dancing weapon ; any weapon good_item ego:electrocution
@@ -8535,7 +8535,7 @@ KMONS:  12 = boulder beetle
 KITEM:  d = granite talisman / granite talisman randart w:1
 SUBST:  " = G
 : elseif r == 5 then
-MONS:   dancing weapon ; rapier | scimitar | great sword | \
+MONS:   dancing weapon ; athame | scimitar | great sword | \
                          quick blade w:1 | triple sword w:1 | double sword w:1
 ITEM:   blade talisman / blade talisman randart w:1
 KITEM:  " = damaged long sword / damaged falchion

@@ -1253,6 +1253,7 @@ void activate_sanguine_armour();
 
 void refresh_weapon_protection();
 void refresh_meek_bonus();
+bool ench_triggers_trickster(enchant_type ench);
 
 void set_mp(int new_amount);
 

@@ -1535,9 +1535,9 @@ DEPTH:  Elf
 ORIENT: float
 MONS:   deep elf knight / deep elf archer w:8, deep elf blademaster
 KMONS:  P = plant
-ITEM:   short sword w:15 / rapier / quick blade w:1
-ITEM:   short sword good_item / rapier good_item w:5 \
-        / quick blade good_item w:2
+ITEM:   short sword w:15 / rapier w:8 / athame w:2 / quick blade w:1
+ITEM:   short sword good_item w:8 / rapier good_item w:5 / \
+        athame good_item w:2 / quick blade good_item w:2
 SUBST:  x = xc
 SUBST:  3 = 3.
 NSUBST: - = 3:1 / 3=1., d = 1:e / 2=ddde / *:d
@@ -1727,7 +1727,7 @@ KITEM: 123 = % w:20 / scroll of enchant weapon pre_id w:5 \
 -- vitrification
 local chaos_types = { ["spear"] = 2, ["trident"] = 2, ["mace"] = 2,
     ["flail"] = 2, ["dire flail"] = 2, ["quarterstaff"] = 2,
-    ["long sword"] = 2, ["scimitar"] = 2, ["short sword"] = 2, ["dagger"] = 2,
+    ["long sword"] = 2, ["scimitar"] = 2, ["short sword"] = 2, ["athame"] = 2,
     ["rapier"] = 2, ["quick blade"] = 1, ["hand axe"] = 2, ["war axe"] = 2 }
 -- Slower weapons that will get distortion and become less than normal speed
 -- with slowness

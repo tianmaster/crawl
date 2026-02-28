@@ -5412,7 +5412,9 @@ static void _attacks_table_row(const monster_info &mi, mon_attack_desc_info &di,
         // From attack::calc_damage
         // damage = 1 + random2(monster attack damage)
         //          + random2(weapon damage) + random2(1 + enchant + slay)
-        const int base_dam = property(*wpn, PWPN_DAMAGE);
+        // (HACK?: Bake in the athame debuff roll into the max display.)
+        int base_dam = (wpn->sub_type == WPN_ATHAME) ? property(*wpn, PWPN_DAMAGE) + 4:
+                                                       property(*wpn, PWPN_DAMAGE);
         dam += brand_adjust_weapon_damage(base_dam, get_weapon_brand(*wpn), false) - 1;
         if (ranged && mons_class_flag(mi.type, M_ARCHER))
             dam += archer_bonus_damage(mi.hd);

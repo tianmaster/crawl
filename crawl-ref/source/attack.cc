@@ -44,6 +44,7 @@
 #include "spl-summoning.h"
 #include "spl-util.h"
 #include "state.h"
+#include "status.h"  // debuffed_target
 #include "stepdown.h"
 #include "stringutil.h"
 #include "tag-version.h"
@@ -931,9 +932,47 @@ int attack::calc_base_unarmed_damage() const
     return dam > 0 ? dam : 0;
 }
 
+// Count the number of debuffs the target has. Since we're not using it for
+// anything other than athame stacks, only count up to two.
+int attack::target_debuff_count() const
+{
+    int debuff_count = 0;
+    if (defender->is_monster())
+    {
+        mon_enchant_list ec = defender->as_monster()->enchantments;
+        for (auto &entry : ec)
+        {
+            if (ench_triggers_trickster(entry.first))
+            {
+                if (++debuff_count >= 2)
+                    break;
+            }
+        }
+    }
+    else
+    {
+        for (unsigned int i = 0; i < NUM_DURATIONS; ++i)
+        {
+            // Until monsters use this any more notably against players,
+            // most of the asymmetries here outside of poison are fine.
+            if (you.duration[i] > 0 && duration_negative((duration_type)i)
+                && i != DUR_POISONING)
+            {
+                if (++debuff_count >= 2)
+                    break;
+            }
+        }
+    }
+    return debuff_count;
+}
+
 int attack::adjusted_weapon_damage() const
 {
-    return brand_adjust_weapon_damage(weapon_damage(), damage_brand, true);
+    int wdamage = weapon_damage();
+    if (weapon && weapon->is_type(OBJ_WEAPONS, WPN_ATHAME))
+        wdamage = wdamage + target_debuff_count() * 2; // up to 66% of base 6 damage!
+
+    return brand_adjust_weapon_damage(wdamage, damage_brand, true);
 }
 
 int attack::calc_damage()
