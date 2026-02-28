@@ -1643,10 +1643,7 @@ void update_four_winds(bool force_recheck)
             gap = min(gap, you.wind_category_weight[prevailing] - you.wind_category_weight[i]);
         }
         if (gap >= 15)
-        {
             you.gave_wind_change_warning = false;
-            mpr("Turning warning back on.");
-        }
     }
 
     you.wind_category_inc.init(false);
