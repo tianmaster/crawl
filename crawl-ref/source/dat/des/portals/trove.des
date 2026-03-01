@@ -243,18 +243,25 @@ function trove_weap_brand(e, brand, ranged_valid)
   local range = ranged_valid and trove_other_weapon_specialty(_G, "Ranged Weapons")
   local wnames = {
     ["eveningstar"] = {2, true},
-    ["demon whip"] = {2, not no_evil},
+    ["demon whip"] = {2, brand ~= "holy_wrath" and not no_evil(e)},
+    ["sacred scourge"] = {1, brand == "holy_wrath" and you.god() ~= "Yredelemnul"},
     ["executioner's axe"] = {2, two_hands and big_enough},
     ["broad axe"] = {2, big_for_small},
     ["bardiche"] = {2, two_hands and big_enough},
     ["partisan"] = {1, big_for_small},
-    ["demon trident"] = {1, big_for_small and not no_evil},
+    ["demon trident"] = {1, big_for_small and not no_evil(e) and
+                            brand ~= "holy_wrath"},
+    ["trishula"] = {1, big_for_small and you.god() ~= "Yredelemnul" and
+                       brand == "holy_wrath"},
     ["lajatang"] = {4, two_hands and big_for_small},
     ["quick blade"] = {3, true},
     ["athame"] = {1, true},
     ["triple sword"] = {2, two_hands and big_enough},
     ["double sword"] = {1, big_for_small},
-    ["demon blade"] = {1, big_for_small},
+    ["demon blade"] = {1, big_for_small and not no_evil(e) and
+                          brand ~= "holy_wrath"},
+    ["eudemon blade"] = {1, big_for_small and you.god ~= "Yredelemnul" and
+                            brand == "holy_wrath"},
     ["longbow"] = {4, range and big_enough and two_hands},
     ["hand cannon"] = {2, range},
     ["triple crossbow"] = {2, range and you.race() ~= "Spriggan" and two_hands},
