@@ -1531,6 +1531,8 @@ bool melee_attack::swing_with(item_def &wpn)
     is_sunder |= swing.is_sunder;
     cancel_attack = swing.cancel_attack;
     is_attacking_hostiles = is_attacking_hostiles || swing.is_attacking_hostiles;
+    did_hit |= swing.did_hit;
+    total_damage_done += swing.total_damage_done;
     return success;
 }
 
