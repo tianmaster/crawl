@@ -240,7 +240,7 @@ function trove_weap_brand(e, brand, ranged_valid)
   local big_enough = you.race() ~= "Spriggan" and you.race() ~= "Kobold"
   local big_for_small = (you.race() ~= "Spriggan" and you.race() ~= "Kobold") or
                         you.mutation("missing a hand") ~= 1
-  local range = trove_other_weapon_specialty(_G, "Ranged Weapons")
+  local range = ranged_valid and trove_other_weapon_specialty(_G, "Ranged Weapons")
   local wnames = {
     ["eveningstar"] = {2, true},
     ["demon whip"] = {2, not no_evil},
