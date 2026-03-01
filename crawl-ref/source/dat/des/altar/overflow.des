@@ -6688,16 +6688,18 @@ kitem("1 = " .. dgn.random_item_def(weapons, egos, "plus:0"))
 }}
 KITEM:   2 = randbook owner:Sif_Muna numspells:3 slevels:4
 : end
-: standard_overflow_setup(_G, { { "trog", "A" }, { "sif_muna", "B" } }, true)
+FTILE:   1B- = floor_pebble_red
+FTILE:   2C' = floor_pebble_blue
+: standard_overflow_setup(_G, { { "trog", "B" }, { "sif_muna", "C" } }, true)
 MAP
      xx@@@x
     xx...xx
    xx...xxxxx
-  xx...xx-A-x
+  xx...xx-B-x
  xx...xcx-1-x
 xx...xAx...xx
 x'2'xcx...xx
-x'B'xx...xx
+x'C'xx...xx
 xxxxx...xx
   xx...xx
   x@@@xx
