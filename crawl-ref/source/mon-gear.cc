@@ -337,14 +337,12 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
         { WPN_SHORT_SWORD,      1 },
         { WPN_RAPIER,           1 },
         { WPN_DAGGER,           1 }, };
-    static const weapon_list DE_VILE_MAGE_WEAPONS =
-    {   { WPN_SCIMITAR,         2 },
-        { WPN_FALCHION,         1 },
-        { WPN_RAPIER,           1 },
-        { WPN_ATHAME,           1 }, };
     static const weapon_list OCCULT_WEAPONS =
     {   { WPN_DAGGER,           4 },
         { WPN_WHIP,             2 },
+        { WPN_ATHAME,           1 }, };
+    static const weapon_list RITUAL_WEAPONS =
+    {   { WPN_DAGGER,           4 },
         { WPN_ATHAME,           1 }, };
     static const weapon_list DRAC_MAGE_WEAPONS = // XXX: merge with DE? ^
     {   { WPN_LONG_SWORD,       2 },
@@ -412,6 +410,14 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
         { WPN_LONG_SWORD,       1 } },
       { 1, 2, 5 },
       { { SPWPN_HOLY_WRATH,     1 } } };
+    static const mon_weapon_spec DE_VILE_MAGE_WEAPONS =
+    { { { WPN_SCIMITAR,         2 },
+        { WPN_FALCHION,         1 },
+        { WPN_RAPIER,           1 },
+        { WPN_ATHAME,           1 }, }, { },
+      { { SPWPN_FLAMING,        1 },
+        { SPWPN_FREEZING,       1 },
+        { NUM_SPECIAL_WEAPONS,  3 } } };
     static const vector<pair<brand_type, int>> HELL_KNIGHT_BRANDS = // sum 45
     {   { SPWPN_FLAMING,        13 },
         { SPWPN_DRAINING,       4 },
@@ -901,13 +907,16 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
         { MONS_BURIAL_ACOLYTE,          { OCCULT_WEAPONS } },
         { MONS_NECROMANCER,             { OCCULT_WEAPONS } },
         { MONS_OCCULTIST,               { OCCULT_WEAPONS } },
-        { MONS_JOSEPHINE,               { OCCULT_WEAPONS } },
-        { MONS_NERGALLE,                { OCCULT_WEAPONS } },
+        { MONS_KOBOLD_DEMONOLOGIST,     { OCCULT_WEAPONS } },
+        { MONS_JOSEPHINE,               { RITUAL_WEAPONS } },
+        { MONS_NERGALLE,                { RITUAL_WEAPONS } },
+        { MONS_ORC_SORCERER,
+            { { { WPN_DAGGER,               9 },
+                { WPN_ATHAME,               1 },
+        } } },
         { MONS_CACTUS_GIANT,    { { { WPN_GIANT_SPIKED_CLUB, 1 } } } },
         { MONS_ORC_WIZARD,      { { { WPN_DAGGER, 1 } } } },
-        { MONS_ORC_SORCERER,    { { { WPN_DAGGER, 1 } } } },
         { MONS_DOWAN,           { { { WPN_DAGGER, 1 } } } },
-        { MONS_KOBOLD_DEMONOLOGIST, { { { WPN_DAGGER, 1 } } } },
         { MONS_KOBOLD_GEOMANCER, { { { WPN_DAGGER, 1 } } } },
         { MONS_ARCANIST,         { { { WPN_DAGGER, 1 } } } },
         { MONS_CASSANDRA,        { { { WPN_DAGGER, 1 } } } },
