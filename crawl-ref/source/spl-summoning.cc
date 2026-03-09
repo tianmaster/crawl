@@ -3651,6 +3651,7 @@ void launch_clockwork_bee(const actor& agent)
         }
 
         bee->speed_increment = 80;
+        queue_monster_for_action(bee);
         bee->props[CLOCKWORK_BEE_TARGET].get_int() = targ->mid;
     }
     else if (agent.is_player())
