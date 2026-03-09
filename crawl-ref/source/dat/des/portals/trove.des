@@ -1093,8 +1093,9 @@ trove_defense(_G, "swamp dragon scales good_item / swamp dragon scales randart",
                               "any beam wand charges:8",
                               "wand of roots charges:8 w:5", box))
 local n_wield = you.mutation("no weapons or thrown items") == 1
-trove_unrand_chances(_G, "defg", {"robe of vines", "punk"},
-                         {no_body_armour_species(_G), n_wield}, {"y", "z"})
+trove_unrand_chances(_G, "defg", {"robe of vines", "swamp witch's dragon scales",
+                         "punk"}, {no_body_armour_species(_G), n_wield},
+                         {"y", "z", "Z"})
 }}
 KFEAT:   t = mangrove
 KFEAT:   CZ? = W

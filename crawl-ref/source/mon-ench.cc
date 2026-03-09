@@ -377,6 +377,16 @@ void monster::add_enchantment_effect(const mon_enchant &ench, bool quiet)
     default:
         break;
     }
+
+    if (ench.who == KC_YOU && you.unrand_equipped(UNRAND_SWAMP_WITCH_SCALES) &&
+        ench_triggers_trickster(ench.ench))
+    {
+        // 4 levels for rPois0 or rPois-, 1 level for rPois, or 0 further up.
+        // Gets pretty message spammy with mass effects if we actually printed
+        // any messages in poisoning others, alas.
+        int pois = res_poison() > 2 ? 0 : res_poison() == 1 ? 1 : 4;
+        poison_monster(this, &you, pois, true);
+    }
 }
 
 

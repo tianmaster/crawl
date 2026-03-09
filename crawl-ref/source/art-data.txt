@@ -1936,6 +1936,19 @@ TILE:     urand_scarf_invisibility
 TILE_EQ:  SCARF_INVISIBILITY
 BOOL:     inv, nogen
 
+ENUM:    SWAMP_WITCH_SCALES
+NAME:    swamp witch's dragon scales
+INSCRIP: TrickPois
+OBJ:     OBJ_ARMOUR/ARM_SWAMP_DRAGON_ARMOUR
+PLUS:    +5
+INT:     +3
+COLOUR:  ETC_POISON
+TILE:    urand_swamp_witch_scales
+TILE_EQ: SWAMP_WITCH
+DESCRIP: TrickPois: Whenever you inflict a negative status on an enemy, you also
+ fully poison it. Those with rPois+ will only be lightly poisoned, and
+ those with rPois∞ won't be poisoned at all.
+
 # This entry must always be last.
 ENUM:   DUMMY2
 NAME:   DUMMY UNRANDART 2
