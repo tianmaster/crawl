@@ -242,7 +242,9 @@ LUAFN(view_invisible_monster)
     return 1;
 }
 
-/*** Can one cell see the other?
+/*** Can one cell see the other? Can check any two squares in the player's
+ * map knowledge, treating unknown squares as clear. Uses player-centered
+ * coordinates.
  * @tparam int x1
  * @tparam int y1
  * @tparam int x2
@@ -254,7 +256,62 @@ LUAFN(view_cell_see_cell)
 {
     PLAYERCOORDS(p1, 1, 2)
     PLAYERCOORDS(p2, 3, 4)
-    PLUARET(boolean, cell_see_cell(p1, p2, LOS_DEFAULT));
+    PLUARET(boolean, exists_ray(p1, p2, opc_map_default));
+    return 1;
+}
+
+/*** Can one cell see the other without looking through a window? Can check
+ * any two squares in the player's map knowledge, treating unknown squares as
+ * clear. Uses player-centered coordinates.
+ * @tparam int x1
+ * @tparam int y1
+ * @tparam int x2
+ * @tparam int y2
+ * @treturn boolean
+ * @function cell_see_cell_no_trans
+ */
+LUAFN(view_cell_see_cell_no_trans)
+{
+    PLAYERCOORDS(p1, 1, 2)
+    PLAYERCOORDS(p2, 3, 4)
+    PLUARET(boolean, exists_ray(p1, p2, opc_map_no_trans));
+    return 1;
+}
+
+/*** Can one cell see another without something solid in the way? Can check
+ * any two squares in the player's map knowledge, treating unknown squares as
+ * clear. Uses player-centered coordinates.
+ * @tparam int x1
+ * @tparam int y1
+ * @tparam int x2
+ * @tparam int y2
+ * @treturn boolean
+ * @function cell_see_cell_solid
+ */
+LUAFN(view_cell_see_cell_solid)
+{
+    PLAYERCOORDS(p1, 1, 2)
+    PLAYERCOORDS(p2, 3, 4)
+    PLUARET(boolean, exists_ray(p1, p2, opc_map_solid));
+    return 1;
+}
+
+/*** Can one cell see another with nothing in the way? Checks line of sight
+ * treating all solid features as opaque and properly checking bushes and
+ * clouds. Can check any two squares in the player's map knowledge, treating
+ * unknown squares as clear. Uses player-centered coordinates.
+ * @tparam int x1
+ * @tparam int y1
+ * @tparam int x2
+ * @tparam int y2
+ * @treturn boolean
+ * @function cell_see_cell_solid_see
+ */
+LUAFN(view_cell_see_cell_solid_see)
+{
+    PLAYERCOORDS(p1, 1, 2)
+    PLAYERCOORDS(p2, 3, 4)
+    PLUARET(boolean, exists_ray(p1, p2, opc_map_solid_see));
     return 1;
 }
 
@@ -393,6 +450,9 @@ static const struct luaL_Reg view_lib[] =
     { "withheld", view_withheld },
     { "invisible_monster", view_invisible_monster },
     { "cell_see_cell", view_cell_see_cell },
+    { "cell_see_cell_no_trans", view_cell_see_cell_no_trans },
+    { "cell_see_cell_solid", view_cell_see_cell_solid },
+    { "cell_see_cell_solid_see", view_cell_see_cell_solid_see },
     { "in_known_map_bounds", view_in_known_map_bounds },
     { "get_map", view_get_map },
 
