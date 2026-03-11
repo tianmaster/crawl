@@ -48,7 +48,6 @@ trap_type random_trap_for_place(bool dispersal_ok = true);
 
 void place_webs(int num);
 
-bool is_regular_trap(trap_type trap);
 #if TAG_MAJOR_VERSION == 34
 bool is_removed_trap(trap_type trap);
 #endif

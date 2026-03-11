@@ -6612,14 +6612,7 @@ static void _place_specific_trap(const coord_def& where, trap_spec* spec,
 
     // find an appropriate trap for TRAP_RANDOM
     if (spec_type == TRAP_RANDOM)
-    {
-        do
-        {
-            spec_type = static_cast<trap_type>(random2(NUM_TRAPS));
-        }
-        while (!is_regular_trap(spec_type)
-               || !is_valid_shaft_level() && spec_type == TRAP_SHAFT);
-    }
+        spec_type = random_trap_for_place();
 
     trap_def t;
     t.type = spec_type;

@@ -1370,17 +1370,6 @@ void player::stop_being_caught(bool drop_net)
     quiver::set_needs_redraw();
 }
 
-// Whether this trap type can be placed in vaults by the ^ glyph
-bool is_regular_trap(trap_type trap)
-{
-#if TAG_MAJOR_VERSION == 34
-    return !is_removed_trap(trap)
-           && (trap <= TRAP_MAX_REGULAR || trap == TRAP_DISPERSAL);
-#else
-    return trap <= TRAP_MAX_REGULAR;
-#endif
-}
-
 #if TAG_MAJOR_VERSION == 34
 bool is_removed_trap(trap_type trap)
 {
