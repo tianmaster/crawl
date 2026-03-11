@@ -486,6 +486,10 @@ public:
     // the start of the next turn without more complicated cleanup)
     int did_east_wind;
 
+    // The storage for Xom's floor exploration estimates. Ranges from 1 to 100,
+    // and is calculated to assess e.g. mapping / teleport effects.
+    int explore_estimate;
+
     // If true, player has triggered a trap effect by exploring.
     bool trapped;
 

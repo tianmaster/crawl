@@ -97,6 +97,77 @@ static bool _action_is_bad(xom_event_type action)
     return action > XOM_LAST_GOOD_ACT && action <= XOM_LAST_BAD_ACT;
 }
 
+static bool _xom_is_bored()
+{
+    return you_worship(GOD_XOM) && !you.gift_timeout;
+}
+
+// Picks 100 random grids from the level and checks whether they've been
+// marked as seen (explored) or known (mapped). If seen_only is true,
+// grids only "seen" via magic mapping don't count. Returns the
+// estimated percentage value of exploration.
+static void _calculate_exploration_estimate(bool seen_only = false)
+{
+    int seen = 0, total = 0, tries = 0;
+
+    do
+    {
+        tries++;
+
+        coord_def pos = random_in_bounds();
+        if (!seen_only && env.map_knowledge(pos).known() || env.map_knowledge(pos).seen())
+        {
+            seen++;
+            total++;
+            continue;
+        }
+
+        bool open = true;
+        if (cell_is_solid(pos) && !feat_is_closed_door(env.grid(pos)))
+        {
+            open = false;
+            for (adjacent_iterator ai(pos); ai; ++ai)
+            {
+                if (map_bounds(*ai) && (!feat_is_opaque(env.grid(*ai))
+                                        || feat_is_closed_door(env.grid(*ai))))
+                {
+                    open = true;
+                    break;
+                }
+            }
+        }
+
+        if (open)
+            total++;
+    }
+    while (total < 100 && tries < 500);
+
+    // If we didn't get any qualifying grids, there are probably so few
+    // of them you've already seen them all.
+    if (total == 0)
+        seen = 0;
+
+    if (total < 100)
+        seen *= 100 / total;
+
+    you.explore_estimate = seen;
+}
+
+// A reusable function for trivially cracking down on Xomscumming without
+// worsening select portals (with br_flag::fully_map levels being somewhat
+// inconsistent). Returns true if Xom's bored and the floor's mostly explored.
+static bool _bored_explore_estimate(int minimum)
+{
+    // Just checking the non-ability non-Temple ones.
+    if (player_in_branch(BRANCH_NECROPOLIS) || player_in_branch(BRANCH_GAUNTLET))
+        return false;
+
+    if (player_in_branch(BRANCH_BAZAAR))
+        return true;
+
+    return _xom_is_bored() && you.explore_estimate >= minimum;
+}
+
 // Spells to be cast at tension > 0, i.e. usually in battle situations.
 // Spells later in the list require higher severity to have a chance of being
 // selected. Spells are sorted by level, then very roughly by power when
@@ -124,7 +195,6 @@ static const vector<spell_type> _xom_random_spells =
     SPELL_DIAMOND_SAWBLADES,
     SPELL_MALIGN_GATEWAY,
     SPELL_DISCORD,
-    SPELL_DISJUNCTION,
     SPELL_SUMMON_HORRIBLE_THINGS,
     SPELL_SUMMON_DRAGON,
     SPELL_FULSOME_FUSILLADE,
@@ -215,15 +285,11 @@ static string _get_xom_speech(const string &key)
     return result;
 }
 
-static bool _xom_is_bored()
-{
-    return you_worship(GOD_XOM) && !you.gift_timeout;
-}
 
 static bool _xom_feels_nasty()
 {
     // Xom will only directly kill you with a bad effect if you're under
-    // penance from him, or if he's bored.
+    // penance from Them, or if They're bored.
     return you.penance[GOD_XOM] || _xom_is_bored();
 }
 
@@ -234,7 +300,7 @@ bool xom_is_nice(int tension)
 
     if (you_worship(GOD_XOM))
     {
-        // If you.gift_timeout is 0, then Xom is BORED. He HATES that.
+        // If you.gift_timeout is 0, then Xom is BORED. They HATE that.
         if (!you.gift_timeout)
             return false;
 
@@ -257,7 +323,7 @@ bool xom_is_nice(int tension)
              tension, you.raw_piety, tension_bonus, effective_piety);
 #endif
 
-        // Whether Xom is nice depends largely on his mood (== piety).
+        // Whether Xom is nice depends largely on Their mood (== piety).
         return x_chance_in_y(effective_piety, MAX_PIETY);
     }
     else // CARD_XOM (XXX: There is no Xom card anymore. Is this needed?)
@@ -271,7 +337,7 @@ static void _xom_is_stimulated(int maxinterestingness,
     if (!you_worship(GOD_XOM) || maxinterestingness <= 0)
         return;
 
-    // Xom is not directly stimulated by his own acts.
+    // Xom is not directly stimulated by Their own acts.
     if (crawl_state.which_god_acting() == GOD_XOM)
         return;
 
@@ -366,9 +432,21 @@ void xom_tick()
         take_note(Note(NOTE_MESSAGE, 0, 0, note), true);
 #endif
 
-        // ...but he gets bored...
-        if (you.gift_timeout > 0 && coinflip())
-           you.gift_timeout--;
+        // ...but They get bored...
+        _calculate_exploration_estimate(true);
+        if (you.gift_timeout > 0 && you.explore_estimate > 5 && coinflip())
+        {
+            you.gift_timeout--;
+            // Especially if the floor's mostly done.
+            if (you.explore_estimate >= 85)
+                you.gift_timeout = max(you.gift_timeout - 5, 0);
+        }
+
+        if (you.explore_estimate >= 85 && you.gift_timeout <= 15 ||
+            you.gift_timeout == 1)
+        {
+            simple_god_message(" is getting BORED.");
+        }
 
         new_xom_favour = describe_xom_favour();
         if (old_xom_favour != new_xom_favour)
@@ -376,9 +454,6 @@ void xom_tick()
             const string msg = "You are now " + new_xom_favour;
             god_speaks(you.religion, msg.c_str());
         }
-
-        if (you.gift_timeout == 1)
-            simple_god_message(" is getting BORED.");
     }
 
     if (x_chance_in_y(2 + you.faith(), 6))
@@ -430,59 +505,6 @@ static bool mon_nearby(function<bool(monster&)> filter)
         if (filter(**mi))
             return true;
     return false;
-}
-
-// Picks 100 random grids from the level and checks whether they've been
-// marked as seen (explored) or known (mapped). If seen_only is true,
-// grids only "seen" via magic mapping don't count. Returns the
-// estimated percentage value of exploration.
-static int _exploration_estimate(bool seen_only = false)
-{
-    int seen  = 0;
-    int total = 0;
-    int tries = 0;
-
-    do
-    {
-        tries++;
-
-        coord_def pos = random_in_bounds();
-        if (!seen_only && env.map_knowledge(pos).known() || env.map_knowledge(pos).seen())
-        {
-            seen++;
-            total++;
-            continue;
-        }
-
-        bool open = true;
-        if (cell_is_solid(pos) && !feat_is_closed_door(env.grid(pos)))
-        {
-            open = false;
-            for (adjacent_iterator ai(pos); ai; ++ai)
-            {
-                if (map_bounds(*ai) && (!feat_is_opaque(env.grid(*ai))
-                                        || feat_is_closed_door(env.grid(*ai))))
-                {
-                    open = true;
-                    break;
-                }
-            }
-        }
-
-        if (open)
-            total++;
-    }
-    while (total < 100 && tries < 1000);
-
-    // If we didn't get any qualifying grids, there are probably so few
-    // of them you've already seen them all.
-    if (total == 0)
-        return 100;
-
-    if (total < 100)
-        seen *= 100 / total;
-
-    return seen;
 }
 
 static bool _teleportation_check()
@@ -694,7 +716,7 @@ static bool _is_chaos_upgradeable(const item_def &item)
 }
 
     // Only upgrade permanent items, since the player should get a
-    // chance to use the item if he or she can defeat the monster.
+    // chance to use the item if they can defeat the monster.
     if (item.flags & ISFLAG_SUMMONED)
         return false;
 
@@ -702,7 +724,7 @@ static bool _is_chaos_upgradeable(const item_def &item)
     if (is_blessed(item))
         return false;
 
-    // God gifts are protected -- but not his own!
+    // God gifts are protected -- but not Their own!
     if (item.orig_monnum < 0)
     {
         god_type iorig = static_cast<god_type>(-item.orig_monnum);
@@ -859,7 +881,6 @@ static const vector<random_pick_entry<monster_type>> _xom_summons =
   {  5, 12,  90, SEMI, MONS_SWAMP_DRAKE },
   {  5, 12,  25, SEMI, MONS_WEEPING_SKULL },
   {  7, 14,  50, SEMI, MONS_ORANGE_DEMON },
-  {  7, 15,  95, SEMI, MONS_SHAPESHIFTER },
   {  8, 14,  40, SEMI, MONS_ICE_DEVIL },
   {  8, 14,  40, SEMI, MONS_RED_DEVIL },
   {  8, 15,  60, SEMI, MONS_BOGGART },
@@ -867,6 +888,7 @@ static const vector<random_pick_entry<monster_type>> _xom_summons =
   {  9, 14,  60, SEMI, MONS_HELLWING },
   {  9, 14,   5, FLAT, MONS_TOENAIL_GOLEM },
   {  9, 14,  30, SEMI, MONS_VAMPIRE },
+  {  9, 15,  95, SEMI, MONS_SHAPESHIFTER },
   {  9, 16,  50, SEMI, MONS_YNOXINUL },
   { 10, 14,  40, SEMI, MONS_HELL_RAT },
   { 10, 14,  30, SEMI, MONS_KOBOLD_DEMONOLOGIST },
@@ -2038,8 +2060,10 @@ static void _xom_give_mutations(bool good)
 
     for (int i = num_tries; i > 0; --i)
     {
-        // One bad mutation guaranteed when under Xom wrath.
-        if (you.penance[GOD_XOM] && i == num_tries && !good)
+        // One bad mutation guaranteed when under Xom wrath,
+        // or if you're on a nearly-full-explored floor while They're bored.
+        if (i == num_tries && !good && (you.penance[GOD_XOM] ||
+            _bored_explore_estimate(95)))
         {
             if (!mutate(RANDOM_BAD_MUTATION, "Xom's mischief",
                         failMsg, false, true, false, MUTCLASS_NORMAL))
@@ -2734,44 +2758,32 @@ static vector<monster*> _xom_find_weak_monsters(bool range)
 // if you don't have anything weak enough to get a buff.
 static void _xom_hyper_enchant_monster(int sever)
 {
-    vector<enchant_type> buff_list { ENCH_MIGHT, ENCH_HASTE, ENCH_INVIS,
-                                     ENCH_EMPOWERED_SPELLS, ENCH_DEFLECT_MISSILES,
-                                     ENCH_RESISTANCE, ENCH_REGENERATION,
-                                     ENCH_STRONG_WILLED, ENCH_TOXIC_RADIANCE,
+    vector<enchant_type> buff_list { ENCH_MIGHT, ENCH_SWIFT, ENCH_HASTE,
+                                     ENCH_INVIS, ENCH_EMPOWERED_SPELLS,
+                                     ENCH_DEFLECT_MISSILES, ENCH_RESISTANCE,
+                                     ENCH_REGENERATION, ENCH_TOXIC_RADIANCE,
+                                     ENCH_CHAOS_LACE, ENCH_WARDING,
                                      ENCH_DOUBLED_VIGOUR, ENCH_MIRROR_DAMAGE,
-                                     ENCH_SWIFT };
+                                     ENCH_STRONG_WILLED, ENCH_PARADOX_TOUCHED };
     vector<monster*> targetable = _xom_find_weak_monsters(true);
     int time = random_range(200, 200 + sever * 2);
     int xl = you.experience_level;
-    int good_god = you_worship(GOD_ELYVILON) || you_worship(GOD_ZIN) ||
-                   you_worship(GOD_SHINING_ONE);
     int buff_count = 0;
 
     if (targetable.empty())
     {
         monster_type mon_type;
+        bool mundane = is_good_god(you.religion) || one_chance_in(4);
 
         // Mostly more mundane choices than usual Xom summons.
         if (xl < 7)
-        {
-            mon_type = (good_god || one_chance_in(4)) ? MONS_IGUANA
-                                                      : MONS_CERULEAN_IMP;
-        }
+            mon_type = mundane ? MONS_IGUANA : MONS_CERULEAN_IMP;
         else if (xl < 14 + random_range(-1, 1))
-        {
-            mon_type = (good_god || one_chance_in(4)) ? MONS_BLACK_BEAR
-                                                      : MONS_HELL_RAT;
-        }
+            mon_type = mundane ? MONS_BLACK_BEAR : MONS_HELL_RAT;
         else if (xl < 21 + random_range(-1, 1))
-        {
-            mon_type = (good_god || one_chance_in(4)) ? MONS_WYVERN
-                                                      : MONS_HELL_HOUND;
-        }
+            mon_type = mundane ? MONS_WYVERN : MONS_HELL_HOUND;
         else
-        {
-            mon_type = (good_god || one_chance_in(3)) ? MONS_ELEPHANT
-                                                      : MONS_TOENAIL_GOLEM;
-        }
+            mon_type = mundane ? MONS_ELEPHANT : MONS_TOENAIL_GOLEM;
 
         mgen_data mg(mon_type, BEH_FRIENDLY, you.pos(),
                     MHITYOU, MG_FORCE_BEH | MG_FORCE_PLACE, GOD_XOM);
@@ -2822,6 +2834,11 @@ static void _xom_hyper_enchant_monster(int sever)
                 || apply == ENCH_SWIFT)
             {
                 lines += make_stringf("starts %s, ", ench_name.c_str());
+            }
+            else if (apply == ENCH_DOUBLED_VIGOUR || apply == ENCH_CHAOS_LACE
+                || apply == ENCH_WARDING || apply == ENCH_PARADOX_TOUCHED)
+            {
+                lines += make_stringf("becomes %s, ", ench_name.c_str());
             }
             else if (apply == ENCH_EMPOWERED_SPELLS)
                 lines += make_stringf("has its spells empowered, ");
@@ -3813,31 +3830,32 @@ static void _xom_cloud_trail(int /*sever*/)
 
 static void _xom_draining(int /*sever*/)
 {
-    int power = 100;
+    int power =  _bored_explore_estimate(90) ? 200 : 100;
     const string speech = _get_xom_speech("suffering");
     god_speaks(GOD_XOM, speech.c_str());
 
-    if (you.experience_level < 4
+    if ((you.experience_level < 4 && !_bored_explore_estimate(90))
         || (you.hp_max_adj_temp < 0 && !_xom_feels_nasty()))
     {
         power /= 2;
     }
 
-    drain_player(power, true);
+    drain_player(power + random_range(-5, 5), true);
 
     take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, "draining"), true);
 }
 
 static void _xom_doom(int /*sever*/)
 {
-    int power = random_range(15, 25);
+    int power = _bored_explore_estimate(90) ? random_range(50, 60)
+                                            : random_range(20, 25);
     const string speech = _get_xom_speech("suffering");
     god_speaks(GOD_XOM, speech.c_str());
 
-    if (you.experience_level < 9
-        || (you.attribute[ATTR_DOOM] > 50 && !_xom_feels_nasty()))
+    if ((you.experience_level < 9 && !_bored_explore_estimate(90))
+        || ((you.attribute[ATTR_DOOM] > 50 && !_xom_feels_nasty())))
     {
-        power /= 2;
+        power = power * 2 / 3;
     }
 
     if (!(you.attribute[ATTR_DOOM] + power >= 100))
@@ -4453,7 +4471,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
     },
     {
         XOM_GOOD_SINGLE_ALLY, 400, 60, [](int /*sv*/, int tn)
-        {return (tn > 0 || (_exploration_estimate(false) < 25))
+        {return (tn > 0 || (you.explore_estimate < 25))
                 && !you.allies_forbidden();}
     },
     {
@@ -4610,8 +4628,8 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         // happen for runed door vaults and branch ends.
         XOM_GOOD_TELEPORT, 40, 590, [](int /*sv*/, int /*tn*/)
         {return (!player_in_branch(BRANCH_ABYSS) && _teleportation_check())
-                && (_exploration_estimate(true) < 80
-                || !x_chance_in_y(_exploration_estimate(true), 110));}
+                && (you.explore_estimate < 80
+                || !x_chance_in_y(you.explore_estimate, 110));}
     },
     {
         XOM_GOOD_LIGHTNING, 21, 0, [](int /*sv*/, int tn)
@@ -4671,8 +4689,8 @@ static const vector<xom_event_data> _list_xom_good_actions = {
     // people less about amusing Xom having nothing to do with mood, etc, etc.
     {
         XOM_GOOD_DIVINATION, 420, 500, [](int /*sv*/, int tn)
-        {return tn <= 24 && (_exploration_estimate(false) < 80
-                || x_chance_in_y(_exploration_estimate(false), 120));}
+        {return tn <= 24 && (you.explore_estimate < 80
+                || x_chance_in_y(you.explore_estimate, 120));}
     },
     {
         XOM_GOOD_SCENERY, 120, 135, [](int /*sv*/, int tn)
@@ -4681,7 +4699,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
     },
     {
         XOM_GOOD_CLOUD_TRAIL, 0, 375, [](int /*sv*/, int tn)
-        {return (tn == 0) && (_exploration_estimate(false) < 100)
+        {return (tn == 0) && (you.explore_estimate < 100)
                           && !you.duration[DUR_CLOUD_TRAIL];}
     },
     {
@@ -4696,7 +4714,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
               return false;
            }
 
-           // Check if you have enough gold, increqased by each trip.
+           // Check if you have enough gold, increased by each trip.
            if (you.gold < (900 + sv * (4 +
                           (you.props[XOM_BAZAAR_TRIP_COUNT].get_int() * 2))))
            {
@@ -4704,8 +4722,8 @@ static const vector<xom_event_data> _list_xom_good_actions = {
            }
 
            // Don't interrupt autotravel too often.
-           if (_exploration_estimate(true) > 80
-               && !x_chance_in_y(_exploration_estimate(true), 120))
+           if (you.explore_estimate> 80
+               && !x_chance_in_y(you.explore_estimate, 120))
            {
                return false;
            }
@@ -4719,25 +4737,33 @@ static const vector<xom_event_data> _list_xom_good_actions = {
     {
         XOM_GOOD_MUTATION, 32, 400, [](int /*sv*/, int tn)
         {return (random2(tn) < 5 // should really revise strategic benefits....
-                 && x_chance_in_y(16, you.how_mutated())
-                 && you.can_safely_mutate());}
+                 && x_chance_in_y(you.how_mutated(), 54)
+                 && you.can_safely_mutate())
+                 && you.explore_estimate < 90;}
     },
     {
-        XOM_GOOD_RANDOM_ITEM, 33, 775, [](int /*sv*/, int tn) {return (tn < 20) ;}
+        XOM_GOOD_RANDOM_ITEM, 33, 775, [](int /*sv*/, int tn)
+        {return tn < 20 && you.explore_estimate < 90;}
     },
     {
-        XOM_GOOD_ACQUIREMENT, 21, 295, [](int /*sv*/, int tn) {return (tn < 20) ;}
+        XOM_GOOD_ACQUIREMENT, 21, 295, [](int /*sv*/, int tn)
+        {return tn < 20 && you.explore_estimate < 90;}
     },
 };
 
 static const vector<xom_event_data> _list_xom_bad_actions = {
     {
         XOM_BAD_NOISE, 975, 415, [](int /*sv*/, int tn)
-        {return (tn > 0 || !you.penance[GOD_XOM]);}
+        {
+            return tn > 0 || (!you.penance[GOD_XOM] &&
+                             !_bored_explore_estimate(85));
+        }
     },
     {
         XOM_BAD_MISCAST_PSEUDO, 825, 715, [](int /*sv*/, int /*tn*/)
-        {return !you.penance[GOD_XOM];}
+        {
+            return !you.penance[GOD_XOM] && !_bored_explore_estimate(85);
+        }
     },
     {
         XOM_BAD_ENCHANT_MONSTER, 790, 0, [](int /*sv*/, int tn)
@@ -4762,7 +4788,7 @@ static const vector<xom_event_data> _list_xom_bad_actions = {
     {
         XOM_BAD_TELEPORT, 475, 1460, [](int /*sv*/, int tn)
         {
-            const int explored = _exploration_estimate(true);
+            const int explored = you.explore_estimate;
 
             return ((!player_in_branch(BRANCH_ABYSS) || _teleportation_check()))
                  && !((_xom_feels_nasty() && (explored >= 40 || tn > 10))
@@ -4941,7 +4967,7 @@ static const vector<xom_event_data> _list_xom_bad_actions = {
     },
     {
         XOM_BAD_FIDDLE_WITH_DOORS, 95, 5, [](int /*sv*/, int tn)
-        {return ((tn > 4 || (_exploration_estimate(false) < 5)
+        {return ((tn > 4 || (you.explore_estimate < 5)
                  && !_xom_feels_nasty())) && !_xom_door_candidates().empty();}
     },
     {
@@ -5084,8 +5110,14 @@ void xom_take_action(xom_event_type action, int sever)
     // to the badness of the effect.
     if (bad_effect && _xom_is_bored())
     {
+        bool mostly_explored = _bored_explore_estimate(85);
         const int badness = _xom_event_badness(action);
-        const int interest = random2avg(badness * 60, 2);
+        const int interest = mostly_explored ? random2avg(badness * 20, 2)
+                                             : random2avg(badness * 60, 2);
+
+        if (mostly_explored)
+            mprf(MSGCH_WARN, "Xom feels this floor is too known and too boring!");
+
         you.gift_timeout   = min(interest, 255);
         //updating piety status line
         you.redraw_title = true;
@@ -5166,6 +5198,7 @@ xom_event_type xom_acts(int sever, maybe_bool nice, int tension, bool debug)
         mprf(MSGCH_DIAGNOSTICS, "Xom tension: %d", tension);
 #endif
 
+    _calculate_exploration_estimate(true);
     const xom_event_type action = xom_choose_action(niceness, sever, tension);
     if (!debug)
         xom_take_action(action, sever);
@@ -5275,7 +5308,7 @@ static string _get_death_type_keyword(const kill_method_type killed_by)
 
 /**
  * Have Xom maybe act to save your life. There is both a flat chance
- * and an additional chance based on tension that he will refuse to
+ * and an additional chance based on tension that They will refuse to
  * save you.
  * @param death_type  The type of death that occurred.
  * @return            True if Xom saves your life, false otherwise.
@@ -5591,16 +5624,10 @@ static bool _sort_xom_effects(const xom_effect_count &a,
 
 static string _list_exploration_estimate()
 {
-    int explored = 0;
-    int mapped   = 0;
-    for (int k = 0; k < 10; ++k)
-    {
-        mapped   += _exploration_estimate(false);
-        explored += _exploration_estimate(true);
-    }
-    mapped /= 10;
-    explored /= 10;
-
+    _calculate_exploration_estimate(true);
+    int explored = you.explore_estimate;
+    _calculate_exploration_estimate(false);
+    int mapped = you.explore_estimate;
     return make_stringf("mapping estimate: %d%%\nexploration estimate: %d%%\n",
                         mapped, explored);
 }

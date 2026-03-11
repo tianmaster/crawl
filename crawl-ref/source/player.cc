@@ -5630,6 +5630,7 @@ player::player()
     triggers_done.init(0);
     attempted_attack    = false;
     did_east_wind       = 0;
+    explore_estimate    = 0;
 
     abyss_speed         = 0;
     game_seed           = 0;
