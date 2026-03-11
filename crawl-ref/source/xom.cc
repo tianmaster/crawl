@@ -54,6 +54,7 @@
 #include "notes.h"
 #include "output.h"
 #include "place.h"
+#include "player-notices.h"
 #include "player-stats.h"
 #include "potion.h"
 #include "prompt.h"
@@ -2973,6 +2974,57 @@ static void _xom_wave_of_despair(int sever)
     take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, note), true);
 }
 
+// Xom shifts both sight and space, inflicting both blind and blinkitis on
+// every nearby enemy, so they're forced away from the player each turn and
+// are much less accurate at hitting the player from range. Also produces a
+// bunch of clouds from both blinking and one immediately beneath the player.
+static void _xom_blinding_blinkitis(int /* sever */)
+{
+    vector<monster*> target;
+    const int dur = random_range(70, 130);
+    god_speaks(GOD_XOM, _get_xom_speech("shifts sight and space").c_str());
+
+    draw_ring_animation(you.pos(), you.current_vision, BLUE, MAGENTA,
+                        true, 25, TILE_BOLT_CORRUPTION);
+
+    // Gather the list seperately from the action for the sake of messaging.
+    for (monster_near_iterator mi(you.pos(), LOS_NO_TRANS); mi; ++mi)
+        if (!mi->wont_attack() && !mi->is_peripheral() && !mi->stasis())
+            target.push_back(*mi);
+
+    mprf(MSGCH_MONSTER_ENCHANT, "%s %s blinded and untethered in space!",
+         multimonster_name_string(target).c_str(), target.size() > 1 ? "are" : "is");
+
+    for (monster *mon : target)
+    {
+        // Animate both where they were and where they land.
+        // As with darts of disjunction, give a free blink immediately.
+        flash_tile(mon->pos(), LIGHTMAGENTA, 45,
+                   coinflip() ? TILE_BOLT_MYSTIC_BLAST : TILE_BOLT_WARP_SPACE);
+        mon->add_ench(mon_enchant(ENCH_BLIND, &you, dur));
+        mon->add_ench(mon_enchant(ENCH_BLINKITIS, &you, dur));
+        blink_away(mon, &you, false, false, 3);
+        mon->hurt(NULL, roll_dice(2, 2));
+
+        if (you.see_cell(mon->pos()))
+        {
+            flash_tile(mon->pos(), LIGHTMAGENTA, 45,
+                       coinflip() ? TILE_BOLT_MYSTIC_BLAST : TILE_BOLT_WARP_SPACE);
+        }
+    }
+
+    place_cloud(CLOUD_TLOC_ENERGY, you.pos(), 12, nullptr, 0);
+    draw_ring_animation(you.pos(), you.current_vision, BLUE, MAGENTA,
+                        false, 50, TILE_BOLT_CORRUPTION);
+
+    const string note = make_stringf("warped sight and space for %d monster%s",
+                                     (int) target.size(),
+                                     target.size() > 1 ? "s" : "");
+    take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, note), true);
+}
+    take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, note), true);
+}
+
 // Xom hastes, slows, or paralyzes the player and everything else in sight
 // for the same length of time (give or take time slices and base speed).
 // Mostly screws with whatever else might join the fight afterwards,
@@ -4505,7 +4557,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         XOM_GOOD_CLEAVING, 160, 0, [](int /*sv*/, int tn) {return tn > 0;}
     },
     {
-        XOM_GOOD_FLORA_RING, 130, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_FLORA_RING, 125, 0, [](int /*sv*/, int tn)
         {
             if (tn == 0)
                 return false;
@@ -4615,11 +4667,11 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         }
     },
     {
-        XOM_GOOD_FOG, 65, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_FOG, 60, 0, [](int /*sv*/, int tn)
         {return tn > 0 && !cloud_at(you.pos());}
     },
     {
-        XOM_GOOD_FAKE_DESTRUCTION, 60, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_FAKE_DESTRUCTION, 55, 0, [](int /*sv*/, int tn)
         {return tn > 0 && mon_nearby(_choose_enchantable_monster);}
     },
     {
@@ -4654,7 +4706,37 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         XOM_GOOD_WAVE_OF_DESPAIR, 15, 0, [](int /*sv*/, int tn)
         {return tn > 0 && mon_nearby(_choose_enchantable_monster);}
     },
+    {
+        XOM_GOOD_BLINDING_BLINKITIS, 20, 0, [](int /*sv*/, int tn)
+        {
+            if (tn < 0)
+                return false;
 
+            // Calculate that there's at least one adjacent monster,
+            // and that total hostile monsters > smiter count * 5.
+            int adjacent_hostiles = 0, total_hostiles = 0, smiters = 0;
+
+            for (adjacent_iterator ai(you.pos()); ai; ++ai)
+            {
+                if (monster_at(*ai) && !monster_at(*ai)->wont_attack()
+                   && !monster_at(*ai)->is_peripheral())
+                {
+                    adjacent_hostiles++;
+                }
+            }
+            for (monster_near_iterator mi(you.pos(), LOS_NO_TRANS); mi; ++mi)
+            {
+                if (!mi->wont_attack())
+                {
+                    total_hostiles++;
+                    if (_mons_has_smite_attack(*mi))
+                        smiters++;
+                }
+            }
+            return (you.hp < you.hp_max * 75 / 100) &&
+                   adjacent_hostiles > 0 && smiters * 5 < total_hostiles;
+        }
+    },
     // Effects with very specific conditions, given a seemingly high weight
     // despite their flashiness due to how rarely they'll actually come up.
     // Might have more of these come in eventually...
@@ -5508,6 +5590,7 @@ static const map<xom_event_type, xom_event> xom_events = {
                                         _xom_hyper_enchant_monster }},
     { XOM_GOOD_MASS_CHARM, {"mass charm", _xom_mass_charm }},
     { XOM_GOOD_WAVE_OF_DESPAIR, {"wave of despair", _xom_wave_of_despair }},
+    { XOM_GOOD_BLINDING_BLINKITIS, {"blinding blinkitis", _xom_blinding_blinkitis }},
     { XOM_GOOD_FOG, { "fog", _xom_fog }},
     { XOM_GOOD_CLOUD_TRAIL, { "cloud trail", _xom_cloud_trail }},
     { XOM_GOOD_CLEAVING, { "cleaving", _xom_cleaving }},
