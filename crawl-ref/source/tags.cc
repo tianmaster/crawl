@@ -3236,6 +3236,9 @@ static void _tag_read_you(reader &th)
         you.hp_max_adj_perm -= 8;
 #endif
 
+    you.check_hp_regen_attunement = true;
+    you.check_mp_regen_attunement = true;
+
     const int x = unmarshallShort(th);
     const int y = unmarshallShort(th);
     // SIGHUP during Step from Time/etc is ok.

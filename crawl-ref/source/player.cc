@@ -2824,7 +2824,7 @@ void calc_hp(bool scale)
         you.redraw_hit_points = true;
 
         if (you.hp == you.hp_max)
-            maybe_attune_regen_items(true, false);
+            you.check_hp_regen_attunement = true;
     }
 }
 
@@ -3866,7 +3866,8 @@ void dec_hp(int hp_loss, bool fatal, const char *aux)
 
 void calc_mp(bool scale)
 {
-    int old_max = you.max_magic_points;
+    const int old_mp = you.magic_points;
+    const int old_max = you.max_magic_points;
     you.max_magic_points = get_real_mp(true);
     if (scale)
     {
@@ -3878,7 +3879,14 @@ void calc_mp(bool scale)
     }
     else
         you.magic_points = min(you.magic_points, you.max_magic_points);
-    you.redraw_magic_points = true;
+
+    if (old_mp != you.magic_points || old_max != you.max_magic_points)
+    {
+        you.redraw_magic_points = true;
+
+        if (you.magic_points == you.max_magic_points)
+            you.check_mp_regen_attunement = true;
+    }
 }
 
 void flush_mp()
@@ -4048,6 +4056,9 @@ void inc_mp(int mp_gain, bool silent)
             interrupt_activity(activity_interrupt::full_mp);
         you.redraw_magic_points = true;
     }
+
+    if (you.magic_points == you.max_magic_points)
+        you.check_mp_regen_attunement = true;
 }
 
 // Note that "max_too" refers to the base potential, the actual
@@ -4072,6 +4083,9 @@ void inc_hp(int hp_gain, bool silent)
 
         you.redraw_hit_points = true;
     }
+
+    if (you.hp == you.hp_max)
+        you.check_hp_regen_attunement = true;
 }
 
 int undrain_hp(int hp_recovered)
@@ -5406,6 +5420,9 @@ player::player()
     magic_points     = 0;
     max_magic_points = 0;
     mp_max_adj       = 0;
+
+    check_hp_regen_attunement = false;
+    check_mp_regen_attunement = false;
 
     base_stats.init(0);
 

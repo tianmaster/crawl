@@ -186,6 +186,9 @@ public:
     int max_magic_points;
     int mp_max_adj;             // max MP loss (ability costs, tutorial bonus)
 
+    bool check_hp_regen_attunement;
+    bool check_mp_regen_attunement;
+
     FixedVector<int8_t, NUM_STATS> base_stats;
 
     uint8_t max_level;
