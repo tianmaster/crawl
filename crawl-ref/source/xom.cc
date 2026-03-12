@@ -1878,7 +1878,6 @@ static void _xom_door_ring(bool good)
 
     if (created)
     {
-        env.markers.clear_need_activate();
         string message;
 
         if (dug > 60)

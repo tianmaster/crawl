@@ -919,7 +919,6 @@ spret cast_tomb(int pow, actor* victim, int source, bool fail)
                                             tomb_duration,
                                             source,
                                             victim->mindex()));
-        env.markers.clear_need_activate(); // doesn't need activation
     }
     else
         canned_msg(MSG_NOTHING_HAPPENS);

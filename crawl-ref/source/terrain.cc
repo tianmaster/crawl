@@ -2145,7 +2145,6 @@ void temp_change_terrain(coord_def pos, dungeon_feature_type newfeat, int dur,
                                       old_flv.feat_idx, dur, type, mid,
                                       env.grid_colours(pos));
     env.markers.add(marker);
-    env.markers.clear_need_activate();
     _current_terrain_changed(pos, newfeat, false, true, false, 0, 0);
 }
 

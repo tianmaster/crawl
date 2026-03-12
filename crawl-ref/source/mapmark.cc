@@ -1046,7 +1046,8 @@ void map_markers::activate_markers_at(coord_def p)
 void map_markers::add(map_marker *marker)
 {
     markers.insert(dgn_pos_marker(marker->pos, marker));
-    have_inactive_markers = true;
+    if (marker->needs_activation())
+        have_inactive_markers = true;
 }
 
 void map_markers::unlink_marker(const map_marker *marker)

@@ -7575,7 +7575,6 @@ static void _tag_read_old_traps(reader &th)
                                               DNGN_PASSAGE_OF_GOLUBRIA,
                                               0, 0, ammo * BASELINE_DELAY);
             env.markers.add(marker);
-            env.markers.clear_need_activate();
         }
     }
 }

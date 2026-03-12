@@ -1357,7 +1357,6 @@ void create_malign_gateway(coord_def point, beh_type beh, string cause,
                             beh,
                             GOD_NO_GOD,
                             pow));
-    env.markers.clear_need_activate();
     env.grid(point) = DNGN_MALIGN_GATEWAY;
     set_terrain_changed(point);
 

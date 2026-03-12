@@ -3594,7 +3594,6 @@ static void _gozag_place_shop(int index)
 
     link_items();
     env.markers.add(new map_feature_marker(you.pos(), DNGN_ABANDONED_SHOP));
-    env.markers.clear_need_activate();
 
     shop_struct *shop = shop_at(you.pos());
     ASSERT(shop);

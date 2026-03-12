@@ -570,7 +570,6 @@ void dgn_place_transporter(const coord_def &pos, const coord_def &dest)
     ASSERT(pos != dest);
 
     env.markers.add(new map_position_marker(pos, DNGN_TRANSPORTER, dest));
-    env.markers.clear_need_activate();
     dungeon_terrain_changed(pos, DNGN_TRANSPORTER, false, true);
     dungeon_terrain_changed(dest, DNGN_TRANSPORTER_LANDING, false, true);
 }
@@ -4505,7 +4504,6 @@ const vault_placement *dgn_place_map(const map_def *mdef,
             if (!you.see_cell(p))
                 set_terrain_changed(p);
         }
-        env.markers.clear_need_activate();
 
         setup_environment_effects();
         _dgn_postprocess_level();
@@ -6682,10 +6680,7 @@ static coord_def _get_feat_dest(coord_def base_pos, dungeon_feature_type feat,
         }
 
         if (!shaft)
-        {
             env.markers.add(new map_position_marker(base_pos, feat, dest_pos));
-            env.markers.clear_need_activate();
-        }
         return dest_pos;
     }
     else

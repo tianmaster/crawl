@@ -58,6 +58,7 @@ public:
 
     virtual map_marker *clone() const = 0;
     virtual void init();
+    virtual bool needs_activation() const { return false; }
     virtual void activate(bool verbose = true);
     virtual void write(writer &) const;
     virtual void read(reader &);
@@ -244,6 +245,7 @@ public:
 
     void init() override;
     void activate(bool verbose) override;
+    bool needs_activation() const override { return true; }
 
     void write(writer &) const override;
     void read(reader &) override;
