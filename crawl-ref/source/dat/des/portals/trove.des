@@ -863,11 +863,10 @@ trove_defense(_G, armour, trove_ego_gen_armour(_G, "cold_resistance", "rC"),
                              {"resistance q:2 w:5", "ambrosia q:3 w:5",
                               "magic q:2 w:5"}, nil,
                               "wand of iceblast charges:8", "phial of floods"))
--- maybe this should also have Prune?
 local small = you.race() == "Spriggan" or you.race() == "Kobold" or
               you.race() == "Felid"
-trove_unrand_chances(_G, "defghi", {"frostbite", "skin of zhor"},
-                         {small, no_body_armour_species(_G)}, {"y", "z"})
+trove_unrand_chances(_G, "defghi", {"frostbite", "partisan of prune", "skin of zhor"},
+                         {small, small, no_body_armour_species(_G)}, {"y", "z", "Z"})
 }}
 KFEAT:   ? = cache_of_meat / cache_of_fruit / cache_of_baked_goods
 KFEAT:   + = closed_clear_door

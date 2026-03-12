@@ -674,7 +674,7 @@ firestarter FIRESTARTER
 majin MAJIN
 ## polearms
 trident_octopus_king TRIDENT_OCTOPUS_KING
-glaive_of_prune GLAIVE_OF_PRUNE
+partisan_of_prune PARTISAN_OF_PRUNE
 finisher FINISHER
 scythe_of_curses SCYTHE_OF_CURSES
 glaive_of_the_guard GLAIVE_OF_THE_GUARD

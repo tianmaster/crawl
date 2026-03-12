@@ -9172,7 +9172,7 @@ WEIGHT:  3
 MONS:    deep elf pyromancer / deep elf zephyrmancer / ogre mage / occultist / \
          arcanist / kobold demonologist w:2 / kobold fleshcrafter w:2 / \
          naga mage w:2
-ITEM:    glaive_of_prune no_pickup
+ITEM:    partisan_of_prune no_pickup
 SUBST:   " : .:50 ccvbn, ' : .:50 ccvbn, ? : .:50 ccvbn, ! : .:60 ccvbnT
 NSUBST:  1 = 6:1 / 10=1.... / .
 KMASK:   l = no_monster_gen

@@ -230,13 +230,13 @@ BRAND:    SPWPN_CHAOS
 DBRAND:   Chaos Arc: It occasionally unleashes arcs of chaos on nearby creatures
  upon striking a foe.
 
-NAME:    glaive of Prune
-OBJ:     OBJ_WEAPONS/WPN_GLAIVE
+NAME:    partisan of Prune
+OBJ:     OBJ_WEAPONS/WPN_PARTISAN
 INSCRIP: Prune
 PLUS:    +12
 COLOUR:  LIGHTMAGENTA
-TILE:    spwpn_glaive_of_prune
-TILE_EQ: GLAIVE_OF_PRUNE
+TILE:    spwpn_partisan_of_prune
+TILE_EQ: PARTISAN_OF_PRUNE
 BOOL:    chaotic
 # I have taken the plums that were in your icebox (and turned them into prunes)
 BRAND:   SPWPN_FREEZING
