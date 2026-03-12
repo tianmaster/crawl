@@ -6630,7 +6630,7 @@ void marshallMonster(writer &th, const monster& m)
     marshallByte(th, m.xp_tracking);
     marshallByte(th, m.get_experience_level());
     marshallByte(th, m.speed);
-    marshallByte(th, m.speed_increment);
+    marshallByte(th, m.action_energy());
     marshallByte(th, m.behaviour);
     marshallByte(th, m.pos().x);
     marshallByte(th, m.pos().y);
@@ -7651,7 +7651,7 @@ void unmarshallMonster(reader &th, monster& m)
 #endif
     m.speed           = unmarshallByte(th);
     // Avoid sign extension when loading files (Elethiomel's hang)
-    m.speed_increment = unmarshallUByte(th);
+    m.set_action_energy((int)unmarshallUByte(th));
     m.behaviour       = static_cast<beh_type>(unmarshallUByte(th));
     int x             = unmarshallByte(th);
     int y             = unmarshallByte(th);

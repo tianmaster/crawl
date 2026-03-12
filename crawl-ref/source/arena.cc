@@ -690,14 +690,18 @@ namespace arena
 
         for (int idx : a_spawners)
         {
-            env.mons[idx].speed_increment *= faction_b.active_members;
-            env.mons[idx].speed_increment /= faction_a.active_members;
+            int old_energy = env.mons[idx].action_energy();
+            int new_energy = (old_energy * faction_b.active_members)
+                             / faction_a.active_members;
+            env.mons[idx].set_action_energy(new_energy);
         }
 
         for (int idx : b_spawners)
         {
-            env.mons[idx].speed_increment *= faction_a.active_members;
-            env.mons[idx].speed_increment /= faction_b.active_members;
+            int old_energy = env.mons[idx].action_energy();
+            int new_energy = (old_energy * faction_a.active_members)
+                             / faction_b.active_members;
+            env.mons[idx].set_action_energy(new_energy);
         }
     }
 

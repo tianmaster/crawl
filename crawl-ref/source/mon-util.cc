@@ -2794,7 +2794,7 @@ void define_monster(monster& mons, bool friendly)
     mons.set_hit_dice(hd);
     mons.hit_points      = hp;
     mons.max_hit_points  = hp_max;
-    mons.speed_increment = 70;
+    mons.set_action_energy(70);
 
     if (mons.base_monster == MONS_NO_MONSTER
         || mons.base_monster == MONS_PROGRAM_BUG) // latter is zombie gen
@@ -5873,4 +5873,15 @@ int mons_leash_range(monster_type mc)
         case MONS_HAUNTED_ARMOUR:   return 2;
         default:                    return 0; // No leashing
     }
+}
+
+save_mons_energy::save_mons_energy(monster& mon) :
+    energy(mon.action_energy()),
+    mons(mon)
+{
+}
+
+save_mons_energy::~save_mons_energy()
+{
+    mons.set_action_energy(energy);
 }

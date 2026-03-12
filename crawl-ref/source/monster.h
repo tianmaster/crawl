@@ -65,7 +65,6 @@ public:
     int max_hit_points;
     int exp;
     int speed;
-    int speed_increment;
 
     coord_def target;
     coord_def firing_pos;
@@ -161,6 +160,10 @@ public:
     void drain_action_energy();
     bool matches_player_speed() const;
     int  player_speed_energy() const;
+    void set_action_energy(int energy);
+    int action_energy() const { return speed_increment; }
+    void gain_action_energy(int energy);
+    void lose_action_energy(int energy);
     void check_redraw(const coord_def &oldpos) const;
     void self_destruct() override;
 
@@ -586,6 +589,7 @@ public:
 
 private:
     int hit_dice;
+    int speed_increment;
 
 private:
     bool pickup(item_def &item, mon_inv_type slot, bool msg);

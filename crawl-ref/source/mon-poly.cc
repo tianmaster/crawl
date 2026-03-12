@@ -402,7 +402,7 @@ void change_monster_type(monster* mons, monster_type targetc, bool do_seen)
     // Don't kill it.
     mons->hit_points = max(mons->hit_points, 1);
 
-    mons->speed_increment = 67 + random2(6);
+    mons->set_action_energy(67 + random2(6));
 
     monster_drop_things(mons);
 

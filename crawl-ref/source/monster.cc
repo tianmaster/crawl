@@ -6854,3 +6854,34 @@ int monster::threat_range(bool include_lof_requiring, bool include_lof_ignoring)
 
     return range;
 }
+
+void monster::set_action_energy(int energy)
+{
+    const int old_energy = speed_increment;
+    speed_increment = energy;
+
+    if (speed_increment <= old_energy)
+    {
+        // There is no need to move the monster down in the action queue as we
+        // do this when popping it from the queue if the monster doesn't have
+        // the correct energy for its current position
+        return;
+    }
+
+    // Ideally we would remove the monster from its old position in the queue
+    // if it had one. However, due to us requeuing entries that are at the
+    // incorrect position in the queue when popping it, it should be fine to
+    // leave it. We also don't have an easy way to remove it from the queue.
+    if (has_action_energy())
+        queue_monster_for_action(this);
+}
+
+void monster::gain_action_energy(int energy)
+{
+    set_action_energy(speed_increment + energy);
+}
+
+void monster::lose_action_energy(int energy)
+{
+    set_action_energy(speed_increment - energy);
+}

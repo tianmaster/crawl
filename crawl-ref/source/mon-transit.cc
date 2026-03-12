@@ -434,7 +434,7 @@ static bool _mons_can_follow_player_from(const monster &mons,
                                          bool within_level = false)
 {
     if (!mons.alive()
-        || mons.speed_increment < 50
+        || mons.action_energy() < 50
         || mons.incapacitated()
         || mons.cannot_move()
         || mons.is_constricted()

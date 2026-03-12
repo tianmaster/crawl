@@ -2121,7 +2121,7 @@ void cheibriados_time_step(int pow)
     // Finally, ensure we get first action against any enemies in sight.
     for (monster_near_iterator mi(you.pos(), LOS_NO_TRANS); mi; ++mi)
     {
-        mi->speed_increment = 60;
+        mi->set_action_energy(60);
         mi->foe_memory = 0;
         mi->foe = MHITNOT;
 
@@ -3132,7 +3132,7 @@ spret dithmenos_marionette(monster& target, bool fail)
 
     const int old_foe = target.foe;
     const coord_def old_target = target.target;
-    const int old_energy = target.speed_increment;
+    const int old_energy = target.action_energy();
     target.attitude = ATT_MARIONETTE;
     env.final_effect_monster_cache.push_back(target);
 
@@ -3170,7 +3170,7 @@ spret dithmenos_marionette(monster& target, bool fail)
     {
         target.foe = old_foe;
         target.target = old_target;
-        target.speed_increment = old_energy;
+        target.set_action_energy(old_energy);
         target.attitude = ATT_HOSTILE;
     }
 

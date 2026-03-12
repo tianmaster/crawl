@@ -1663,7 +1663,7 @@ static bool _cast_seismic_stomp(const monster& caster, bolt& beam, bool check_on
             if (mon->alive() && !mon->airborne() && one_chance_in(3))
             {
                 simple_monster_message(*mon, " stumbles on the uneven ground.");
-                mon->speed_increment -= random_range(10, 13);
+                mon->lose_action_energy(random_range(10, 13));
             }
         }
     }
@@ -8348,8 +8348,8 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
         // the caster can do something else
         if (!_wall_of_brambles(mons))
         {
-            mons->speed_increment +=
-                get_monster_data(mons->type)->energy_usage.spell;
+            int refund = get_monster_data(mons->type)->energy_usage.spell;
+            mons->gain_action_energy(refund);
         }
         return;
 

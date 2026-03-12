@@ -1657,18 +1657,18 @@ static void _monster_add_energy(monster& mons)
     {
         // Randomise to make counting off monster moves harder:
         const int energy_gained = div_rand_round(mons.speed * you.time_taken, 10);
-        mons.speed_increment += energy_gained;
+        mons.gain_action_energy(energy_gained);
     }
 }
 
 #ifdef DEBUG
 #    define DEBUG_ENERGY_USE(problem) \
-    if (mons->speed_increment == old_energy && mons->alive()) \
+    if (mons->action_energy() == old_energy && mons->alive()) \
              mprf(MSGCH_DIAGNOSTICS, \
                   problem " for monster '%s' consumed no energy", \
                   mons->name(DESC_PLAIN).c_str());
 #    define DEBUG_ENERGY_USE_REF(problem) \
-    if (mons.speed_increment == old_energy && mons.alive()) \
+    if (mons.action_energy() == old_energy && mons.alive()) \
              mprf(MSGCH_DIAGNOSTICS, \
                   problem " for monster '%s' consumed no energy", \
                   mons.name(DESC_PLAIN).c_str());
@@ -1937,7 +1937,7 @@ void handle_monster_move(monster* mons)
     const bool disabled = crawl_state.disables[DIS_MON_ACT]
                           && _unfriendly_or_impaired(*mons);
 
-    const int old_energy = mons->speed_increment;
+    const int old_energy = mons->action_energy();
     int non_move_energy = min(entry->energy_usage.move,
                               entry->energy_usage.swim);
 
@@ -2018,7 +2018,7 @@ void handle_monster_move(monster* mons)
                     mprf(MSGCH_SOUND, "You hear a loud crackle.");
             }
             // Done this way to keep the detonation timer predictable
-            mons->speed_increment -= BASELINE_DELAY;
+            mons->lose_action_energy(BASELINE_DELAY);
         }
         skip_turn = true;
     }
@@ -2062,7 +2062,7 @@ void handle_monster_move(monster* mons)
         // Pause in place after attacking (for slightly better visuals).
         if (did_slash)
         {
-            mons->speed_increment = 60;
+            mons->set_action_energy(60);
             skip_turn = true;
         }
     }
@@ -2141,7 +2141,7 @@ void handle_monster_move(monster* mons)
         || mons->type == MONS_JIANGSHI // similarly, but more irregular (48 of 90)
             && (++mons->move_spurt / 6 % 3 == 1 || mons->move_spurt / 3 % 5 == 1))
     {
-        mons->speed_increment -= non_move_energy;
+        mons->lose_action_energy(non_move_energy);
         return;
     }
 
@@ -2202,7 +2202,7 @@ void handle_monster_move(monster* mons)
         || mons->has_ench(ENCH_WORD_OF_RECALL)
         || mons->has_ench(ENCH_CLOCKWORK_BEE_CAST))
     {
-        mons->speed_increment -= non_move_energy;
+        mons->lose_action_energy(non_move_energy);
         return;
     }
 
@@ -2213,7 +2213,7 @@ void handle_monster_move(monster* mons)
         //      doesn't presently matter.
         if (handle_searing_ray(*mons, 1))
         {
-            mons->speed_increment -= non_move_energy;
+            mons->lose_action_energy(non_move_energy);
             return;
         }
         // Otherwise (if it was cancelled or interrupted), take turn as normal
@@ -2237,14 +2237,14 @@ void handle_monster_move(monster* mons)
                             random_range(1, 5) * BASELINE_DELAY));
             mons->foe = MHITNOT;
             mons->target = mons->pos();
-            mons->speed_increment -= non_move_energy;
+            mons->lose_action_energy(non_move_energy);
             return;
         }
     }
 
     if (disabled)
     {
-        mons->speed_increment -= non_move_energy;
+        mons->lose_action_energy(non_move_energy);
         return;
     }
 
@@ -2259,7 +2259,7 @@ void handle_monster_move(monster* mons)
 
     if (mons->speed >= 100)
     {
-        mons->speed_increment -= non_move_energy;
+        mons->lose_action_energy(non_move_energy);
         return;
     }
 
@@ -2323,7 +2323,7 @@ void handle_monster_move(monster* mons)
                     if (mons_has_attacks(*mons, true)
                         && _handle_ru_melee_redirection(*mons, &new_target))
                     {
-                        mons->speed_increment -= non_move_energy;
+                        mons->lose_action_energy(non_move_energy);
                         DEBUG_ENERGY_USE("_handle_ru_redirection()");
                         return;
                     }
@@ -2388,13 +2388,13 @@ void handle_monster_move(monster* mons)
 
         if (invalid_monster(mons) || mons->is_stationary())
         {
-            if (mons->speed_increment == old_energy)
-                mons->speed_increment -= non_move_energy;
+            if (mons->action_energy() == old_energy)
+                mons->lose_action_energy(non_move_energy);
             return;
         }
 
         if (!_monster_move(mons, mmov))
-            mons->speed_increment -= non_move_energy;
+            mons->lose_action_energy(non_move_energy);
     }
     you.update_beholder(mons);
     you.update_fearmonger(mons);
@@ -2412,7 +2412,7 @@ void handle_monster_move(monster* mons)
     {
         move_child_tentacles(mons);
 
-        mons->move_spurt += (old_energy - mons->speed_increment)
+        mons->move_spurt += (old_energy - mons->action_energy())
                              * _tentacle_move_speed(mons_base_type(*mons));
         ASSERT(mons->move_spurt > 0);
         while (mons->move_spurt >= 100)
@@ -2677,7 +2677,7 @@ priority_queue<pair<monster *, int>,
 // this round)
 void queue_monster_for_action(monster* mons)
 {
-    monster_queue.emplace(mons, mons->speed_increment);
+    monster_queue.emplace(mons, mons->action_energy());
 }
 
 void clear_monster_flags()
@@ -2757,8 +2757,6 @@ void handle_monsters(bool with_noise)
     for (monster_iterator mi; mi; ++mi)
     {
         _pre_monster_move(**mi);
-        if (!invalid_monster(*mi) && mi->alive() && mi->has_action_energy())
-            monster_queue.emplace(*mi, mi->speed_increment);
         fire_final_effects();
     }
 
@@ -2785,7 +2783,7 @@ void handle_monsters(bool with_noise)
         // during their turn.
         // If something's played with the energy, they get added back to
         // the queue just after this.
-        if (oldspeed == mon->speed_increment)
+        if (oldspeed == mon->action_energy())
         {
             handle_monster_move(mon);
             _post_monster_move(mon);
@@ -2793,7 +2791,7 @@ void handle_monsters(bool with_noise)
         }
 
         if (mon->has_action_energy())
-            monster_queue.emplace(mon, mon->speed_increment);
+            queue_monster_for_action(mon);
 
         // If the player got banished, discard pending monster actions.
         if (you.banished)
@@ -2852,7 +2850,7 @@ static bool _jelly_divide(monster& parent)
     // more thought as to generation ... {dlb}
     *child = parent;
     child->max_hit_points  = child->hit_points;
-    child->speed_increment = 70 + random2(5);
+    child->set_action_energy(70 + random2(5));
     child->set_new_monster_id();
     child->move_to(child_spot, MV_INTERNAL);
 
@@ -3626,7 +3624,7 @@ static void _maybe_randomize_energy(monster &mons, coord_def orig_pos)
         return;
 
     // Randomize energy.
-    mons.speed_increment += random2(3) - 1;
+    mons.set_action_energy(mons.action_energy() + random2(3) - 1);
 }
 
 static void _launch_opportunity_attack(monster& mons)
@@ -3684,13 +3682,14 @@ static void _maybe_launch_opportunity_attack(monster &mon, coord_def orig_pos)
                                     mon.pronoun(PRONOUN_SUBJECTIVE).c_str(),
                                     mon.pronoun_plurality() ? "" : "s");
     simple_monster_message(mon, msg.c_str());
-    const int old_energy = mon.speed_increment;
+    const int old_energy = mon.action_energy();
     _launch_opportunity_attack(mon);
     // Refund most of the energy from the attack - for normal attack
     // speed monsters, it will cost 0 energy 1/2 of the time and
     // 1 energy 1/2 of the time.
     // Only slow-attacking monsters will spend more than 1 energy.
-    mon.speed_increment = min(mon.speed_increment + 10, old_energy - random2(2));
+    int new_energy = min(mon.action_energy() + 10, old_energy - random2(2));
+    mon.set_action_energy(new_energy);
 }
 
 static bool _do_move_monster(monster& mons, const coord_def& delta)

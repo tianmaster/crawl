@@ -5319,7 +5319,7 @@ void bolt::monster_post_hit(monster* mon, int dmg)
                                4 + agent()->skill_rdiv(SK_INVOCATIONS, 1, 3))
                                * BASELINE_DELAY;
         mon->add_ench(mon_enchant(ENCH_MIGHT, agent(), dur));
-        mon->speed_increment += 10;
+        mon->gain_action_energy(10);
         simple_monster_message(*mon, " is empowered.");
     }
 

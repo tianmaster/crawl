@@ -74,7 +74,7 @@ void give_specific_item(monster* mon, int thing)
             set_equip_desc(mthing, ISFLAG_GLOWING);
     }
 
-    unwind_var<int> save_speedinc(mon->speed_increment);
+    save_mons_energy save_speedinc(*mon);
     if (!mon->pickup_item(mthing, false, true))
     {
         dprf(DIAG_MONPLACE, "Destroying %s because %s doesn't want it!",

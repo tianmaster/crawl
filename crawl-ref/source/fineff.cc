@@ -1285,7 +1285,7 @@ void starcursed_merge_fineff::fire()
             if (moved)
             {
                 simple_monster_message(*mon, " shudders and withdraws towards its neighbour.");
-                mon->speed_increment -= 10;
+                mon->lose_action_energy(10);
                 mon->finalise_movement();
             }
         }
@@ -1509,8 +1509,7 @@ void make_derived_undead_fineff::fire()
     if (act_immediately)
     {
         undead->flags &= ~MF_JUST_SUMMONED;
-        undead->speed_increment = 80;
-        queue_monster_for_action(undead);
+        undead->set_action_energy(80);
     }
 }
 

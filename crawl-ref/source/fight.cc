@@ -567,7 +567,7 @@ bool mons_fight(monster *attacker, actor *defender, bool *did_hit, bool simu)
     dprf(DIAG_COMBAT, "Attack delay %d, multiplier %1.1f", delay, energy * 0.1);
     ASSERT(energy > 0);
     ASSERT(delay > 0);
-    attacker->speed_increment -= div_rand_round(energy * delay, 10);
+    attacker->lose_action_energy(div_rand_round(energy * delay, 10));
 
     // Here, rather than in melee_attack, so that it only triggers on attack
     // actions, rather than additional times for bonus attacks (ie: from Autumn Katana)
