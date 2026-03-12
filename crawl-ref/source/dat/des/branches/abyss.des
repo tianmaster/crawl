@@ -107,7 +107,7 @@ SUBST:   T : T12^S
 MONS:    tentacled starspawn / starcursed mass / wretched star
 MONS:    demonic plant
 KFEAT:   S = stone_arch
-KFEAT:   ^ = devourer's trap
+KFEAT:   ^ = trap_devourer
 KPROP:   Tl12^S = no_tele_into
 KMASK:   .O = !opaque
 MAP
@@ -900,7 +900,7 @@ DEPTH:  D:4-, Depths, Abyss
 WEIGHT: 5 (D), 10
 ITEM:   ring of poison resistance / medusa talisman / \
         demon whip ego:venom pre_id / throwing net q:1
-KFEAT:  ^ = harlequin's trap / devourer's trap w:13
+KFEAT:  ^ = trap_harlequin / trap_devourer w:13
 : if you.in_branch("Abyss") then
 SUBST:  x : XXCB, c : CB, X = xxxxcb, C = xccccb, B = xcbbbb
 SUBST:  HIJ = cbw,  ' = 000., " = dd.
@@ -961,7 +961,7 @@ TAGS:    transparent no_pool_fixup decor
 DEPTH:   D:8-, Depths, Abyss
 KFEAT:   @ = +
 KFEAT:   > = abyssal_stair
-KFEAT:   ^ = harlequin's trap / devourer's trap w:13
+KFEAT:   ^ = trap_harlequin / trap_devourer w:13
 SHUFFLE: ABCDEFGH
 : if you.in_branch("Abyss") then
 SUBST:   b = wlb., AB = wl., CD = xcb., EFGH = .
@@ -994,7 +994,7 @@ NAME:    hangedman_abyss_or_decor_passed
 TAGS:    transparent no_pool_fixup decor
 DEPTH:   D:4-, Depths, Abyss
 ITEM:    any weapon ego:pain / any weapon ego:electrocution
-KFEAT:   ^ = harlequin's trap w:7 / devourer's trap w:13
+KFEAT:   ^ = trap_harlequin w:7 / trap_devourer w:13
 : if you.in_branch("Abyss") then
 SUBST:   ' = 00., " = dd.
 SUBST:   x = xxxxcb, XY = ww...
@@ -1023,7 +1023,7 @@ DEPTH:   D:4-, Depths, Abyss
 ITEM:    great mace ego:distortion randart / wand of mindburst pre_id / \
          dart ego:atropa q:4 w:4 / potion of moonshine pre_id w:4 / \
          parchment of alistair's intoxication
-KFEAT:   ^ = harlequin's trap w:7 / devourer's trap w:13
+KFEAT:   ^ = trap_harlequin w:7 / trap_devourer w:13
 : if you.in_branch("Abyss") then
 SUBST:   ' = 00., " = ddd.., X = xxcccb, x = xxxxxcccb
 SUBST:   yY = ...xxxcbw, zZ = ...xxxcbl
@@ -1291,7 +1291,7 @@ ITEM:    potion of enlightenment q:1 pre_id
 KMONS:   O = patrolling war gargoyle
 KITEM:   O = abyssal rune of Zot
 KFEAT:   A = stone_arch
-KFEAT:   ^ = devourer's trap
+KFEAT:   ^ = trap_devourer
 KFEAT:   "@6 = runelight
 SHUFFLE: 23 / 57
 SUBST:   ! = 2, 0 = 222234555
@@ -1658,7 +1658,7 @@ MONS:   fire bat, chaos spawn, cognitogaunt, ogre mage
 KMONS:  OL = lich w:9 / ancient lich w:1 / dread lich w:1
 KITEM:  O = abyssal rune of Zot
 KFEAT:  A = stone_arch
-KFEAT:  ^ = harlequin's trap / devourer's trap w:4
+KFEAT:  ^ = trap_harlequin / trap_devourer w:4
 KFEAT:  ' = runelight
 NSUBST: L = 1:O / *:L
 MARKER: ! = lua:fog_machine { cloud_type = "seething chaos", \
@@ -1701,7 +1701,7 @@ MONS:   tentacled monstrosity / tentacled starspawn w:6
 KMONS:  O = starcursed mass
 KITEM:  O = abyssal rune of Zot
 KFEAT:  _ = altar_lugonu
-KFEAT:  ^ = harlequin's trap / devourer's trap w:13
+KFEAT:  ^ = trap_harlequin / trap_devourer w:13
 KFEAT:  A = stone_arch
 KFEAT:  "@ = runelight
 SUBST:  X = c', c = ccv, N : nb.
@@ -1772,7 +1772,7 @@ MONS:   cognitogaunt w:4 / tormentor / hellion / shadow demon / \
 KMONS:  3O = spatial maelstrom
 KITEM:  O = abyssal rune of Zot
 KFEAT:  A = stone_arch
-KFEAT:  ^ = harlequin's trap / devourer's trap w:13
+KFEAT:  ^ = trap_harlequin / trap_devourer w:13
 KFEAT:  " = runelight
 SUBST:  X : b", x = xv, n = nnnnnc, m = n
 FTILE:  A123$Onc = floor_crystal_squares
@@ -2557,8 +2557,8 @@ NAME:   spicy_abyss_rude_harpoons
 TAGS:   abyss_exit no_pool_fixup
 SUBST:  l : llw-
 SUBST:  - = -'
-KFEAT:  - = dispersal trap
-KFEAT:  ' = teleport trap / zot trap / net trap
+KFEAT:  - = trap_dispersal
+KFEAT:  ' = trap_teleport / trap_zot / trap_net
 KMONS:  M = starflower
 : init_abyss_exit(_G, "O")
 MAP

@@ -45,6 +45,7 @@
 #include "player.h"
 #include "random.h"
 #include "religion.h"
+#include "shout.h"
 #include "species.h"
 #include "spl-damage.h" // ramparts_damage
 #include "spl-transloc.h"
@@ -1154,14 +1155,6 @@ void dgn_move_entities_at(coord_def src, coord_def dst,
         env.shop.erase(src);
         env.grid(src) = DNGN_FLOOR;
     }
-    else if (feat_is_trap(dfeat))
-    {
-        ASSERT(trap_at(src));
-        env.trap[dst] = env.trap[src];
-        env.trap[dst].pos = dst;
-        env.trap.erase(src);
-        env.grid(src) = DNGN_FLOOR;
-    }
 
     env.grid(dst) = dfeat;
 
@@ -1329,9 +1322,6 @@ static void _current_terrain_changed(coord_def pos,
     // way first.
     if (feat_is_wall(nfeat) && monster_at(pos))
         push_or_teleport_actor_from(pos);
-    if (feat_is_trap(nfeat) && env.trap.find(pos) == env.trap.end())
-        place_specific_trap(pos, trap_type_from_feature(nfeat), 1);
-
 
     _dgn_check_terrain_covering(pos, env.grid(pos), nfeat);
 
@@ -1346,10 +1336,6 @@ static void _current_terrain_changed(coord_def pos,
 
         if (is_notable_terrain(nfeat) && you.see_cell(pos))
             seen_notable_thing(nfeat, pos);
-
-        // Don't destroy a trap which was just placed.
-        if (!feat_is_trap(nfeat))
-            destroy_trap(pos);
     }
 
     dgn_check_terrain_items(pos, preserve_items);
@@ -1533,9 +1519,6 @@ bool swap_features(const coord_def &pos1, const coord_def &pos2,
     const terrain_property_t prop1 = env.pgrid(pos1);
     const terrain_property_t prop2 = env.pgrid(pos2);
 
-    trap_def* trap1 = trap_at(pos1);
-    trap_def* trap2 = trap_at(pos2);
-
     shop_struct* shop1 = shop_at(pos1);
     shop_struct* shop2 = shop_at(pos2);
 
@@ -1595,28 +1578,6 @@ bool swap_features(const coord_def &pos1, const coord_def &pos2,
 
     env.grid_colours(pos1) = col2;
     env.grid_colours(pos2) = col1;
-
-    // Swap traps.
-    if (trap1 && !trap2)
-    {
-        env.trap[pos2] = env.trap[pos1];
-        env.trap[pos2].pos = pos2;
-        env.trap.erase(pos1);
-    }
-    else if (!trap1 && trap2)
-    {
-        env.trap[pos1] = env.trap[pos2];
-        env.trap[pos1].pos = pos1;
-        env.trap.erase(pos2);
-    }
-    else if (trap1 && trap2)
-    {
-        trap_def tmp = env.trap[pos1];
-        env.trap[pos1] = env.trap[pos2];
-        env.trap[pos2] = tmp;
-        env.trap[pos1].pos = pos1;
-        env.trap[pos2].pos = pos2;
-    }
 
     // Swap shops.
     if (shop1 && !shop2)
@@ -1722,7 +1683,7 @@ static bool _ok_dest_cell(const actor* orig_actor,
     if (is_notable_terrain(dest_feat))
         return false;
 
-    if (trap_at(dest_pos))
+    if (feat_is_trap(dest_feat))
         return false;
 
     actor* dest_actor = actor_at(dest_pos);
@@ -2033,8 +1994,6 @@ void set_terrain_changed(const coord_def p)
 
     if (env.grid(p) == DNGN_SLIMY_WALL)
         env.level_state |= LSTATE_SLIMY_WALL;
-    if (env.grid(p) == DNGN_PASSAGE_OF_GOLUBRIA)
-        env.level_state |= LSTATE_GOLUBRIA;
     else if (env.grid(p) == DNGN_OPEN_DOOR)
     {
         // Restore colour from door-change markers
@@ -2294,6 +2253,15 @@ bool revert_terrain_change(coord_def pos, terrain_change_type ctype)
     // Don't revert opened sealed doors.
     if (feat_is_door(newfeat) && env.grid(pos) == DNGN_OPEN_DOOR)
         return false;
+
+    if (env.grid(pos) == DNGN_PASSAGE_OF_GOLUBRIA)
+    {
+        if (you.see_cell(pos))
+            mpr("Your passage of Golubria closes with a snap!");
+        else
+            mprf(MSGCH_SOUND, "You hear a snapping sound.");
+        noisy(spell_effect_noise(SPELL_GOLUBRIAS_PASSAGE), pos);
+    }
 
     if (ctype == TERRAIN_CHANGE_BOG)
         env.map_knowledge(pos).set_feature(newfeat, colour);

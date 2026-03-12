@@ -193,16 +193,11 @@ bool check_moveto_cloud(const coord_def& p, const string &move_verb,
 bool check_moveto_trap(const coord_def& p, const string &move_verb,
                        bool *prompted)
 {
-    // Boldly go into the unknown (for ranged move prompts)
-    if (env.map_knowledge(p).trap() == TRAP_UNASSIGNED)
-        return true;
-
     // If there's no trap, let's go.
-    trap_def* trap = trap_at(p);
-    if (!trap)
+    if (!feat_is_trap(env.grid(p)))
         return true;
 
-    if (trap->type == TRAP_ZOT && !trap->is_safe() && !crawl_state.disables[DIS_CONFIRMATIONS])
+    if (env.grid(p) == DNGN_TRAP_ZOT && !trap_is_safe(DNGN_TRAP_ZOT) && !crawl_state.disables[DIS_CONFIRMATIONS])
     {
         string msg = "Do you really want to %s into the Zot trap?";
         string prompt = make_stringf(msg.c_str(), move_verb.c_str());
@@ -215,15 +210,15 @@ bool check_moveto_trap(const coord_def& p, const string &move_verb,
             return false;
         }
     }
-    else if (!trap->is_safe() && !crawl_state.disables[DIS_CONFIRMATIONS])
+    else if (!trap_is_safe(env.grid(p)) && !crawl_state.disables[DIS_CONFIRMATIONS])
     {
         string prompt;
 
         if (prompted)
             *prompted = true;
         prompt = make_stringf("Really %s %s that %s?", move_verb.c_str(),
-                              (trap->type == TRAP_ALARM
-                               || trap->type == TRAP_PLATE) ? "onto"
+                              (env.grid(p) == DNGN_TRAP_ALARM
+                               || env.grid(p) == DNGN_TRAP_PLATE) ? "onto"
                               : "into",
                               feature_description_at(p, false, DESC_BASENAME).c_str());
         if (!yesno(prompt.c_str(), true, 'n'))
@@ -481,7 +476,7 @@ bool swap_check(monster* mons, coord_def &loc, bool quiet)
     }
 
     // prompt when swapping into known zot traps
-    if (!quiet && trap_at(loc) && trap_at(loc)->type == TRAP_ZOT
+    if (!quiet && env.grid(loc) == DNGN_TRAP_ZOT
         && !confirm_prompt("yes", "Do you really want to swap %s into the Zot trap?",
                            mons->name(DESC_YOUR).c_str()))
     {
@@ -737,9 +732,8 @@ void player::finalise_movement(const actor* /*to_blame*/)
 
         // Traps go off.
         // (But not when losing flight - i.e., moving into the same tile)
-        trap_def* ptrap = trap_at(pos());
-        if (ptrap && (ptrap->type != TRAP_GOLUBRIA || !(last_move_flags & MV_GOLUBRIA)))
-            ptrap->trigger(you);
+        if (env.grid(pos()) != DNGN_PASSAGE_OF_GOLUBRIA || !(last_move_flags & MV_GOLUBRIA))
+            trigger_trap(you);
 
         // If a trap we triggered moved us, much of the rest of this produces
         // dubious results and should be skipped.

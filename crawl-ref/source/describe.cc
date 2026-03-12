@@ -907,80 +907,6 @@ static string _artefact_descrip(const item_def &item)
     return out.str();
 }
 
-static const char *trap_names[] =
-{
-#if TAG_MAJOR_VERSION == 34
-    "harlequin's", "archmage's", "spear",
-#endif
-#if TAG_MAJOR_VERSION > 34
-    "tyrant's",
-    "archmage's",
-    "harlequin's",
-    "devourer's",
-    "dispersal",
-    "teleport",
-#endif
-    "permanent teleport",
-    "alarm",
-#if TAG_MAJOR_VERSION == 34
-    "tyrant's", "bolt",
-#endif
-    "net",
-    "Zot",
-#if TAG_MAJOR_VERSION == 34
-    "devourer's",
-#endif
-    "shaft",
-    "passage",
-    "pressure plate",
-    "web",
-#if TAG_MAJOR_VERSION == 34
-    "gas", "teleport", "shadow", "dormant shadow", "dispersal"
-#endif
-};
-
-string trap_name(trap_type trap)
-{
-    COMPILE_CHECK(ARRAYSZ(trap_names) == NUM_TRAPS);
-
-    if (trap >= 0 && trap < NUM_TRAPS)
-        return trap_names[trap];
-    return "";
-}
-
-string full_trap_name(trap_type trap)
-{
-    string basename = trap_name(trap);
-    switch (trap)
-    {
-    case TRAP_GOLUBRIA:
-        return basename + " of Golubria";
-    case TRAP_PLATE:
-    case TRAP_WEB:
-    case TRAP_SHAFT:
-        return basename;
-    default:
-        return basename + " trap";
-    }
-}
-
-int str_to_trap(const string &s)
-{
-    // "Zot trap" is capitalised in trap_names[], but the other trap
-    // names aren't.
-    const string tspec = lowercase_string(s);
-
-    // allow a couple of synonyms
-    if (tspec == "random" || tspec == "any")
-        return TRAP_RANDOM;
-
-    for (int i = 0; i < NUM_TRAPS; ++i)
-        if (tspec == lowercase_string(trap_names[i]))
-            return i;
-
-    return -1;
-}
-
 /**
  * How should this panlord be described?
  *
@@ -3631,8 +3557,7 @@ bool describe_feature_wide(const coord_def& pos, bool do_actions)
 void describe_feature_type(dungeon_feature_type feat)
 {
     describe_info inf;
-    string name = feature_description(feat, NUM_TRAPS, "", DESC_A,
-                                      NUM_BRANCHES);
+    string name = feature_description(feat, "", DESC_A, NUM_BRANCHES);
     string title = uppercase_first(name);
     if (!ends_with(title, ".") && !ends_with(title, "!") && !ends_with(title, "?"))
         title += ".";

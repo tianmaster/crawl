@@ -19,7 +19,7 @@ end
 
 function megazig_zot_traps(e)
   if crawl.x_chance_in_y(math.min(27, you.zigs_completed() * 3), 27) then
-    e.kfeat("~ = zot trap")
+    e.kfeat("~ = trap_zot")
     e.subst(". = ~")
   end
 end
@@ -504,7 +504,7 @@ TAGS:    ziggurat_pillar centered generate_awake unrand no_exits
 DEPTH:   Zig:10-
 WEIGHT:  5
 MONS:    lost soul, rakshasa
-KFEAT:   ^ = permanent teleport trap
+KFEAT:   ^ = trap_teleport_permanent
 KFEAT:   a = iron_grate
 SHUFFLE: xbcv
 SUBST:   9 : 00.
@@ -523,7 +523,7 @@ ENDMAP
 
 NAME:   ziggurat_pillar_centre_dispersal
 TAGS:   ziggurat_pillar centered generate_awake unrand no_exits
-KFEAT:  ^ = dispersal trap
+KFEAT:  ^ = trap_dispersal
 KFEAT:  a = iron_grate
 # : vault_granite_statue_setup(_G, "G", "scintillating statue")
 : megazig_zot_traps(_G)
@@ -538,7 +538,7 @@ ENDMAP
 NAME:   ziggurat_pillar_centre_mark
 TAGS:   ziggurat_pillar centered unrand no_exits
 WEIGHT: 5
-KFEAT:  ^ = alarm trap
+KFEAT:  ^ = trap_alarm
 # : vault_metal_statue_setup(_G, "G", "silver statue")
 : megazig_zot_traps(_G)
 MAP
@@ -578,7 +578,7 @@ ENDMAP
 NAME:    ziggurat_pillar_centre_bezotted
 TAGS:    ziggurat_pillar centered unrand no_exits
 WEIGHT:  1
-KFEAT:   ^ = zot trap
+KFEAT:   ^ = trap_zot
 SHUFFLE: .G
 TILE:    G = dngn_statue_orb_guardian
 : megazig_zot_traps(_G)
@@ -591,7 +591,7 @@ ENDMAP
 NAME:   ziggurat_pillar_centre_dissolved
 TAGS:   ziggurat_pillar centered unrand no_exits
 WEIGHT: 5
-KFEAT:  ^ = devourer's trap
+KFEAT:  ^ = trap_devourer
 MONS:   entropy weaver
 : if (you.zigs_completed() < 1) then
 SUBST:  G = G.
@@ -611,7 +611,7 @@ ENDMAP
 NAME:   ziggurat_pillar_centre_exhaustion
 TAGS:   ziggurat_pillar centered unrand no_exits
 WEIGHT: 5
-KFEAT:  ^ = archmage's trap
+KFEAT:  ^ = trap_archmage
 : if (you.zigs_completed() < 1) then
 MONS:   draconian annihilator / deep elf annihilator
 : else
@@ -629,7 +629,7 @@ ENDMAP
 NAME:   ziggurat_pillar_centre_mighty_misfortune
 TAGS:   ziggurat_pillar centered unrand no_exits
 WEIGHT: 5
-KFEAT:  ^ : tyrant's trap / harlequin's trap
+KFEAT:  ^ : trap_tyrant / trap_harlequin
 KPROP:  ^ = bloody
 # : decorative_floor(_G, 'F', "infernal standard")
 # : vault_metal_statue_setup(_G, "G", "misfortune conduit")
@@ -644,7 +644,7 @@ NAME:   ziggurat_pillar_centre_nasty_nets
 TAGS:   ziggurat_pillar centered unrand no_exits
 DEPTH:  Zig:10-
 WEIGHT: 5
-KFEAT:  ^ = net trap
+KFEAT:  ^ = trap_net
 KFEAT:  m = iron_grate
 : if you.zigs_completed() > 0 then
 NSUBST: m = 1:. / * = ...^mmmmm

@@ -949,7 +949,7 @@ ENDMAP
 
 NAME: nicolae_vaults_quartermaster
 NSUBST: 0 = 1:9 / *:0
-KFEAT: % = alarm trap / . w:30
+KFEAT: % = trap_alarm / . w:30
 KITEM: % = any
 KMONS: 0 = 0 band
 : vaults_hard_standard(_G)
@@ -1158,7 +1158,7 @@ TAGS:  vaults_orient_s
 KMONS: 12 = vault guard
 KMONS: 3 = vault warden
 KITEM: 23 = $
-KFEAT: ^ = alarm trap
+KFEAT: ^ = trap_alarm
 : vaults_hard_standard(_G)
 MAP
 xxxxxxxxxxx
@@ -1258,7 +1258,7 @@ WEIGHT: 5
 KMONS: P = human ; nothing / orc ; nothing / elf ; nothing / troll ; nothing / \
            centaur ; nothing / kobold ; nothing
 KFEAT: g = iron_grate
-KFEAT: ^ = alarm trap
+KFEAT: ^ = trap_alarm
 KMONS: 1 = vault guard
 KMONS: 2 = vault warden
 KMONS: 3 = ironbound preserver / ironbound convoker
@@ -1516,7 +1516,7 @@ KMONS:  R = vault warden band
 KMONS:  S = vault sentinel
 KMONS:  s = vault guard w:30 / ironbound mechanist / \
             ironbound preserver / ironbound convoker
-KFEAT:  M = alarm trap
+KFEAT:  M = trap_alarm
 KMASK:  M = no_monster_gen
 KMASK:  M = opaque
 KPROP:  M = no_tele_into

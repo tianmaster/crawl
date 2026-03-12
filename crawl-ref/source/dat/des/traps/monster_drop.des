@@ -39,7 +39,7 @@ NAME:   drop_trap
 DEPTH:  D:12-, Depths, Vaults, Elf, Spider, Snake, Zot
 TAGS:   allow_dup extra luniq_monster_drop transparent
 WEIGHT: 100 (D:12-, Depths, Vaults, Elf, Spider, Snake), 20 (Zot)
-KFEAT:  ^ = pressure plate trap
+KFEAT:  ^ = trap_pressure_plate
 SUBST:  { = {([})]
 {{
  local trigger_data

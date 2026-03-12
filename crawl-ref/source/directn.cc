@@ -3103,12 +3103,9 @@ void _walk_on_decor(dungeon_feature_type new_grid)
     }
 }
 
-static string _base_feature_desc(dungeon_feature_type grid, trap_type trap,
+static string _base_feature_desc(dungeon_feature_type grid,
                                  level_id place = level_id::current())
 {
-    if (feat_is_trap(grid) && trap != NUM_TRAPS)
-        return full_trap_name(trap);
-
     if (grid == DNGN_ROCK_WALL && place.branch == BRANCH_PANDEMONIUM)
         return "wall of the weird stuff which makes up Pandemonium";
     else if (feat_is_stone_stair_down(grid) && place.branch == BRANCH_VAULTS
@@ -3134,12 +3131,12 @@ static string _base_feature_desc(dungeon_feature_type grid, trap_type trap,
         return get_feature_def(grid).name;
 }
 
-string feature_description(dungeon_feature_type grid, trap_type trap,
+string feature_description(dungeon_feature_type grid,
                            const string & cover_desc,
                            description_level_type dtype,
                            level_id place)
 {
-    string desc = _base_feature_desc(grid, trap, place);
+    string desc = _base_feature_desc(grid, place);
     desc += cover_desc;
 
     if (grid == DNGN_FLOOR && dtype == DESC_A)
@@ -3167,14 +3164,13 @@ string raw_feature_description(const coord_def &where)
             return *rename;
     }
 
-    return _base_feature_desc(feat, get_trap_type(where));
+    return _base_feature_desc(feat);
 }
 
 string feature_description_at(const coord_def& where, bool covering,
                               description_level_type dtype)
 {
     dungeon_feature_type grid = env.map_knowledge(where).feat();
-    trap_type trap = env.map_knowledge(where).trap();
 
     string marker_desc = env.markers.property_at(where, MAT_ANY,
                                                  "feature_description");
@@ -3287,7 +3283,7 @@ string feature_description_at(const coord_def& where, bool covering,
     {
 #if TAG_MAJOR_VERSION == 34
     case DNGN_TRAP_MECHANICAL:
-        return feature_description(grid, trap, covering_description, dtype);
+        return feature_description(grid, covering_description, dtype);
 
     case DNGN_ENTER_PORTAL_VAULT:
         // Should have been handled at the top of the function.
@@ -3303,7 +3299,7 @@ string feature_description_at(const coord_def& where, bool covering,
     default:
         const string featdesc = grid == env.grid(where)
                               ? raw_feature_description(where)
-                              : _base_feature_desc(grid, trap);
+                              : _base_feature_desc(grid);
         return thing_do_grammar(dtype, featdesc + covering_description,
                 ignore_case);
     }
@@ -3449,8 +3445,7 @@ static vector<string> _get_monster_desc_vector(const monster_info& mi)
     if (mi.fire_blocker)
     {
         descs.push_back("fire blocked by " // FIXME, renamed features
-                        + feature_description(mi.fire_blocker, NUM_TRAPS, "",
-                                              DESC_A));
+                        + feature_description(mi.fire_blocker, "", DESC_A));
     }
 
     return descs;

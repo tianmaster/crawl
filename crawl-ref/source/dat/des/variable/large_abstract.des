@@ -436,7 +436,7 @@ ENDMAP
 NAME:   thingy_vault_2
 DEPTH:  Depths, !Depths:$
 ORIENT: southeast
-KFEAT:  ' = alarm trap / floor w:190
+KFEAT:  ' = trap_alarm / floor w:190
 MONS:   orange crystal statue
 MAP
 xxxxxxxxxxxxxxx@xxxxxxxxxxxxxxxx

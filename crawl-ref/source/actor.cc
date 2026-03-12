@@ -81,14 +81,6 @@ int actor::dragon_level() const {
     return min(get_experience_level(), 18);
 }
 
-bool actor::handle_trap()
-{
-    trap_def* trap = trap_at(pos());
-    if (trap)
-        trap->trigger(*this);
-    return trap != nullptr;
-}
-
 int actor::skill_rdiv(skill_type sk, int mult, int div) const
 {
     return div_rand_round(skill(sk, mult * 256), div * 256);

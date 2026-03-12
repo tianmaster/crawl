@@ -147,7 +147,6 @@ static void _do_wizard_command(int wiz_command)
     case CONTROL('S'): wizard_abyss_speed(); break;
 
     case 't': wizard_tweak_object(); break;
-    case 'T': debug_make_trap(); break;
     case CONTROL('T'): debug_terp_dlua(); break;
 
     case 'u': wizard_level_travel(false); break;
@@ -449,7 +448,6 @@ int list_wizard_commands(bool do_redraw_screen)
                        "<w>N</w>      get current tension value\n"
                        "\n"
                        "<yellow>Dungeon features</yellow>\n"
-                       "<w>T</w>      make a trap\n"
                        "<w>,</w>/<w>.</w>    create up/down staircase\n"
                        "<w>(</w>      turn cell into feature\n"
                        "<w>\\</w>      make a shop\n"

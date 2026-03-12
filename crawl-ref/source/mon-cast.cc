@@ -8965,10 +8965,7 @@ static void _speech_fill_target(string& targ_prep, string& target,
             if (targ_prep == "at")
             {
                 if (env.grid(pbolt.target) != DNGN_FLOOR)
-                {
-                    target = feature_description(env.grid(pbolt.target),
-                                                 NUM_TRAPS, "", DESC_THE);
-                }
+                    target = feature_description(env.grid(pbolt.target), "", DESC_THE);
                 else
                     target = "thin air";
             }

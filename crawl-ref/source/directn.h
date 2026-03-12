@@ -12,7 +12,6 @@
 #include "mon-info.h"
 #include "targ-mode-type.h"
 #include "targeting-type.h"
-#include "trap-type.h"
 #include "view.h"
 
 using std::vector;
@@ -373,7 +372,6 @@ string feature_description_at(const coord_def& where, bool covering = false,
                               description_level_type dtype = DESC_A);
 string raw_feature_description(const coord_def& where);
 string feature_description(dungeon_feature_type grid,
-                           trap_type trap = NUM_TRAPS,
                            const string & cover_desc = "",
                            description_level_type dtype = DESC_A,
                            level_id place = level_id::current());

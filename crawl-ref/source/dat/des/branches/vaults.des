@@ -2295,9 +2295,9 @@ TAGS:   vaults_end_quadrant_prize unrand
 NSUBST: ; = 3=D / 3=E / 3=F / .
 SUBST:  9 = 8 9
 SUBST:  $ = | * $
-KFEAT:  D = teleport trap / dispersal trap
-KFEAT:  E = zot trap
-KFEAT:  F = alarm trap
+KFEAT:  D = trap_teleport / trap_dispersal
+KFEAT:  E = trap_zot
+KFEAT:  F = trap_alarm
 SUBST:  s = x:250 +:1
 SUBST:  a = x.
 : vaults_end_loot(_G)

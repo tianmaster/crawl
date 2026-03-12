@@ -1045,8 +1045,6 @@ python.exe util/gen-all.py</Command>
     <ClInclude Include="..\torment-source-type.h" />
     <ClInclude Include="..\transform.h" />
     <ClInclude Include="..\transformation.h" />
-    <ClInclude Include="..\trap-def.h" />
-    <ClInclude Include="..\trap-type.h" />
     <ClInclude Include="..\traps.h" />
     <ClInclude Include="..\travel-defs.h" />
     <ClInclude Include="..\travel.h" />

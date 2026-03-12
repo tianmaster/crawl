@@ -407,7 +407,7 @@ ENDMAP
 # It's been undisturbed for so long, cobwebs are starting to form.
 NAME:   grunt_crypt_arrival_webbed
 TAGS:   extra uniq_crypt_arrival no_monster_gen no_trap_gen no_item_gen
-KFEAT:  ^ = web trap / w:20 floor
+KFEAT:  ^ = web / w:20 floor
 DEPTH:  Crypt:1
 WEIGHT: 30
 ORIENT: south
@@ -912,7 +912,7 @@ ENDMAP
 NAME:   nicolae_crypt_disinterred
 TAGS:   transparent extra decor
 DEPTH:  Crypt, !Crypt:$
-KFEAT:  ^ = shaft trap
+KFEAT:  ^ = shaft
 NSUBST: ^ = 3=^ / 3=^. / .
 : vault_granite_statue_setup(_G, "G", "gravestone")
 MAP
@@ -1369,7 +1369,7 @@ TAGS:  no_monster_gen no_item_gen
 DEPTH: Crypt
 MONS:  lich / bone dragon w:3, zombie / draugr
 KMONS: Y = Boris / ancient lich, ancient lich / dread lich
-KFEAT: ^ = w:5 alarm trap / w:8 zot trap / w:50 floor
+KFEAT: ^ = w:5 trap_alarm / w:8 trap_zot / w:50 floor
 SUBST: $ = .$*|, ? = $%, 1 = 1:13 2:6
 MAP
     ccccc
@@ -2811,9 +2811,9 @@ MONS:   laughing skull w:12 / skeletal warrior / draugr w:8
 MONS:   ancient champion
 KMONS:  F = orange crystal statue / obsidian statue
 KITEM:  | = | no_pickup
-KFEAT:  ^ = alarm trap
+KFEAT:  ^ = trap_alarm
 KFEAT:  m = iron_grate
-KFEAT:  | = pressure plate trap
+KFEAT:  | = trap_pressure_plate
 SUBST:  4 = 4., F = G:99 F:1
 MARKER: m = lua:portal_desc {wall_phase = 1}
 MARKER: | = lua:portal_desc {wall_phase = 1}
@@ -3164,7 +3164,7 @@ NSUBST: A = 1:+ / *:c
 NSUBST: B = 1:+ / *:c
 NSUBST: C = 1:6 / *:5
 KFEAT:  YD = closed_door
-KFEAT:  ER = alarm trap
+KFEAT:  ER = trap_alarm
 KFEAT:  CSd = floor
 COLOUR: YsDdE = darkgrey
 : local brnd = crawl.random2(15)

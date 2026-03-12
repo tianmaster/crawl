@@ -96,49 +96,6 @@ TextureID get_tile_texture(tileidx_t idx)
 }
 #endif
 
-tileidx_t tileidx_trap(trap_type type)
-{
-    switch (type)
-    {
-#if TAG_MAJOR_VERSION == 34
-    case TRAP_SPEAR:
-        return TILE_DNGN_TRAP_SPEAR;
-    case TRAP_BOLT:
-        return TILE_DNGN_TRAP_BOLT;
-#endif
-    case TRAP_DISPERSAL:
-        return TILE_DNGN_TRAP_DISPERSAL;
-    case TRAP_TELEPORT:
-        return TILE_DNGN_TRAP_TELEPORT;
-    case TRAP_TELEPORT_PERMANENT:
-        return TILE_DNGN_TRAP_TELEPORT_PERMANENT;
-    case TRAP_TYRANT:
-        return TILE_DNGN_TRAP_TYRANT;
-    case TRAP_ARCHMAGE:
-        return TILE_DNGN_TRAP_ARCHMAGE;
-    case TRAP_HARLEQUIN:
-        return TILE_DNGN_TRAP_HARLEQUIN;
-    case TRAP_DEVOURER:
-        return TILE_DNGN_TRAP_DEVOURER;
-    case TRAP_ALARM:
-        return TILE_DNGN_TRAP_ALARM;
-    case TRAP_NET:
-        return TILE_DNGN_TRAP_NET;
-    case TRAP_ZOT:
-        return TILE_DNGN_TRAP_ZOT;
-    case TRAP_SHAFT:
-        return TILE_DNGN_TRAP_SHAFT;
-    case TRAP_GOLUBRIA:
-        return TILE_DNGN_TRAP_GOLUBRIA;
-    case TRAP_PLATE:
-        return TILE_DNGN_TRAP_PLATE;
-    case TRAP_WEB:
-        return TILE_DNGN_TRAP_WEB;
-    default:
-        return TILE_DNGN_ERROR;
-    }
-}
-
 tileidx_t tileidx_shop(const shop_struct *shop)
 {
     if (!shop)
@@ -944,7 +901,7 @@ void apply_variations(const tile_flavour &flv, tileidx_t *bg,
         int solid = 0;
         for (int i = 0; i < 4; i++)
             if (feat_is_solid(env.map_knowledge(neigh[i]).feat())
-                || env.map_knowledge(neigh[i]).trap() == TRAP_WEB)
+                || env.map_knowledge(neigh[i]).feat() == DNGN_TRAP_WEB)
             {
                 solid |= 1 << i;
             }
@@ -1013,13 +970,6 @@ static tileidx_t _tileidx_feature_no_overrides(const coord_def &gc)
             return TILE_FLOOR_ICY;
 
         return tileidx_feature_base(feat);
-
-#if TAG_MAJOR_VERSION == 34
-    // New trap-type-specific features are handled in default case.
-    case DNGN_TRAP_MECHANICAL:
-    case DNGN_TRAP_TELEPORT:
-        return tileidx_trap(env.map_knowledge(gc).trap());
-#endif
 
     case DNGN_ENTER_SHOP:
         return tileidx_shop(shop_at(gc));

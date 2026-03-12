@@ -2827,7 +2827,7 @@ MONS:    naga mage w:30 / naga ritualist / naga sharpshooter \
 MONS:    nagaraja / guardian serpent / salamander tyrant w:5
 KITEM:   R = jade gem
 KITEM:   O = serpentine rune of Zot
-KFEAT:   ^ = tyrant's trap / archmage's trap
+KFEAT:   ^ = trap_tyrant / trap_archmage
 SHUFFLE: 'D / "E, 'D / 'D / FH, "E / JK
 SUBST:   FHJK = x, '" = .
 NSUBST:  DLE = 1:+, ^ = 1:^... / *:.
@@ -2942,7 +2942,7 @@ MONS:    naga mage w:25 / naga ritualist / naga sharpshooter / \
 MONS:    nagaraja / salamander tyrant w:5
 KITEM:   O = serpentine rune of Zot
 KITEM:   R = jade gem
-KFEAT:   ^ = tyrant's trap / archmage's trap
+KFEAT:   ^ = trap_tyrant / trap_archmage
 SHUFFLE: ABC, {([
 SUBST:   A = x, B : xx., C = ., c : c:20 v:5, 1 = 1., 2 = 23..., ( = (., [ = [..
 NSUBST:  4 = 6:4 / * = 432.., X = 4=x / 4=. / x.., ^ = 2:^ / 2 = ^. / *:.
@@ -3072,7 +3072,7 @@ KITEM:   e = jade gem mimic
 : else
 KITEM:   eE = any good_item
 : end
-KFEAT:   ^ = tyrant's trap / archmage's trap
+KFEAT:   ^ = trap_tyrant / trap_archmage
 SHUFFLE: Dd / Ee
 SUBST:   1 = 1.., 2 = 2..., 3 = 3.
 NSUBST:  4 = 4:4 / * = 4., 5 = 6:5 / * = 54., ^ = 1:^ / 2 = ^. / *:.

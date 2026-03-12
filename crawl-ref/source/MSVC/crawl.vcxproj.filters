@@ -2141,13 +2141,7 @@
     <ClInclude Include="..\transformation.h">
       <Filter>h</Filter>
     </ClInclude>
-    <ClInclude Include="..\trap-def.h">
-      <Filter>h</Filter>
-    </ClInclude>
     <ClInclude Include="..\traps.h">
-      <Filter>h</Filter>
-    </ClInclude>
-    <ClInclude Include="..\trap-type.h">
       <Filter>h</Filter>
     </ClInclude>
     <ClInclude Include="..\travel.h">

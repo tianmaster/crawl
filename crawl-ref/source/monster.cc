@@ -4572,38 +4572,36 @@ void monster::uglything_mutate(colour_t force_colour)
 }
 
 /**
- * Check whether a given trap (described by trap position) can be
- * regarded as safe. Takes into account monster allegiance.
+ * Check whether a given location contains a trap that this monster would be
+ * unwilling to enter.
  *
  * @param where       The square to be checked for dangerous traps.
  * @return            Whether the monster will willingly enter the square.
  */
 bool monster::is_trap_safe(const coord_def& where) const
 {
-    const trap_def *ptrap = trap_at(where);
-    if (!ptrap)
+    // Hostile monsters are not afraid of traps. (But non-hostile ones may
+    // give some consideration to the player).
+    if (!wont_attack())
         return true;
-    const trap_def& trap = *ptrap;
 
-    // Known shafts are safe.
-    if (trap.type == TRAP_SHAFT)
+    const dungeon_feature_type feat = env.grid(where);
+    if (!feat_is_trap(feat))
         return true;
 
     // No friendly or good neutral monsters will ever enter a trap that harms
     // the player when triggered.
-    if (wont_attack() && trap.is_bad_for_player())
+    if (trap_is_bad_for_player(feat))
         return false;
 
     // Friendlies will try not to be parted from you.
     if (friendly() && can_see(you)
-        && (trap.type == TRAP_TELEPORT || trap.type == TRAP_TELEPORT_PERMANENT))
+        && (feat == DNGN_TRAP_TELEPORT || feat == DNGN_TRAP_TELEPORT_PERMANENT))
     {
         return false;
     }
 
-    // Hostile monsters are not afraid of traps.
-    // But, in the arena Zot traps affect all monsters.
-    return !crawl_state.game_is_arena() || trap.type != TRAP_ZOT;
+    return true;
 }
 
 bool monster::is_cloud_safe(const coord_def &place) const
@@ -5604,9 +5602,11 @@ void monster::finalise_movement(const actor* to_blame)
 
     // Trigger traps last (since they could cause movement that might affect
     // some of the rest of this).
-    trap_def* ptrap = trap_at(pos());
-    if (ptrap && (ptrap->type != TRAP_GOLUBRIA || !(last_move_flags & MV_GOLUBRIA)))
-        ptrap->trigger(*this);
+    if (feat_is_trap(env.grid(pos()))
+        && (env.grid(pos()) != DNGN_PASSAGE_OF_GOLUBRIA || !(last_move_flags & MV_GOLUBRIA)))
+    {
+        trigger_trap(*this);
+    }
 
     maybe_notice_monster(*this, (last_move_flags & MV_DELIBERATE)
                                     && !(last_move_flags & MV_TRANSLOCATION));
@@ -5675,14 +5675,6 @@ bool monster::do_shaft()
     // Tentacles are immune to shafting
     if (mons_is_tentacle_or_tentacle_segment(type))
         return false;
-
-    // Handle instances of do_shaft() being invoked magically when
-    // the monster isn't standing over a shaft.
-    if (get_trap_type(pos()) != TRAP_SHAFT
-        && !feat_is_shaftable(env.grid(pos())))
-    {
-        return false;
-    }
 
     level_id lev = shaft_dest();
 

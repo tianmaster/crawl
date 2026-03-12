@@ -1690,7 +1690,7 @@ static void _take_stairs(bool down)
 
     const dungeon_feature_type ygrd = env.grid(you.pos());
 
-    const bool shaft = (down && get_trap_type(you.pos()) == TRAP_SHAFT);
+    const bool shaft = (down && env.grid(you.pos()) == DNGN_TRAP_SHAFT);
 
     if (!_can_take_stairs(ygrd, down, shaft))
         return;
@@ -1716,12 +1716,10 @@ static void _take_stairs(bool down)
         start_delay<DescendingStairsDelay>(0);
     else if (ygrd == DNGN_TRANSPORTER)
         _take_transporter();
-    else if (get_trap_type(you.pos()) == TRAP_GOLUBRIA)
+    else if (env.grid(you.pos()) == DNGN_PASSAGE_OF_GOLUBRIA)
     {
         coord_def old_pos = you.pos();
-        bool trap_triggered = you.handle_trap();
-        // only returns false if no trap was found, which shouldn't happen
-        ASSERT(trap_triggered);
+        trigger_trap(you);
         you.turn_is_over = (you.pos() != old_pos);
     }
     else
@@ -2563,30 +2561,6 @@ static void _check_trapped()
     }
 }
 
-static void _update_golubria_traps(int dur)
-{
-    vector<coord_def> traps = find_golubria_on_level();
-    for (auto c : traps)
-    {
-        trap_def *trap = trap_at(c);
-        if (trap && trap->type == TRAP_GOLUBRIA)
-        {
-            trap->ammo_qty -= div_rand_round(dur, BASELINE_DELAY);
-            if (trap->ammo_qty <= 0)
-            {
-                if (you.see_cell(c))
-                    mpr("Your passage of Golubria closes with a snap!");
-                else
-                    mprf(MSGCH_SOUND, "You hear a snapping sound.");
-                trap->destroy();
-                noisy(spell_effect_noise(SPELL_GOLUBRIAS_PASSAGE), c);
-            }
-        }
-    }
-    if (traps.empty())
-        env.level_state &= ~LSTATE_GOLUBRIA;
-}
-
 static void _update_still_winds()
 {
     for (monster_iterator mon_it; mon_it; ++mon_it)
@@ -2688,8 +2662,6 @@ void world_reacts()
     // decaying will affect whether a monster is still in view
     print_mons_left_view_messages();
 
-    if (env.level_state & LSTATE_GOLUBRIA)
-        _update_golubria_traps(you.time_taken);
     if (env.level_state & LSTATE_STILL_WINDS)
         _update_still_winds();
     if (!crawl_state.game_is_arena())

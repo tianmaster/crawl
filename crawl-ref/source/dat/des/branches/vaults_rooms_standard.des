@@ -1495,7 +1495,7 @@ TAGS: vaults_room
 NSUBST: s = 1:S / *:.
 KITEM: i = any
 KMONS: S = vault sentinel
-KFEAT: i = alarm trap / .
+KFEAT: i = trap_alarm / .
 MAP
 xxsxsxx
 xi...ix
@@ -2230,7 +2230,7 @@ KITEM:  H = any weapon good_item randart / any armour good_item randart / \
 KMONS:  D = vault warden band
 KMONS:  S = vault sentinel
 KMONS:  s = vault guard
-KFEAT:  H = alarm trap
+KFEAT:  H = trap_alarm
 KMASK:  H = no_monster_gen
 KMASK:  H = opaque
 KPROP:  H = no_tele_into

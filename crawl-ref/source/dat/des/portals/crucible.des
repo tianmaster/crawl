@@ -53,7 +53,7 @@ TAGS:     no_item_gen no_monster_gen no_pool_fixup allow_dup
 PLACE:    Crucible
 ORIENT:   encompass
 KFEAT:    M = altar_makhleb
-KFEAT:    ^ = teleport trap
+KFEAT:    ^ = trap_teleport
 SHUFFLE:  BCDE
 SUBVAULT: B : crucible_original_gehenna
 SUBVAULT: C : crucible_original_cocytus

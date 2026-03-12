@@ -345,6 +345,7 @@ enum tag_minor_version
     TAG_MINOR_MONINFO_CLEANUP,     // Stop marshalling some unused info and start marshalling some overlooked info
     TAG_MNIOR_FIX_HELLFIRE_MORTAR_LAVA_DURATION, // Fix lava from the hellfire mortar spell not lasting long enough
     TAG_MINOR_FIX_PERMANENT_HELLFIRE_MORTAR, // Timeout permanent hellfire mortar lava
+    TAG_MINOR_NO_TRAP_DEF,         // Remove vestigal uses trap_def and refactor trap handling
 #endif
     NUM_TAG_MINORS,
     TAG_MINOR_VERSION = NUM_TAG_MINORS - 1

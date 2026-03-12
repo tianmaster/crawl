@@ -2306,7 +2306,7 @@ DEPTH:   Crypt, Depths
 ORIENT:  float
 MONS:    spectral thing, guardian mummy, obsidian statue
 MONS:    mummy priest, royal mummy
-KFEAT:   ^ = alarm trap w:5 / dispersal trap / net trap / zot trap
+KFEAT:   ^ = trap_alarm w:5 / trap_dispersal / trap_net / trap_zot
 SUBST:   D = 1-, E = 2-, F = 4-, - = .:140 ^
 TILE:    c = wall_tomb
 TILE:    G = dngn_sarcophagus_pedestal_right
@@ -3459,7 +3459,7 @@ MONS:    glowing orange brain, vault warden
 KFEAT:   T = fountain_eyes
 FTILE:   .$%*+nTB[{(<>123456 = floor_metal_gold
 : end
-KFEAT:   > = shaft trap
+KFEAT:   > = shaft
 KFEAT:   n = iron_grate
 KFEAT:   B = cache_of_baked_goods
 SHUFFLE: {[(
@@ -4044,7 +4044,7 @@ TAGS:   no_monster_gen
 ORIENT: float
 DEPTH:  D:5-10
 MONS:   steam dragon, fungus
-KFEAT:  ^ = shaft trap
+KFEAT:  ^ = shaft
 SUBST:  p = .....^22222wwwww
 MAP
 x                   xxxx
@@ -4078,7 +4078,7 @@ SUBST: M = 6
 KITEM:  $ = amulet_of_vitality / any good_item
 KITEM:  12345d = gold / any / nothing
 KITEM:  67M = superb_item / any
-KFEAT:  ~ = zot trap
+KFEAT:  ~ = trap_zot
 : if you.absdepth() <= 17 then
 SUBST: 12 = 12d, 3 = 123, 4 = 6, H = .
 : else
@@ -6245,18 +6245,18 @@ KMONS:  p = briar patch
 MONS:   swamp worm
 : if you.in_branch('D') then
 :   if you.depth() < 12 then
-KFEAT:  ^ = net trap
+KFEAT:  ^ = trap_net
 SUBST:  F = E, D = 1ttttt
 :   elseif you.depth() < 14 then
-KFEAT:  ^ = net trap
+KFEAT:  ^ = trap_net
 SUBST:  d = dde, f = ffg, % = %%*, F = E, D = 1tt
 # From D:14 and later we use Zot traps.
 :   else
-KFEAT:  ^ = zot trap
+KFEAT:  ^ = trap_zot
 SUBST:  d = de, f = fg, % = %*, D = 1t, F = ^
 :   end
 : elseif you.in_branch('Lair') then
-KFEAT:  ^ = net trap
+KFEAT:  ^ = trap_net
 SUBST:  F = E
 :   if you.depth() < 4 then
 SUBST:  d = dddde, f = ffffg, % = %%%%*, F = E, D = 1tttt
@@ -6265,7 +6265,7 @@ SUBST:  d = ddde, f = fffg, % = %%%*, F = E, D = 1ttt
 :   end
 # Swamp
 : else
-KFEAT:  ^ = zot trap
+KFEAT:  ^ = trap_zot
 SUBST:  d = e, f = g, % = *, D = 11t, F = ^
 : end
 MARKER: E =  lua:fog_machine { cloud_type = "foul pestilence", pow_min = 5,  \
@@ -6328,7 +6328,7 @@ NSUBST:  H = D / x
 :     if you.depth() < 12 then
 KMONS:   1 = redback / jumping spider w:5
 KMONS:   3 = lindwurm
-KFEAT:   3^ = net trap / dispersal trap
+KFEAT:   3^ = trap_net / trap_dispersal
 # Outer chamber: place monsters and traps. We add one more monster and one half
 # more trap on-average with each depth increase condition. The D glyph will
 # always be either floor or a trap so that players can see somewhat into the
@@ -6349,7 +6349,7 @@ TILE:    r = dngn_statue_ancient_evil
 :     elseif you.depth() < 14 then
 KMONS:   1 = redback / jumping spider / tarantella w:5 / wolf spider w:5
 KMONS:   3 = lindwurm
-KFEAT:   3^ = net trap / dispersal trap
+KFEAT:   3^ = trap_net / trap_dispersal
 SUBST:   d = e
 NSUBST:  D = ^ / 2=^- / -, - = 4=1 / 4=1. / .
 NSUBST:  J = 2=2 / 2=2. / .
@@ -6366,7 +6366,7 @@ TILE:    r = dngn_statue_ancient_evil
 KMONS:   1 = redback / jumping spider / tarantella / wolf spider
 KMONS:   Q = spectral wolf spider
 KMONS:   3 = death scarab
-KFEAT:   3^ = zot trap w:20 / net trap / dispersal trap
+KFEAT:   3^ = trap_zot w:20 / trap_net / trap_dispersal
 SUBST:   d = f
 NSUBST:  D = ^ / 3=^- / -, - = 4=1 / 6=1. / .
 NSUBST:  J = 2=2 / 2.
@@ -6384,7 +6384,7 @@ FTILE:   = = floor_sandstone
 :     end
 : elseif you.in_branch("Lair") then
 KMONS:   3 = lindwurm
-KFEAT:   3^ = net trap / dispersal trap
+KFEAT:   3^ = trap_net / trap_dispersal
 :     if you.depth() < 4 then
 KMONS:   1 = redback / jumping spider / tarantella w:5 / wolf spider w:5
 NSUBST:  D = 2=^- / -, - = 2=1 / 4=1. / .
@@ -6411,7 +6411,7 @@ KITEM:   N = $
 KMONS:   1 = jumping spider / tarantella / wolf spider / emperor scorpion w:5
 KMONS:   Q = spectral wolf spider / spectral emperor scorpion
 KMONS:   3N = death scarab
-KFEAT:   3^ = zot trap w:20 / net trap / dispersal trap
+KFEAT:   3^ = trap_zot w:20 / trap_net / trap_dispersal
 SUBST:   d = f, g = h
 NSUBST:  D = 2=^ / 2=^- / -, - = 5=1 / 6=1. / .
 NSUBST:  J = 3=2 / 2.
@@ -7158,7 +7158,7 @@ KMONS:   E = laughing skull band
 KMONS:   F = mummy priest god:Xom
 KMONS:   G = tentacled monstrosity
 :   kmons("H = reaper ; " .. scythe("chaos"))
-KFEAT:   ^ = harlequin's trap
+KFEAT:   ^ = trap_harlequin
 SUBST:   ^ = ^..., ; = ., ~ = ', X = c
 : end
 ITEM:    potion of mutation q:4 pre_id
@@ -7331,8 +7331,8 @@ CLEAR:   z
 :   vaults_hard_standard(_G)
 : end
 KFEAT:   CZ = c
-KFEAT:   ^ = teleport trap
-KFEAT:   ~ = archmage's trap
+KFEAT:   ^ = trap_teleport
+KFEAT:   ~ = trap_archmage
 KFEAT:   _ = altar_sif_muna / altar_vehumet
 KITEM:   | = any book w:5 / any magical staff / any ring / any amulet / \
              any misc / any talisman w:5 / any wand w:5
@@ -7398,7 +7398,7 @@ KMONS:   f = water moccasin
 KMONS:   F = salamander
 KMONS:   g = redback
 KMONS:   G = wolf spider
-KFEAT:   ^ = web trap
+KFEAT:   ^ = web
 SHUFFLE: fFl / gG^
 NSUBST:  e = 2:e / 1:e. / *:., f = 1:f / 1:F / 2 = fF. / *:.
 NSUBST:  g = 1:g / 2:g. / *:., 2 = 2:2 / 1:% / *:.
@@ -7712,7 +7712,7 @@ NSUBST:  DEF = 2:129 / 2:.
 MONS:    deep elf knight, ironbound frostheart, deep elf death mage
 :   mons("orc knight ; battleaxe " .. f .. " . scale mail")
 MONS:    undying armoury
-KFEAT:   ^ = alarm trap / net trap w:4
+KFEAT:   ^ = trap_alarm / trap_net w:4
 SUBST:   @)] = .
 NSUBST:  | = 1:de / 1:e / 1:g / *:d, w = m
 NSUBST:  D = 1:12 / *:D, E = 2:12 / *:E, F = 1:12 / *:F
@@ -7726,7 +7726,7 @@ MONS:    ice dragon, lich
 :     mons("vampire knight ; great sword " .. f .. " | great mace " .. f ..
 :          " . ice dragon scales")
 MONS:    walking frostbound tome, golden dragon
-KFEAT:   ^ = alarm trap
+KFEAT:   ^ = trap_alarm
 NSUBST:  ^ = 2:^. / *:.
 NSUBST:  D = 1:112 / 1:. / *:D, E = 1:112 / 1:. /  *:E, F = 1:112 / 1:. / *:F
 SHUFFLE: })]<
@@ -7735,7 +7735,7 @@ MONS:    white draconian / black draconian w:2 / frost giant w:1
 MONS:    ice dragon, lich, golden dragon
 MONS:    white draconian stormcaller, black draconian knight
 KFEAT:   ) = enter_zot
-KFEAT:   ^ = alarm trap / zot trap
+KFEAT:   ^ = trap_alarm / trap_zot
 KFEAT:   U = zot_statue
 KITEM:   R = midnight gem
 NSUBST:  ^ = 2:^. / *:., 1 = 2 = 26 / *:1
@@ -7750,7 +7750,7 @@ NSUBST:  | = 1:d / 1:e / 1:g / * = de
 MONS:    white draconian, white draconian stormcaller
 MONS:    white draconian monk, white draconian knight / white draconian shifter
 MONS:    lich, golden dragon, orb of winter
-KFEAT:   ^ = zot trap
+KFEAT:   ^ = trap_zot
 NSUBST:  ^ = 2:^. / *:., 1 = 1:2 / 1:345 / 1:6 / *:1
 NSUBST:  $ = 1:} / *:$, | = 2:e / 1:g / *:d
 SHUFFLE: })]
@@ -7896,9 +7896,9 @@ KITEM:    f = scroll of summoning pre_id w:60 / parchment of call imp / \
 KITEM:    g = scroll of blinking pre_id / scroll of teleportation pre_id w:5
 KFEAT:    BC = c
 KFEAT:    HIJ = G
-KFEAT:    ^ = dispersal trap
-KFEAT:    ~ = archmage's trap
-KFEAT:    _ = teleport trap
+KFEAT:    ^ = trap_dispersal
+KFEAT:    ~ = trap_archmage
+KFEAT:    _ = trap_teleport
 SHUFFLE:  {<, g>
 NSUBST:   # = 1:1 / 1:" / * = 1"", & = 1:3 / 1:` / *=3``
 NSUBST:   ? = 1:2 / 1:' / * = 2'', ! = 1:2 / 1:' / *=2''
@@ -7994,7 +7994,7 @@ ITEM:     wand of digging / damaged pair of boots ego:earth
 ITEM:     stone no_pickup / large rock q:1 no_pickup
 KFEAT:    BC = c
 KFEAT:    X = x
-KFEAT:    ~ = archmage's trap
+KFEAT:    ~ = trap_archmage
 KFEAT:    # = iron_grate
 SUBVAULT: s : geo_lab
 SHUFFLE:  BC, -_=
@@ -8050,9 +8050,9 @@ MARKER:   O = lua:props_marker { portal=1 }
 :   kitem("d = randbook disc:earth spells:" .. s)
 KITEM:    e = gold q:6 no_pickup / gold q:8 no_pickup
 : end
-KFEAT:    ~ = archmage's trap
-KFEAT:    ^ = net trap
-KFEAT:    & = alarm trap
+KFEAT:    ~ = trap_archmage
+KFEAT:    ^ = trap_net
+KFEAT:    & = trap_alarm
 SHUFFLE:  ^&
 SUBST:    ~ = ~ .:5
 FTILE:    'de1^& = floor_crystal
@@ -8411,7 +8411,7 @@ KITEM:   X = any good_item
 SUBST:   A=., B=., C=.
 : else
 SUBST:   X=*, B=., C=.
-KFEAT:   A = teleport trap
+KFEAT:   A = trap_teleport
 : end
 MAP
 xxxxxxxxxxxxxxxxx
@@ -9261,7 +9261,7 @@ NAME:    hangedman_stitches_corridor
 TAGS:    no_monster_gen no_item_gen
 DEPTH:   Depths, !Depths:$
 ORIENT:  float
-KFEAT:   ^ = alarm trap
+KFEAT:   ^ = trap_alarm
 KFEAT:   z = c
 KMASK:   ' = !no_monster_gen
 SUBST:   1 = 0., " : W .:90, ^ : ^ .:190
@@ -12297,7 +12297,7 @@ ORIENT:  float
 KMASK:   -+QR^01289de$*| = opaque
 : item(dgn.loot_scrolls .. " / " .. dgn.loot_potions)
 ITEM:    any randart jewellery
-KFEAT:   ^ = zot trap
+KFEAT:   ^ = trap_zot
 SHUFFLE: FH / JK
 NSUBST:  D = ^ / -, E = ^ / -, H = - / "
 SUBST:   F = -, JK = ", ' = ^-, " = ^^-, d = dd$
@@ -12548,28 +12548,28 @@ NSUBST:  h = 2:@ / c, j = 2:. / *:cv, k = . / *:bcv
 : if you.absdepth() < 8 then
 SHUFFLE: wW / LL
 SUBST:   9 = 0, 1 = 9:40 8, 2 = G, r = $%, s = *, ^ = ^.
-KFEAT:   ^ = shaft trap / teleport trap / alarm trap / dispersal trap
+KFEAT:   ^ = shaft / trap_teleport / trap_alarm / trap_dispersal
 : elseif you.in_branch("Dungeon") then
 MONS:    ice statue
 SHUFFLE: wW / LL
 SUBST:   9 = 09, 1 = 98, 2 = G:50 1, r = $%, s =  *|, } = }>
-KFEAT:   ^ = shaft trap / teleport trap / alarm trap / dispersal trap
+KFEAT:   ^ = shaft / trap_teleport / trap_alarm / trap_dispersal
 : elseif you.in_branch("Lair") then
 KMONS:   p = plant
 SHUFFLE: Ww / LL
 SUBST:   9 = 09, 1 = 98, r = $%, s = *|,  2G = ., bcv = x, } = }>, K = p
-KFEAT:   ^ = shaft trap / teleport trap / alarm trap / dispersal trap
+KFEAT:   ^ = shaft / trap_teleport / trap_alarm / trap_dispersal
 : elseif you.in_branch("Depths") then
 MONS:    juggernaut / ancient lich / dread lich / golden dragon
 MONS:    obsidian statue / orange crystal statue
 SHUFFLE: Ww / ll
 SUBST:   2 = G:50 2, r = $*, s = |
-KFEAT:   ^ = shaft trap / alarm trap / zot trap
+KFEAT:   ^ = shaft / trap_alarm / trap_zot
 : elseif you.in_branch("Zot") then
 MONS:    ancient lich w:5 / dread lich w:5 / orb of appropriateness
 MONS:    orange crystal statue
 SUBST:   2 = G:50 2, r = *:30 |, wW = l, K = ), s = ]
-KFEAT:   ^ = zot trap
+KFEAT:   ^ = trap_zot
 : end
 SUBST: K = TUV, L = .
 MAP
