@@ -3022,6 +3022,50 @@ static void _xom_blinding_blinkitis(int /* sever */)
                                      target.size() > 1 ? "s" : "");
     take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, note), true);
 }
+
+// Another short reusable logic check list for valid Vex targets.
+static bool _valid_vex_target(monster* mon)
+{
+    return mon->alive() && !mon->wont_attack() && !mon->is_peripheral()
+           && !mon->clarity() && !mons_invuln_will(*mon) && !mon->helpless();
+}
+
+// Xom hands out both chaos lace and vex buffs to all enemies, with at least
+// one next to another enemy. Unlikely to be a direct full kill for its short
+// duration (monster versus monster damage isn't that high), but can make you
+// back off or maybe help you leave.
+static void _xom_chaos_vex(int /* sever */)
+{
+    vector<monster*> target;
+    const int dur = random_range(40, 80);
+    god_speaks(GOD_XOM, _get_xom_speech("chaos vex").c_str());
+
+    // Flash on non-occupied tiles first.
+    for (radius_iterator ri(you.pos(), LOS_NO_TRANS); ri; ++ri)
+        if (!monster_at(*ri) && one_chance_in(3))
+            flash_tile(*ri, BLUE, 1, TILE_BOLT_CHAOS_BUFF);
+
+    for (monster_near_iterator mi(you.pos(), LOS_NO_TRANS); mi; ++mi)
+    {
+        if (!_valid_vex_target(*mi))
+            continue;
+
+        if (mi->asleep())
+            behaviour_event(*mi, ME_DISTURB, 0, mi->pos());
+
+        flash_tile(mi->pos(), BLUE, 40, TILE_BOLT_CHAOS_BUFF);
+        mi->add_ench(mon_enchant(ENCH_CHAOS_LACE, &you, dur));
+        mi->add_ench(mon_enchant(ENCH_VEXED, &you, dur));
+        target.push_back(*mi);
+    }
+
+    mprf(MSGCH_MONSTER_ENCHANT, "%s %s interlaced with infuriating chaos!",
+         multimonster_name_string(target).c_str(),
+         target.size() > 1 ? "are" : "is");
+
+    const string note = make_stringf("chaos laced + vexed %d monster%s",
+                                     (int) target.size(),
+                                     target.size() > 1 ? "s" : "");
     take_note(Note(NOTE_XOM_EFFECT, you.raw_piety, -1, note), true);
 }
 
@@ -4514,11 +4558,11 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         {return tn > 0 && _choose_random_spell(sv) != SPELL_NO_SPELL;}
     },
     {
-        XOM_GOOD_CONFUSION, 440, 0, [](int /*sv*/, int /*tn*/)
+        XOM_GOOD_CONFUSION, 435, 0, [](int /*sv*/, int /*tn*/)
         {return mon_nearby([](monster& mon){ return !mon.wont_attack(); });}
     },
     {
-        XOM_GOOD_ENCHANT_MONSTER, 420, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_ENCHANT_MONSTER, 415, 0, [](int /*sv*/, int tn)
         {return tn > 0 && mon_nearby(_choose_enchantable_monster);}
     },
     {
@@ -4640,7 +4684,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         }
     },
     {
-        XOM_GOOD_MASS_CHARM, 87, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_MASS_CHARM, 85, 0, [](int /*sv*/, int tn)
         {return tn > 4 && mon_nearby(_choose_enchantable_monster);}
     },
     {
@@ -4671,7 +4715,7 @@ static const vector<xom_event_data> _list_xom_good_actions = {
         {return tn > 0 && !cloud_at(you.pos());}
     },
     {
-        XOM_GOOD_FAKE_DESTRUCTION, 55, 0, [](int /*sv*/, int tn)
+        XOM_GOOD_FAKE_DESTRUCTION, 50, 0, [](int /*sv*/, int tn)
         {return tn > 0 && mon_nearby(_choose_enchantable_monster);}
     },
     {
@@ -4735,6 +4779,23 @@ static const vector<xom_event_data> _list_xom_good_actions = {
             }
             return (you.hp < you.hp_max * 75 / 100) &&
                    adjacent_hostiles > 0 && smiters * 5 < total_hostiles;
+        }
+    },
+    {
+        XOM_GOOD_CHAOS_VEX, 25, 0, [](int /*sv*/, int tn)
+        {
+            if (tn < 0)
+                return false;
+
+            // Look through all hostile monsters to see if any with attacks
+            // that aren't will immune are adjacent to any other monsters.
+            for (monster_near_iterator mi(you.pos(), LOS_NO_TRANS); mi; ++mi)
+                if (_valid_vex_target(*mi))
+                    for (adjacent_iterator ai(mi->pos()); ai; ++ai)
+                        if (monster_at(*ai) && !monster_at(*ai)->wont_attack())
+                            return true;
+
+            return false;
         }
     },
     // Effects with very specific conditions, given a seemingly high weight
@@ -5591,6 +5652,7 @@ static const map<xom_event_type, xom_event> xom_events = {
     { XOM_GOOD_MASS_CHARM, {"mass charm", _xom_mass_charm }},
     { XOM_GOOD_WAVE_OF_DESPAIR, {"wave of despair", _xom_wave_of_despair }},
     { XOM_GOOD_BLINDING_BLINKITIS, {"blinding blinkitis", _xom_blinding_blinkitis }},
+    { XOM_GOOD_CHAOS_VEX, {"chaos vex", _xom_chaos_vex }},
     { XOM_GOOD_FOG, { "fog", _xom_fog }},
     { XOM_GOOD_CLOUD_TRAIL, { "cloud trail", _xom_cloud_trail }},
     { XOM_GOOD_CLEAVING, { "cleaving", _xom_cleaving }},
