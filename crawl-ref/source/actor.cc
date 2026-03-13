@@ -1083,7 +1083,7 @@ bool actor::knockback(const actor &cause, int dist, int dmg, string source_name,
     // Stun the monster briefly so that it doesn't look as though it wasn't
     // knocked back at all
     if (is_monster())
-        as_monster()->lose_action_energy(random2(6) + 4);
+        as_monster()->speed_increment -= random2(6) + 4;
 
     finalise_movement();
 

@@ -1243,7 +1243,7 @@ static monster* _place_monster_aux(const mgen_data &mg, const monster *leader,
         if (mons_class_wields_two_weapons(mg.cls))
             give_weapon(mon, place.absdepth());
 
-        save_mons_energy save_speedinc(*mon);
+        unwind_var<int> save_speedinc(mon->speed_increment);
         mon->wield_melee_weapon(false);
     }
 

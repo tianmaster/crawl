@@ -2626,7 +2626,7 @@ bool vampire_mesmerism_check(monster& mon)
             mprf("%s is briefly mesmerised by your gaze.", mon.name(DESC_THE).c_str());
             // This works even if called during the stealth check, whereas a 1-turn daze
             // would wear off with no effect and produce extra messages on top of that.
-            mon.lose_action_energy(10);
+            mon.speed_increment -= 10;
         }
 
         return true;

@@ -115,8 +115,8 @@ MDEF(beh)
 
 MDEF(energy)
 {
-    // XXX: fix this after energy clean up
-    PLUARET(integer, (mons->action_energy() - 79));
+    // XXX: fix this after speed_increment clean up
+    PLUARET(integer, (mons->speed_increment - 79));
 }
 
 MDEF(in_local_population)
@@ -135,7 +135,7 @@ LUAFN(l_mons_add_energy)
 {
     ASSERT_DLUA;
     monster* mons = clua_get_lightuserdata<monster>(ls, lua_upvalueindex(1));
-    mons->gain_action_energy(luaL_safe_checkint(ls, 1));
+    mons->speed_increment += luaL_safe_checkint(ls, 1);
     return 0;
 }
 MDEFN(add_energy, add_energy)

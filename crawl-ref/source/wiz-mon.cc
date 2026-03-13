@@ -321,7 +321,7 @@ void debug_stethoscope(int mon)
          mons.base_evasion(), mons.evasion(),
          mons.willpower(),
          exp_value(mons),
-         mons.speed, mons.action_energy(),
+         mons.speed, mons.speed_increment,
          mons.base_monster != MONS_NO_MONSTER ? " base=" : "",
          mons.base_monster != MONS_NO_MONSTER ?
          get_monster_data(mons.base_monster)->name : "",

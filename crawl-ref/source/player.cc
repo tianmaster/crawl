@@ -628,7 +628,7 @@ static void _check_spatial_entanglement(const coord_def& oldpos)
     mon->move_to(spot, MV_TRANSLOCATION, true);
 
     mprf("%s is dragged along with you!", mon->name(DESC_THE).c_str());
-    mon->lose_action_energy(you.time_taken);
+    mon->speed_increment -= you.time_taken;
     mon->finalise_movement();
     if (mon->alive())
         behaviour_event(mon, ME_ALERT, &you, you.pos());
@@ -8376,7 +8376,7 @@ bool player::attempt_escape()
         // to make it up the stairs after pulling away this way)
         if (constricted_type == CONSTRICT_MELEE)
         {
-            themonst->lose_action_energy(10);
+            themonst->speed_increment -= 10;
             you.duration[DUR_CONSTRICTION_IMMUNITY] = 20;
         }
 

@@ -2144,7 +2144,7 @@ bool trigger_battlesphere(actor* agent)
             // Show battlesphere at its new location and attempt to prevent it
             // from moving further until after the next action.
             battlesphere->check_redraw(old_pos);
-            battlesphere->lose_action_energy(30);
+            battlesphere->speed_increment -= 30;
 
             _fire_battlesphere(battlesphere, beam);
             battlesphere->finalise_movement();
@@ -2159,7 +2159,7 @@ bool trigger_battlesphere(actor* agent)
         const coord_def old_pos = battlesphere->pos();
         battlesphere->move_to(fallback_pos, MV_DELIBERATE, true);
         battlesphere->check_redraw(old_pos);
-        battlesphere->lose_action_energy(30);
+        battlesphere->speed_increment -= 30;
 
         beam.source = fallback_pos;
         _fire_battlesphere(battlesphere, beam);
@@ -3188,7 +3188,8 @@ spret cast_broms_barrelling_boulder(actor& agent, coord_def targ, int pow, bool 
     }
 
     // Let the boulder roll one space immediately.
-    boulder->set_action_energy(80);
+    boulder->speed_increment = 80;
+    queue_monster_for_action(boulder);
 
     return spret::success;
 }
@@ -3317,7 +3318,7 @@ spret cast_hoarfrost_cannonade(const actor& agent, int pow, bool fail)
         {
             // Give a bit of instant energy so the slow cannons don't take
             // multiple turns to fire their first shot.
-            mons->set_action_energy(70);
+            mons->speed_increment = 70;
 
             if (you.can_see(*mons))
                 ++num_seen;
@@ -3510,7 +3511,7 @@ bool make_soul_wisp(const actor& agent, actor& victim)
         wisp->add_ench(mon_enchant(ENCH_HAUNTING, &victim, INFINITE_DURATION));
         // Let wisp act immediately (so that if it appears behind the enemy, the
         // enemy won't simply move out of range first).
-        wisp->set_action_energy(80);
+        wisp->speed_increment = 80;
         victim.weaken(&agent, wisp->get_ench(ENCH_SUMMON_TIMER).duration / 10);
         victim.props[SOUL_SPLINTERED_KEY]= true;
 
@@ -3649,7 +3650,8 @@ void launch_clockwork_bee(const actor& agent)
                  targ->name(DESC_THE).c_str());
         }
 
-        bee->set_action_energy(80);
+        bee->speed_increment = 80;
+        queue_monster_for_action(bee);
         bee->props[CLOCKWORK_BEE_TARGET].get_int() = targ->mid;
     }
     else if (agent.is_player())
@@ -3772,7 +3774,7 @@ bool clockwork_bee_recharge(actor& agent, monster& bee)
     const int pow = agent.is_player() ? calc_spell_power(SPELL_CLOCKWORK_BEE)
                                       : mons_spellpower(*agent.as_monster(), SPELL_CLOCKWORK_BEE);
     bee.number = 3 + div_rand_round(pow, 15);
-    bee.set_action_energy(80);
+    bee.speed_increment = 80;
 
     return true;
 }
@@ -4214,7 +4216,7 @@ void paragon_attack_trigger()
 
     mpr("Your paragon attacks with you!");
     mons_fight(paragon, targ);
-    paragon->gain_action_energy(paragon->action_energy(EUT_ATTACK));
+    paragon->speed_increment += paragon->action_energy(EUT_ATTACK);
     you.did_trigger(DID_PARAGON);
 }
 
@@ -4733,7 +4735,7 @@ void trigger_rending_blade()
         {
             // Trigger at most 3 times per round, so that axes aren't overly ridiclous.
             mi->number = min((unsigned int)3, mi->number + 1);
-            mi->set_action_energy(100);
+            mi->speed_increment = 100;
             return;
         }
     }

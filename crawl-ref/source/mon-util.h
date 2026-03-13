@@ -28,7 +28,7 @@ struct mon_attack_def
     int             damage;
 };
 
-// Amount of action energy used by different actions; defaults
+// Amount of mons->speed_increment used by different actions; defaults
 // to 10.
 #define DEFAULT_ENERGY {10, 10, 10, 10, 10}
 struct mon_energy_usage
@@ -175,15 +175,6 @@ enum mon_threat_level_type
     MTHRT_TOUGH,
     MTHRT_NASTY,
     MTHRT_UNDEF,
-};
-
-struct save_mons_energy
-{
-    save_mons_energy(monster& mon);
-    ~save_mons_energy();
-private:
-    int energy;
-    monster& mons;
 };
 
 void set_resist(resists_t &all, mon_resist_flags res, int lev);

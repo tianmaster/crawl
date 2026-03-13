@@ -3174,7 +3174,7 @@ static spret _do_cacophony()
         fake_armour = *item;
         fake_armour.flags |= ISFLAG_SUMMONED | ISFLAG_IDENTIFIED;
         armour->pickup_item(fake_armour, false, true);
-        armour->set_action_energy(80);
+        armour->speed_increment = 80;
     }
 
     if (!did_something)

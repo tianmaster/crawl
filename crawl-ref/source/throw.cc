@@ -948,7 +948,7 @@ bool mons_throw(monster* mons, ranged_attack_beam& ratk, bool teleport, bool was
         const int delay = mons->attack_delay(&weapon).roll();
         ASSERT(energy > 0);
         ASSERT(delay > 0);
-        mons->lose_action_energy(div_rand_round(energy * delay, 10));
+        mons->speed_increment -= div_rand_round(energy * delay, 10);
     }
 
     // Avoid overshooting unless we're *trying* to hit allies.

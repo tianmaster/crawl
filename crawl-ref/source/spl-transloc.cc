@@ -2308,7 +2308,7 @@ static void _push_actor(actor& victim, coord_def dir, int dist, int pow)
     if (victim.is_monster() && !immune)
     {
         behaviour_event(victim.as_monster(), ME_ALERT, &you, you.pos());
-        victim.as_monster()->lose_action_energy(10);
+        victim.as_monster()->speed_increment -= 10;
     }
 
     const coord_def starting_pos = victim.pos();

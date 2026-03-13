@@ -1666,7 +1666,7 @@ bool melee_attack::run_monster_attack_set()
     if (mon->has_ench(ENCH_INSTANT_CLEAVE))
     {
         mon->del_ench(ENCH_INSTANT_CLEAVE);
-        mon->gain_action_energy(mon->action_energy(EUT_ATTACK));
+        mon->speed_increment += mon->action_energy(EUT_ATTACK);
     }
 
     if (charge_sunder)

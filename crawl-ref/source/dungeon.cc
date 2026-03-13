@@ -5197,7 +5197,7 @@ static void _dgn_give_mon_spec_items(mons_spec &mspec, monster *mon)
 {
     ASSERT(mspec.place.is_valid());
 
-    save_mons_energy save_speedinc(*mon);
+    unwind_var<int> save_speedinc(mon->speed_increment);
 
     // Get rid of existing equipment.
     for (mon_inv_iterator ii(*mon); ii; ++ii)

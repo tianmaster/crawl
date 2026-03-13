@@ -360,7 +360,7 @@ static void _do_merge_slimes(monster* initial_slime, monster* merge_to)
     // gain a space by moving away the turn after (maybe this is too nice but
     // there will probably be a lot of complaints about the damage on higher
     // level slimes).
-    merge_to->set_action_energy(79 - mons_class_base_speed(merge_to->type));
+    merge_to->speed_increment = 79 - mons_class_base_speed(merge_to->type);
 
     // Overwrite the state of the slime getting merged into, because it
     // might have been resting or something.
@@ -1022,8 +1022,9 @@ void seismosaurus_egg_hatch(monster* mons)
         mons->del_ench(ENCH_HATCHING);
 
         // Immediately stomp if anything is in range
-        mons->set_action_energy(80);
+        mons->speed_increment = 80;
         try_mons_cast(*mons, SPELL_SEISMIC_STOMP);
+        queue_monster_for_action(mons);
 
         // Clean up range indicator
         for (distance_iterator di(mons->pos(), false, false, 4); di; ++di)
