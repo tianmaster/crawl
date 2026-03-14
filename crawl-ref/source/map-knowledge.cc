@@ -30,6 +30,7 @@ void set_terrain_mapped(const coord_def gc)
     cell->flags &= (~MAP_CHANGED_FLAG);
     cell->flags |= MAP_MAGIC_MAPPED_FLAG;
 #ifdef USE_TILE
+    tile_draw_map_cell(gc);
     // This may have changed the explore horizon, so update adjacent minimap
     // squares as well.
     for (adjacent_iterator ai(gc, false); ai; ++ai)
@@ -538,6 +539,9 @@ bool magic_mapping(int map_radius, int proportion, bool suppress_msg,
                 set_terrain_seen(pos);
                 StashTrack.add_stash(pos);
                 show_update_at(pos);
+#ifdef USE_TILE
+                tile_draw_map_cell(pos);
+#endif
             }
             else
             {
@@ -547,9 +551,6 @@ bool magic_mapping(int map_radius, int proportion, bool suppress_msg,
                 else if (get_feature_dchar(feat) == DCHAR_ARCH)
                     num_shops_portals++;
             }
-#ifdef USE_TILE
-            tile_draw_map_cell(pos);
-#endif
 
             did_map = true;
         }
