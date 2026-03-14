@@ -60,6 +60,10 @@ public:
     virtual void init();
     virtual bool needs_activation() const { return false; }
     virtual void activate(bool verbose = true);
+    virtual bool is_dynamic() const { return false; }
+    // Handle autonomous time-based effects for a given marker.
+    // Returns true if the marker's effects are complete and it should be removed.
+    virtual bool run(int /*time*/) { return false; };
     virtual void write(writer &) const;
     virtual void read(reader &);
     virtual string debug_describe() const = 0;
@@ -105,6 +109,8 @@ public:
     map_corruption_marker(const coord_def &pos = coord_def(0, 0),
                           int dur = 0);
 
+    bool is_dynamic() const override { return true; }
+    bool run(int time) override;
     void write(writer &) const override;
     void read(reader &) override;
     map_marker *clone() const override;
@@ -122,6 +128,8 @@ public:
     map_tomb_marker(const coord_def& pos = coord_def(0, 0),
                     int dur = 0, int src = 0, int targ = 0);
 
+    bool is_dynamic() const override { return true; }
+    bool run(int time) override;
     void write(writer &) const override;
     void read(reader &) override;
     map_marker *clone() const override;
@@ -141,6 +149,8 @@ public:
                     beh_type bh = BEH_HOSTILE, god_type gd = GOD_NO_GOD,
                     int pow = 0);
 
+    bool is_dynamic() const override { return true; }
+    bool run(int time) override;
     void write (writer &) const override;
     void read (reader &) override;
     map_marker *clone() const override;
@@ -215,6 +225,8 @@ public:
                               int max_radius = LOS_DEFAULT_RANGE,
                               int dur = 10, actor* agent = nullptr);
 
+    bool is_dynamic() const override { return true; }
+    bool run(int time) override;
     void write(writer &) const override;
     void read(reader &) override;
     map_marker *clone() const override;
@@ -324,6 +336,7 @@ public:
     void init_all();
     void activate_all(bool verbose = true);
     void activate_markers_at(coord_def p);
+    void run_all(int time, map_marker_type type = MAT_ANY);
     void add(map_marker *marker);
     void remove(map_marker *marker);
     void remove_markers_at(const coord_def &c, map_marker_type type = MAT_ANY);
@@ -350,11 +363,13 @@ private:
 
     void init_from(const map_markers &);
     void unlink_marker(const map_marker *);
+    void delete_marker(map_marker *);
     void check_empty();
 
 private:
     dgn_marker_map markers;
     bool have_inactive_markers;
+    vector<map_marker*> dynamic_markers;
 };
 
 map_position_marker *get_position_marker_at(const coord_def &pos,

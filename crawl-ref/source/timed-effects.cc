@@ -629,7 +629,7 @@ void update_level(int elapsedTime)
     // Then simply time out effects for the remaining time.
     rot_corpses(elapsedTime);
     shoals_apply_tides(quick_turns, true);
-    timeout_tombs(elapsedTime);
+    env.markers.run_all(elapsedTime);
     timeout_terrain_changes(elapsedTime);
 
     if (env.sanctuary_time)
@@ -740,127 +740,99 @@ static void _drop_tomb(const coord_def& pos, bool premature, bool zin)
     }
 }
 
-static vector<map_malign_gateway_marker*> _get_malign_gateways()
-{
-    vector<map_malign_gateway_marker*> mm_markers;
-
-    for (map_marker *mark : env.markers.get_all(MAT_MALIGN))
-    {
-        if (mark->get_type() != MAT_MALIGN)
-            continue;
-
-        map_malign_gateway_marker *mmark = dynamic_cast<map_malign_gateway_marker*>(mark);
-
-        mm_markers.push_back(mmark);
-    }
-
-    return mm_markers;
-}
-
 int count_malign_gateways()
 {
-    return _get_malign_gateways().size();
+    return env.markers.get_all(MAT_MALIGN).size();
 }
 
-void timeout_malign_gateways(int duration)
+bool map_malign_gateway_marker::run(int time)
 {
     // Passing 0 should allow us to just touch the gateway and see
     // if it should decay. This, in theory, should resolve the one
     // turn delay between it timing out and being recastable. -due
-    for (map_malign_gateway_marker *mmark : _get_malign_gateways())
+    if (time)
+        duration -= time;
+
+    if (duration > 0)
     {
-        if (duration)
-            mmark->duration -= duration;
-
-        if (mmark->duration > 0)
+        const int pow = 3 + random2(10);
+        const int size = 2 + random2(5);
+        big_cloud(CLOUD_TLOC_ENERGY, 0, pos, pow, size);
+    }
+    else
+    {
+        monster* mons = monster_at(pos);
+        if (monster_summoned && !mons)
         {
-            const int pow = 3 + random2(10);
-            const int size = 2 + random2(5);
-            big_cloud(CLOUD_TLOC_ENERGY, 0, mmark->pos, pow, size);
+            if (env.grid(pos) == DNGN_MALIGN_GATEWAY)
+                env.grid(pos) = DNGN_FLOOR;
+
+            // Remove the marker now.
+            return true;
         }
-        else
+        else if (!monster_summoned && !mons)
         {
-            monster* mons = monster_at(mmark->pos);
-            if (mmark->monster_summoned && !mons)
+            actor* caster = 0;
+            if (is_player)
+                caster = &you;
+
+            mgen_data mg = mgen_data(MONS_ELDRITCH_TENTACLE,
+                                        behaviour,
+                                        pos,
+                                        MHITNOT,
+                                        MG_FORCE_PLACE,
+                                        god);
+            mg.set_summoned(caster, SPELL_MALIGN_GATEWAY, 0, false, false);
+            if (!is_player)
+                mg.non_actor_summoner = summoner_string;
+
+            if (monster *tentacle = create_monster(mg))
             {
-                // The marker hangs around until later.
-                if (env.grid(mmark->pos) == DNGN_MALIGN_GATEWAY)
-                    env.grid(mmark->pos) = DNGN_FLOOR;
+                tentacle->flags |= MF_NO_REWARD;
+                tentacle->add_ench(ENCH_PORTAL_TIMER);
+                int dur = random2avg(power, 6);
+                dur -= random2(4); // sequence point between random calls
+                dur *= 10;
+                mon_enchant kduration = mon_enchant(ENCH_PORTAL_PACIFIED,
+                                                    caster, dur);
+                tentacle->props[BASE_POSITION_KEY].get_coord()
+                                    = tentacle->pos();
+                tentacle->add_ench(kduration);
 
-                env.markers.remove(mmark);
-            }
-            else if (!mmark->monster_summoned && !mons)
-            {
-                bool is_player = mmark->is_player;
-                actor* caster = 0;
-                if (is_player)
-                    caster = &you;
-
-                mgen_data mg = mgen_data(MONS_ELDRITCH_TENTACLE,
-                                         mmark->behaviour,
-                                         mmark->pos,
-                                         MHITNOT,
-                                         MG_FORCE_PLACE,
-                                         mmark->god);
-                mg.set_summoned(caster, SPELL_MALIGN_GATEWAY, 0, false, false);
-                if (!is_player)
-                    mg.non_actor_summoner = mmark->summoner_string;
-
-                if (monster *tentacle = create_monster(mg))
-                {
-                    tentacle->flags |= MF_NO_REWARD;
-                    tentacle->add_ench(ENCH_PORTAL_TIMER);
-                    int dur = random2avg(mmark->power, 6);
-                    dur -= random2(4); // sequence point between random calls
-                    dur *= 10;
-                    mon_enchant kduration = mon_enchant(ENCH_PORTAL_PACIFIED,
-                                                        caster, dur);
-                    tentacle->props[BASE_POSITION_KEY].get_coord()
-                                        = tentacle->pos();
-                    tentacle->add_ench(kduration);
-
-                    mmark->monster_summoned = true;
-                }
+                monster_summoned = true;
             }
         }
     }
+
+    return false;
 }
 
-void timeout_tombs(int duration)
+bool map_tomb_marker::run(int time)
 {
-    if (!duration)
-        return;
+    if (time <= 0)
+        return false;
 
-    for (map_marker *mark : env.markers.get_all(MAT_TOMB))
+    duration -= time;
+
+    // Empty tombs disappear early.
+    monster* mon_entombed = monster_at(pos);
+    bool empty_tomb = !(mon_entombed || you.pos() == pos);
+    bool zin = (source == -GOD_ZIN);
+
+    if (duration <= 0 || empty_tomb)
     {
-        if (mark->get_type() != MAT_TOMB)
-            continue;
+        _drop_tomb(pos, empty_tomb, zin);
 
-        map_tomb_marker *cmark = dynamic_cast<map_tomb_marker*>(mark);
-        cmark->duration -= duration;
+        monster* mon_src =
+            !invalid_monster_index(source) ? &env.mons[source] : nullptr;
+        // A monster's Tomb of Doroklohe spell.
+        if (mon_src && mon_src == mon_entombed)
+            mon_src->lose_energy(EUT_SPELL);
 
-        // Empty tombs disappear early.
-        monster* mon_entombed = monster_at(cmark->pos);
-        bool empty_tomb = !(mon_entombed || you.pos() == cmark->pos);
-        bool zin = (cmark->source == -GOD_ZIN);
-
-        if (cmark->duration <= 0 || empty_tomb)
-        {
-            _drop_tomb(cmark->pos, empty_tomb, zin);
-
-            monster* mon_src =
-                !invalid_monster_index(cmark->source) ? &env.mons[cmark->source]
-                                                      : nullptr;
-            // A monster's Tomb of Doroklohe spell.
-            if (mon_src
-                && mon_src == mon_entombed)
-            {
-                mon_src->lose_energy(EUT_SPELL);
-            }
-
-            env.markers.remove(cmark);
-        }
+        return true;
     }
+
+    return false;
 }
 
 void timeout_binding_sigils()
@@ -1070,13 +1042,11 @@ void run_environment_effects()
         }
     }
 
-    run_corruption_effects(you.time_taken);
+    env.markers.run_all(you.time_taken);
+
     shoals_apply_tides(div_rand_round(you.time_taken, BASELINE_DELAY),
                        false);
-    timeout_tombs(you.time_taken);
-    timeout_malign_gateways(you.time_taken);
     timeout_terrain_changes(you.time_taken);
-    run_cloud_spreaders(you.time_taken);
 }
 
 // Converts a movement speed to a duration. i.e., answers the

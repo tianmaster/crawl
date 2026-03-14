@@ -1043,11 +1043,28 @@ void map_markers::activate_markers_at(coord_def p)
     }
 }
 
+void map_markers::run_all(int time, map_marker_type type)
+{
+    for (size_t i = 0; i < dynamic_markers.size(); ++i)
+    {
+        if (type != MAT_ANY && dynamic_markers[i]->get_type() != type)
+            continue;
+
+        if (dynamic_markers[i]->run(time))
+        {
+            remove(dynamic_markers[i]);
+            --i;
+        }
+    }
+}
+
 void map_markers::add(map_marker *marker)
 {
     markers.insert(dgn_pos_marker(marker->pos, marker));
     if (marker->needs_activation())
         have_inactive_markers = true;
+    if (marker->is_dynamic())
+        dynamic_markers.push_back(marker);
 }
 
 void map_markers::unlink_marker(const map_marker *marker)
@@ -1069,10 +1086,21 @@ void map_markers::check_empty()
         have_inactive_markers = false;
 }
 
+void map_markers::delete_marker(map_marker *marker)
+{
+    if (marker->is_dynamic())
+    {
+        auto pos = std::find(dynamic_markers.begin(), dynamic_markers.end(), marker);
+        if (pos != dynamic_markers.end())
+            dynamic_markers.erase(pos);
+    }
+    delete marker;
+}
+
 void map_markers::remove(map_marker *marker)
 {
     unlink_marker(marker);
-    delete marker;
+    delete_marker(marker);
     check_empty();
 }
 
@@ -1085,7 +1113,7 @@ void map_markers::remove_markers_at(const coord_def &c,
         auto todel = i++;
         if (type == MAT_ANY || todel->second->get_type() == type)
         {
-            delete todel->second;
+            delete_marker(todel->second);
             markers.erase(todel);
         }
     }
@@ -1197,6 +1225,7 @@ void map_markers::clear()
     for (auto &entry : markers)
         delete entry.second;
     markers.clear();
+    dynamic_markers.clear();
     check_empty();
 }
 

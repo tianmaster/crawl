@@ -1252,7 +1252,7 @@ spret summon_shadow_creatures()
 
 bool can_cast_malign_gateway()
 {
-    timeout_malign_gateways(0);
+    env.markers.run_all(0, MAT_MALIGN);
 
     return count_malign_gateways() < 1;
 }

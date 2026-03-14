@@ -1891,37 +1891,24 @@ static void _spawn_corrupted_servant_near_monster(const monster &who)
     }
 }
 
-static void _apply_corruption_effect(map_marker *marker, int duration)
+bool map_corruption_marker::run(int time)
 {
-    if (!duration)
-        return;
+    if (time <= 0 || duration < 1)
+        return false;
 
-    map_corruption_marker *cmark = dynamic_cast<map_corruption_marker*>(marker);
-    if (cmark->duration < 1)
-        return;
-
-    const int neffects = max(div_rand_round(duration, 5), 1);
+    const int neffects = max(div_rand_round(time, 5), 1);
 
     for (int i = 0; i < neffects; ++i)
     {
-        if (x_chance_in_y(cmark->duration, 4000)
-            && !_spawn_corrupted_servant_near(cmark->pos))
+        if (x_chance_in_y(duration, 4000)
+            && !_spawn_corrupted_servant_near(pos))
         {
             break;
         }
     }
-    cmark->duration -= duration;
-}
+    duration -= time;
 
-void run_corruption_effects(int duration)
-{
-    for (map_marker *mark : env.markers.get_all(MAT_CORRUPTION_NEXUS))
-    {
-        if (mark->get_type() != MAT_CORRUPTION_NEXUS)
-            continue;
-
-        _apply_corruption_effect(mark, duration);
-    }
+    return false;
 }
 
 static bool _is_grid_corruptible(const coord_def &c)
@@ -2313,7 +2300,7 @@ void lugonu_corrupt_level(int power)
     corrupt_env cenv;
     _corrupt_choose_colours(&cenv);
     _corrupt_level_features(cenv);
-    run_corruption_effects(300);
+    env.markers.run_all(300, MAT_CORRUPTION_NEXUS);
 
     // Allow extra time for the flash to linger.
     scaled_delay(1000);
