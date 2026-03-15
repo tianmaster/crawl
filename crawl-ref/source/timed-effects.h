@@ -11,7 +11,7 @@ void update_level(int elapsedTime);
 monster* update_monster(monster& mon, int turns);
 void handle_time();
 
-int count_malign_gateways();
+int count_malign_gateways(const actor& owner);
 
 bool end_terrain_changes(terrain_change_type type, mid_t source_mid = MID_NOBODY);
 bool end_terrain_changes(const actor& source, terrain_change_type type = NUM_TERRAIN_CHANGE_TYPES);

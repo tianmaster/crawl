@@ -1107,7 +1107,7 @@ static const map<spell_type, mons_spell_logic> marionette_spell_to_logic {
     } },
     { SPELL_MALIGN_GATEWAY, {
         [](const monster&) {
-            return ai_action::good_or_impossible(can_cast_malign_gateway());
+            return ai_action::good_or_impossible(can_cast_malign_gateway(you));
         },
         [] (monster&, mon_spell_slot /*slot*/, bolt& /*beem*/) {
             cast_malign_gateway(&you, 200);
@@ -7980,12 +7980,6 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
         return;
 
     case SPELL_MALIGN_GATEWAY:
-        if (!can_cast_malign_gateway())
-        {
-            dprf("ERROR: %s can't cast malign gateway, but is casting anyway! "
-                 "Counted %d gateways.", mons->name(DESC_THE).c_str(),
-                 count_malign_gateways());
-        }
         cast_malign_gateway(mons, 200);
         return;
 
@@ -9773,7 +9767,7 @@ ai_action::goodness monster_spell_goodness(monster* mon, spell_type spell)
             _glaciate_tracer(mon, mons_spellpower(*mon, spell), foe->pos()));
 
     case SPELL_MALIGN_GATEWAY:
-        return ai_action::good_or_bad(can_cast_malign_gateway());
+        return ai_action::good_or_bad(can_cast_malign_gateway(*mon));
 
     case SPELL_SIREN_SONG:
         return _mesmerise_is_effective(mon, true);

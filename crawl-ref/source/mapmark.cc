@@ -34,8 +34,8 @@ map_marker::marker_reader map_marker::readers[NUM_MAP_MARKER_TYPES] =
     &map_corruption_marker::read,
     &map_wiz_props_marker::read,
     &map_tomb_marker::read,
-    &map_malign_gateway_marker::read,
 #if TAG_MAJOR_VERSION == 34
+    nullptr,
     nullptr,
 #endif
     &map_position_marker::read,
@@ -44,7 +44,8 @@ map_marker::marker_reader map_marker::readers[NUM_MAP_MARKER_TYPES] =
 #endif
     &map_terrain_change_marker::read,
     &map_cloud_spreader_marker::read,
-    &map_hellfire_mortar_lava_marker::read
+    &map_hellfire_mortar_lava_marker::read,
+    &map_malign_gateway_marker::read,
 };
 
 map_marker::marker_parser map_marker::parsers[NUM_MAP_MARKER_TYPES] =
@@ -633,37 +634,37 @@ string map_tomb_marker::debug_describe() const
 // map_malign_gateway_marker
 
 map_malign_gateway_marker::map_malign_gateway_marker(const coord_def &p,
-                                 int dur, bool ip, string sum, beh_type b,
-                                 god_type gd, int pow)
-    : map_marker(MAT_MALIGN, p), duration(dur), is_player(ip), monster_summoned(false),
-      summoner_string(sum), behaviour(b), god(gd), power(pow)
+                                 int _delay, int pow, int _duration,
+                                 mid_t summoner_mid, string blame,
+                                 beh_type b)
+    : map_marker(MAT_MALIGN_GATEWAY, p), delay(_delay), power(pow),
+      duration(_duration), summoner(summoner_mid), tentacle(MID_NOBODY),
+      blame_string(blame), behaviour(b)
 {
 }
 
 void map_malign_gateway_marker::write(writer &out) const
 {
     map_marker::write(out);
+    marshallShort(out, delay);
     marshallShort(out, duration);
-    marshallBoolean(out, is_player);
-    marshallBoolean(out, monster_summoned);
-    marshallString(out, summoner_string);
-    marshallUByte(out, behaviour);
-    marshallUByte(out, god);
     marshallShort(out, power);
+    marshallInt(out, summoner);
+    marshallInt(out, tentacle);
+    marshallString(out, blame_string);
+    marshallUByte(out, behaviour);
 }
 
 void map_malign_gateway_marker::read(reader &in)
 {
     map_marker::read(in);
-    duration  = unmarshallShort(in);
-    is_player = unmarshallBoolean(in);
-
-    monster_summoned = unmarshallBoolean(in);
-    summoner_string = unmarshallString(in);
-    behaviour = static_cast<beh_type>(unmarshallUByte(in));
-
-    god       = static_cast<god_type>(unmarshallByte(in));
-    power     = unmarshallShort(in);
+    delay        = unmarshallShort(in);
+    duration     = unmarshallShort(in);
+    power        = unmarshallShort(in);
+    summoner     = unmarshallInt(in);
+    tentacle     = unmarshallInt(in);
+    blame_string = unmarshallString(in);
+    behaviour    = static_cast<beh_type>(unmarshallUByte(in));
 }
 
 map_marker *map_malign_gateway_marker::read(reader &in, map_marker_type)
@@ -676,14 +677,14 @@ map_marker *map_malign_gateway_marker::read(reader &in, map_marker_type)
 map_marker *map_malign_gateway_marker::clone() const
 {
     map_malign_gateway_marker *mark = new map_malign_gateway_marker(pos,
-        duration, is_player, summoner_string, behaviour, god, power);
+        delay, power, duration, summoner, blame_string, behaviour);
     return mark;
 }
 
 string map_malign_gateway_marker::debug_describe() const
 {
-    return make_stringf("Malign gateway (%d, %s)", duration,
-                        is_player ? "player" : "monster");
+    return make_stringf("Malign gateway (summoner: %d, duration: %d)",
+                        (int)summoner, duration);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1198,12 +1199,13 @@ vector<map_marker*> map_markers::get_all(const string &key, const string &val)
     return rmarkers;
 }
 
-vector<map_marker*> map_markers::get_markers_at(const coord_def &c)
+vector<map_marker*> map_markers::get_markers_at(const coord_def &c, map_marker_type type)
 {
     auto els = markers.equal_range(c);
     vector<map_marker*> rmarkers;
     for (auto i = els.first; i != els.second; ++i)
-        rmarkers.push_back(i->second);
+        if (type == MAT_ANY || i->second->get_type() == type)
+            rmarkers.push_back(i->second);
     return rmarkers;
 }
 

@@ -10,7 +10,9 @@
 #include "abyss.h"
 #include "act-iter.h"
 #include "areas.h"
+#include "attitude-change.h"
 #include "beam.h"
+#include "bloodspatter.h"
 #include "cloud.h"
 #include "coordit.h"
 #include "corpse.h"
@@ -555,7 +557,7 @@ void monster::timeout_enchantments(int time, bool no_drowning)
         case ENCH_KINETIC_GRAPNEL: case ENCH_MAD: case ENCH_MISDIRECTED:
         case ENCH_MUTE: case ENCH_PHALANX_BARRIER: case ENCH_POISON_VULN:
         case ENCH_POLAR_VORTEX: case ENCH_POLAR_VORTEX_COOLDOWN:
-        case ENCH_PORTAL_PACIFIED: case ENCH_PORTAL_TIMER: case ENCH_RECITE_TIMER:
+        case ENCH_PORTAL_PACIFIED: case ENCH_RECITE_TIMER:
         case ENCH_DEFLECT_MISSILES: case ENCH_WARDING: case ENCH_FLOODED:
         case ENCH_INNER_FLAME:
         case ENCH_ROLLING: case ENCH_MERFOLK_AVATAR_SONG: case ENCH_INFESTATION:
@@ -740,66 +742,91 @@ static void _drop_tomb(const coord_def& pos, bool premature, bool zin)
     }
 }
 
-int count_malign_gateways()
+int count_malign_gateways(const actor& owner)
 {
-    return env.markers.get_all(MAT_MALIGN).size();
+    vector<map_marker*> markers = env.markers.get_all(MAT_MALIGN_GATEWAY);
+
+    int count = 0;
+    for (map_marker* marker : markers)
+    {
+        map_malign_gateway_marker* mark = dynamic_cast<map_malign_gateway_marker*>(marker);
+        if (mark->summoner == owner.mid)
+            ++count;
+    }
+
+    return count;
 }
 
 bool map_malign_gateway_marker::run(int time)
 {
-    // Passing 0 should allow us to just touch the gateway and see
-    // if it should decay. This, in theory, should resolve the one
-    // turn delay between it timing out and being recastable. -due
-    if (time)
-        duration -= time;
-
-    if (duration > 0)
+    // Produce clouds during the startup phase
+    if (delay > 0)
     {
         const int pow = 3 + random2(10);
         const int size = 2 + random2(5);
         big_cloud(CLOUD_TLOC_ENERGY, 0, pos, pow, size);
+        delay -= time;
     }
-    else
+
+    if (delay <= 0)
     {
-        monster* mons = monster_at(pos);
-        if (monster_summoned && !mons)
+        // Make the tentacle if we haven't already
+        if (tentacle == MID_NOBODY)
         {
-            if (env.grid(pos) == DNGN_MALIGN_GATEWAY)
-                env.grid(pos) = DNGN_FLOOR;
-
-            // Remove the marker now.
-            return true;
-        }
-        else if (!monster_summoned && !mons)
-        {
-            actor* caster = 0;
-            if (is_player)
-                caster = &you;
-
+            actor* caster = actor_by_mid(summoner);
             mgen_data mg = mgen_data(MONS_ELDRITCH_TENTACLE,
                                         behaviour,
                                         pos,
                                         MHITNOT,
-                                        MG_FORCE_PLACE,
-                                        god);
+                                        MG_FORCE_PLACE);
             mg.set_summoned(caster, SPELL_MALIGN_GATEWAY, 0, false, false);
-            if (!is_player)
-                mg.non_actor_summoner = summoner_string;
+            if (!blame_string.empty())
+                mg.non_actor_summoner = blame_string;
 
-            if (monster *tentacle = create_monster(mg))
+            if (monster *mons = create_monster(mg))
             {
-                tentacle->flags |= MF_NO_REWARD;
-                tentacle->add_ench(ENCH_PORTAL_TIMER);
+                mons->flags |= MF_NO_REWARD;
                 int dur = random2avg(power, 6);
                 dur -= random2(4); // sequence point between random calls
                 dur *= 10;
                 mon_enchant kduration = mon_enchant(ENCH_PORTAL_PACIFIED,
                                                     caster, dur);
-                tentacle->props[BASE_POSITION_KEY].get_coord()
-                                    = tentacle->pos();
-                tentacle->add_ench(kduration);
+                mons->props[BASE_POSITION_KEY].get_coord()
+                                    = mons->pos();
+                mons->add_ench(kduration);
+                tentacle = mons->mid;
+            }
+        }
+        // Otherwise, potentially close the portal due to time
+        else
+        {
+            monster* mon = monster_by_mid(tentacle);
+            if (!mon)
+            {
+                revert_terrain_change(pos, TERRAIN_CHANGE_MALIGN_GATEWAY);
+                // Remove the marker now.
+                return true;
+            }
 
-                monster_summoned = true;
+            duration -= time;
+            if (duration <= 0)
+            {
+                if (you.see_cell(pos))
+                    mprf("The portal closes; %s is severed.", mon->name(DESC_THE).c_str());
+
+                revert_terrain_change(pos, TERRAIN_CHANGE_MALIGN_GATEWAY);
+
+                maybe_bloodify_square(pos);
+                mon->add_ench(ENCH_SEVERED);
+
+                // Severed tentacles immediately become "hostile" to everyone
+                // (or frenzied)
+                mon->attitude = ATT_NEUTRAL;
+                mons_att_changed(mon);
+                if (!crawl_state.game_is_arena())
+                    behaviour_event(mon, ME_ALERT);
+
+                return true;
             }
         }
     }

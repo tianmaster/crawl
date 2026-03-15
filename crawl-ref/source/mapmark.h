@@ -145,9 +145,10 @@ class map_malign_gateway_marker : public map_marker
 {
 public:
     map_malign_gateway_marker (const coord_def& pos = coord_def(0, 0),
-                    int dur = 0, bool ip = false, string caster = "",
-                    beh_type bh = BEH_HOSTILE, god_type gd = GOD_NO_GOD,
-                    int pow = 0);
+                               int delay = 0, int power = 0, int duration = 0,
+                               mid_t summoner_mid = MID_NOBODY,
+                               string blame = "",
+                               beh_type bh = BEH_HOSTILE);
 
     bool is_dynamic() const override { return true; }
     bool run(int time) override;
@@ -159,13 +160,13 @@ public:
     static map_marker *read(reader &, map_marker_type);
 
 public:
-    int duration;
-    bool is_player;
-    bool monster_summoned;
-    string summoner_string;
-    beh_type behaviour;
-    god_type god;
+    int delay;
     int power;
+    int duration;
+    mid_t summoner;
+    mid_t tentacle;
+    string blame_string;
+    beh_type behaviour;
 };
 
 // A marker for temporary terrain changes
@@ -346,7 +347,7 @@ public:
     void move_marker(map_marker *marker, const coord_def &to);
     vector<map_marker*> get_all(map_marker_type type = MAT_ANY);
     vector<map_marker*> get_all(const string &key, const string &val = "");
-    vector<map_marker*> get_markers_at(const coord_def &c);
+    vector<map_marker*> get_markers_at(const coord_def &c, map_marker_type type = MAT_ANY);
     string property_at(const coord_def &c, map_marker_type type,
                        const string &key);
     string property_at(const coord_def &c, map_marker_type type,

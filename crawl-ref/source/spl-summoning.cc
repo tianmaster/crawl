@@ -1250,34 +1250,39 @@ spret summon_shadow_creatures()
     return spret::success;
 }
 
-bool can_cast_malign_gateway()
+bool can_cast_malign_gateway(const actor& caster)
 {
-    env.markers.run_all(0, MAT_MALIGN);
-
-    return count_malign_gateways() < 1;
+    return count_malign_gateways(caster) < 1;
 }
 
-static bool _is_malign_gateway_summoning_spot(const actor& caster,
-    const coord_def location,
-    bool targeting)
+bool is_gateway_target(const actor& caster, coord_def location, bool only_known)
 {
+    const int dist = grid_distance(caster.pos(), location);
+
+    // location is too close or too far
+    if (dist < 2 || dist > you.current_vision)
+        return false;
+
     if (!in_bounds(location)
         || !feat_is_malign_gateway_suitable(env.grid(location)))
     {
         return false;
     }
 
+    if (!caster.see_cell_no_trans(location))
+        return false;
+
     const actor* const creature = actor_at(location);
     if (creature)
     {
-        if (!targeting)
+        if (!only_known)
             return false;
 
         if (creature->visible_to(&caster))
             return false;
     }
 
-    if (targeting)
+    if (only_known)
     {
         for (adjacent_iterator ai(location); ai; ++ai)
         {
@@ -1289,56 +1294,15 @@ static bool _is_malign_gateway_summoning_spot(const actor& caster,
     else if (count_neighbours_with_func(location, &feat_is_solid) != 0)
         return false;
 
-    if (!caster.see_cell_no_trans(location))
-        return false;
-
     return true;
-}
-
-bool is_gateway_target(const actor& caster, coord_def location)
-{
-    const coord_def delta = location - caster.pos();
-
-    // location is to close
-    if (delta.rdist() < 2)
-        return false;
-
-    int abs_x = abs(delta.x);
-    int abs_y = abs(delta.y);
-
-    // Monster range of vision is equal to player range of vision, so this
-    // is accurate for mosters to.
-    const int current_vision = you.current_vision;
-
-    // location is to far
-    if (abs_x > current_vision || abs_y > current_vision)
-        return false;
-
-    return _is_malign_gateway_summoning_spot(caster, location, true);
 }
 
 coord_def find_gateway_location(actor* caster)
 {
     vector<coord_def> points;
-
-    // Monster range of vision is equal to player range of vision, so this
-    // is accurate for mosters to.
-    const int current_vision = you.current_vision;
-
-    for (int x = -current_vision; x <= current_vision; ++x)
-    {
-        for (int y = -current_vision; y <= current_vision; ++y)
-        {
-            const coord_def delta{ x, y };
-            // location is to close
-            if (delta.rdist() < 2)
-                continue;
-
-            const coord_def test = caster->pos() + delta;
-            if (_is_malign_gateway_summoning_spot(*caster, test, false))
-                points.push_back(test);
-        }
-    }
+    for (radius_iterator ri(caster->pos(), LOS_NO_TRANS, true); ri; ++ri)
+        if (is_gateway_target(*caster, *ri, false))
+            points.push_back(*ri);
 
     if (points.empty())
         return coord_def(0, 0);
@@ -1346,20 +1310,19 @@ coord_def find_gateway_location(actor* caster)
     return points[random2(points.size())];
 }
 
-void create_malign_gateway(coord_def point, beh_type beh, string cause,
-                           int pow, bool is_player)
+void create_malign_gateway(coord_def point, mid_t owner, beh_type beh,
+                           string cause, int pow)
 {
-    const int malign_gateway_duration = BASELINE_DELAY * (random2(2) + 1);
+    const int malign_gateway_delay = BASELINE_DELAY * random_range(2, 3)
+                                        + (owner == MID_PLAYER ? player_speed() : 0);
     env.markers.add(new map_malign_gateway_marker(point,
-                            malign_gateway_duration,
-                            is_player,
-                            is_player ? "" : cause,
-                            beh,
-                            GOD_NO_GOD,
-                            pow));
-    env.grid(point) = DNGN_MALIGN_GATEWAY;
-    set_terrain_changed(point);
-
+                            malign_gateway_delay,
+                            pow,
+                            fuzz_value(300, 60, 40),
+                            owner,
+                            cause,
+                            beh));
+    temp_change_terrain(point, DNGN_MALIGN_GATEWAY, INFINITE_DURATION, TERRAIN_CHANGE_MALIGN_GATEWAY);
     noisy(spell_effect_noise(SPELL_MALIGN_GATEWAY), point);
     mprf(MSGCH_WARN, "The dungeon shakes, a horrible noise fills the air, "
                      "and a portal to some otherworldly place is opened!");
@@ -1386,13 +1349,12 @@ spret cast_malign_gateway(actor * caster, int pow, bool fail, bool test)
 
         create_malign_gateway(
             point,
+            caster->mid,
             is_player ? BEH_FRIENDLY
                       : attitude_creation_behavior(
                           caster->as_monster()->attitude),
-            is_player ? ""
-                      : caster->as_monster()->full_name(DESC_A),
-            pow,
-            is_player);
+            "",
+            pow);
 
         return spret::success;
     }

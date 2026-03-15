@@ -1531,31 +1531,6 @@ void monster::apply_enchantment(const mon_enchant &me)
     }
     break;
 
-    case ENCH_PORTAL_TIMER:
-    {
-        if (decay_enchantment(en))
-        {
-            coord_def base_position = props[BASE_POSITION_KEY].get_coord();
-            // Do a thing.
-            if (you.see_cell(base_position))
-                mprf("The portal closes; %s is severed.", name(DESC_THE).c_str());
-
-            if (env.grid(base_position) == DNGN_MALIGN_GATEWAY)
-                env.grid(base_position) = DNGN_FLOOR;
-
-            maybe_bloodify_square(base_position);
-            add_ench(ENCH_SEVERED);
-
-            // Severed tentacles immediately become "hostile" to everyone
-            // (or frenzied)
-            attitude = ATT_NEUTRAL;
-            mons_att_changed(this);
-            if (!crawl_state.game_is_arena())
-                behaviour_event(this, ME_ALERT);
-        }
-    }
-    break;
-
     case ENCH_PORTAL_PACIFIED:
     {
         if (decay_enchantment(en))
@@ -2048,9 +2023,9 @@ static const char *enchant_names[] =
     "swift", "tide",
     "frenzied", "silenced", "awaken_forest", "exploding",
 #if TAG_MAJOR_VERSION == 34
-    "bleeding",
+    "bleeding", "tethered",
 #endif
-    "tethered", "severed", "antimagic",
+    "severed", "antimagic",
 #if TAG_MAJOR_VERSION == 34
     "fading_away", "preparing_resurrect",
 #endif
@@ -2374,10 +2349,6 @@ int mon_enchant::calc_duration(const monster* mons,
     case ENCH_BREATH_WEAPON:
         // Must be set by creature.
         return 0;
-
-    case ENCH_PORTAL_TIMER:
-        cturn = 30 * 10 / _mod_speed(10, mons->speed);
-        break;
 
     case ENCH_SUMMON_TIMER:
         // The duration is:

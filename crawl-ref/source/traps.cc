@@ -251,7 +251,7 @@ static const vector<pair<function<void ()>, int>> zot_effects = {
     { [] {
              coord_def pt = find_gateway_location(&you);
              if (pt != coord_def(0, 0))
-                 create_malign_gateway(pt, BEH_HOSTILE, "a Zot trap", 150);
+                 create_malign_gateway(pt, MID_NOBODY, BEH_HOSTILE, "a Zot trap", 150);
          }, 1 },
     { [] {
               mgen_data mg = mgen_data::hostile_at(MONS_TWISTER,

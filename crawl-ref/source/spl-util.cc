@@ -1398,7 +1398,7 @@ string spell_uselessness_reason(spell_type spell, bool temp, bool prevent,
         break;
 
     case SPELL_MALIGN_GATEWAY:
-        if (temp && !can_cast_malign_gateway())
+        if (temp && !can_cast_malign_gateway(you))
         {
             return "the dungeon can only cope with one malign gateway"
                     " at a time.";

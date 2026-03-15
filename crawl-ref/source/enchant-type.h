@@ -65,8 +65,8 @@ enum enchant_type
     ENCH_EXPLODING,
 #if TAG_MAJOR_VERSION == 34
     ENCH_BLEED,
-#endif
     ENCH_PORTAL_TIMER,
+#endif
     ENCH_SEVERED,
     ENCH_ANTIMAGIC,
 #if TAG_MAJOR_VERSION == 34

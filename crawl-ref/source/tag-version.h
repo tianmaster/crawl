@@ -347,6 +347,7 @@ enum tag_minor_version
     TAG_MINOR_FIX_PERMANENT_HELLFIRE_MORTAR, // Timeout permanent hellfire mortar lava
     TAG_MINOR_NO_TRAP_DEF,         // Remove vestigal uses trap_def and refactor trap handling
     TAG_MINOR_TERRAIN_CHANGE_MID,  // Marshall terrain change origin mids as int instead of shorts
+    TAG_MINOR_REFACTOR_MALIGN_MARKER,   // Refactor handling of map_malign_gateway_marker
 #endif
     NUM_TAG_MINORS,
     TAG_MINOR_VERSION = NUM_TAG_MINORS - 1
