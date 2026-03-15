@@ -500,7 +500,7 @@ item_def *monster::weapon(int which_attack) const
 
     // Draugr can only use their weapon for their doom attack and not any other
     // hit attack the monster they're derived from may have.
-    if (type == MONS_DRAUGR && which_attack != 0)
+    if (type == MONS_DRAUGR && which_attack > 0)
         return nullptr;
 
     // Even/odd attacks use main/offhand weapon.
