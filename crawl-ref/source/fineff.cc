@@ -475,7 +475,7 @@ public:
 
     lugonu_meddle_fineff() : final_effect(nullptr, nullptr, coord_def()) {}
 protected:
-    bool mergeable(const final_effect& a) const override { return true; }
+    bool mergeable(const final_effect&) const override { return true; }
 };
 
 class jinxbite_fineff : public final_effect
