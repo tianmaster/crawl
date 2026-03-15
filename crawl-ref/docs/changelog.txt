@@ -1,5 +1,36 @@
-Stone Soup 0.34 (through 0.34-a0-2090-gf52bb6b557)
---------------------------------------------------
+Stone Soup 0.34.1 (20260314)
+----------------------------
+
+Bugfix release
+--------------
+* Fix the Lua error handler causing slowdowns seen in vaults like Pan's Disco
+  Hall.
+* Properly mark unidentified talismans evil/chaotic as appropriate.
+* Allow deconstructing forgecraft allies while wielding a ranged weapon.
+* Fix Freezing Cloud not having a self-damage warning prompt.
+* Fix the force_more prompts for dancing weapons of distortion.
+* Fix banished Orb Guardians not activating the Boundless Tesseracts.
+* Fix Duel/Banishment on top of a portal entrance expiring that entrance.
+* Prompt for wearing any talisman that would lower max HP by more than 10%.
+* Fix randart Bane scarves having hidden AC (Back-form)
+* Fix Revenant spells being free and boosted by Enkindle if cast via Sif
+  Muna's Divine Exegesis.
+* Fix removing Fragile equipment not triggering unequip effects before being
+  destroyed.
+* Don't have Dithmenos' Marionette treat monsters it charms as hostile for
+  subsequent actions.
+* Fix Dominate Undead not working properly for friendly casters.
+* Fix the force_scroll_targeter option interfering with ability targeters.
+* Fix anacondas taking no damage from cactus giant spines.
+* A new clua function you.zot_orb_monster() to see the type of orb monster the
+  player will face in Zot, if known.
+* New clua functions for checking visibility between cells:
+  view.cell_see_cell_no_trans(), view.cell_see_cell_solid(), and
+  view.cell_see_cell_solid_see().
+
+
+Stone Soup 0.34.0 (20260205)
+----------------------------
 
 Highlights
 ----------
