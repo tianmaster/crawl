@@ -18,6 +18,7 @@
 constexpr int MAX_HOARFROST_SHOTS = 4;
 
 #define HELLFIRE_PATH_KEY "hellfire_mortar_path"
+#define HELLFIRE_LAVA_LENGTH "hellfire_lava_length"
 
 #define SERVITOR_SPELL_KEY "servitor_spell"
 
@@ -158,6 +159,7 @@ dice_def hoarfrost_cannonade_damage(int pow, bool finale);
 spret cast_hoarfrost_cannonade(const actor& agent, int pow, bool fail);
 
 dice_def hellfire_mortar_damage(int pow);
+void start_timing_out_hellfire_mortar_lava(const CrawlVector& path, int len);
 spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail);
 
 bool make_soul_wisp(const actor& agent, actor& victim);
