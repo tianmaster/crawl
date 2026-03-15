@@ -1200,9 +1200,6 @@ static void _regenerate_hp_and_mp(int delay)
     if (crawl_state.disables[DIS_PLAYER_REGEN])
         return;
 
-    const int old_hp = you.hp;
-    const int old_mp = you.magic_points;
-
     // HP Regeneration
     if (!you.duration[DUR_DEATHS_DOOR])
     {
