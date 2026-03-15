@@ -2857,8 +2857,8 @@ item_def* monster_die(monster& mons, killer_type killer,
         {
             ASSERT(lava_length > 0);
             // This should be equal to the duration of the longest lasting lava
-            int duration = ((lava_length - 1) * BASELINE_DELAY) / 2 + 1;
-            you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = duration;
+            int lava_dur = ((lava_length - 1) * BASELINE_DELAY) / 2 + 1;
+            you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = lava_dur;
         }
     }
 

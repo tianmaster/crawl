@@ -869,9 +869,9 @@ bool map_terrain_change_marker::any_at(coord_def pos, function<bool(map_terrain_
 ////////////////////////////////////////////////////////////////////////////
 // map_hellfire_mortar_lava_marker
 
-map_hellfire_mortar_lava_marker::map_hellfire_mortar_lava_marker(coord_def pos,
+map_hellfire_mortar_lava_marker::map_hellfire_mortar_lava_marker(coord_def p,
                                                                  int end_time)
-    : map_marker(MAT_HELLFIRE_MORTAR_LAVA, pos),
+    : map_marker(MAT_HELLFIRE_MORTAR_LAVA, p),
     num_mortars_supporting_lava(1),
     earliest_end_time(end_time)
 {
