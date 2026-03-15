@@ -3402,11 +3402,11 @@ void start_timing_out_hellfire_mortar_lava(const CrawlVector& path, int len)
 
 static void _add_hellfire_mortar_lava_marker(coord_def pos)
 {
-    map_marker* marker = env.markers.find(pos, MAT_HELLFIRE_MORTAR_LAVA);
-    if (marker)
+    map_marker* m_marker = env.markers.find(pos, MAT_HELLFIRE_MORTAR_LAVA);
+    if (m_marker)
     {
         map_hellfire_mortar_lava_marker* mortar_marker =
-            dynamic_cast<map_hellfire_mortar_lava_marker*>(marker);
+            dynamic_cast<map_hellfire_mortar_lava_marker*>(m_marker);
         mortar_marker->num_mortars_supporting_lava++;
         return;
     }
