@@ -27,6 +27,7 @@ Bugfix release
 * New clua functions for checking visibility between cells:
   view.cell_see_cell_no_trans(), view.cell_see_cell_solid(), and
   view.cell_see_cell_solid_see().
+* 36 other bug fixes, interface improvements, and documentation updates.
 
 
 Stone Soup 0.34.0 (20260205)
