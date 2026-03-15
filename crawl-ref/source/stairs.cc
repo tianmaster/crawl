@@ -289,7 +289,7 @@ void leaving_level_now(dungeon_feature_type stair_used)
         dungeon_events.fire_position_event(DET_PLAYER_CLIMBS, you.pos());
     dungeon_events.fire_event(DET_LEAVING_LEVEL);
 
-    end_terrain_change(TERRAIN_CHANGE_GOLUBRIA);
+    end_terrain_changes(TERRAIN_CHANGE_GOLUBRIA);
     _remove_unstable_monsters();
 
     // Allow players to be interrupted by sensed monsters on their return to this level.

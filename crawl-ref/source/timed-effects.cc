@@ -835,37 +835,34 @@ bool map_tomb_marker::run(int time)
     return false;
 }
 
-void timeout_binding_sigils()
+bool end_terrain_changes(const actor& source, terrain_change_type type)
 {
-    int num_seen = 0;
-    for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
-    {
-        map_terrain_change_marker *marker =
-                dynamic_cast<map_terrain_change_marker*>(mark);
-        if (marker->change_type == TERRAIN_CHANGE_BINDING_SIGIL)
-        {
-            if (you.see_cell(marker->pos))
-                num_seen++;
-            revert_terrain_change(marker->pos, TERRAIN_CHANGE_BINDING_SIGIL);
-        }
-    }
-
-    if (num_seen > 1)
-        mprf(MSGCH_DURATION, "Your binding sigils disappear.");
-    else if (num_seen > 0)
-        mprf(MSGCH_DURATION, "Your binding sigil disappears.");
+    return end_terrain_changes(type, source.mid);
 }
 
-void end_terrain_change(terrain_change_type type)
+bool end_terrain_changes(terrain_change_type type, mid_t source_mid)
 {
+    bool did_revert = false;
     for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
     {
         map_terrain_change_marker *marker =
             dynamic_cast<map_terrain_change_marker*>(mark);
 
-        if (marker->change_type == type)
-            revert_terrain_change(marker->pos, type);
+        if (marker->change_type == type
+            && (source_mid == MID_NOBODY || marker->source_mid == source_mid))
+        {
+            marker->duration = 0;
+            did_revert = true;
+        }
     }
+
+    if (did_revert)
+    {
+        timeout_terrain_changes(0, true);
+        return true;
+    }
+
+    return false;
 }
 
 void end_enkindled_status()
@@ -910,16 +907,17 @@ void timeout_terrain_changes(int duration, bool force)
             continue;
         }
 
-        if ((marker->change_type == TERRAIN_CHANGE_BOG
-             || marker->change_type == TERRAIN_CHANGE_BINDING_SIGIL)
+        if ((marker->source_mid == MID_PLAYER
+             && (marker->change_type == TERRAIN_CHANGE_BOG
+                 || marker->change_type == TERRAIN_CHANGE_BINDING_SIGIL))
             && !you.see_cell(marker->pos))
         {
             marker->duration = 0;
         }
 
-        actor* src = actor_by_mid(marker->mon_num);
+        actor* src = actor_by_mid(marker->source_mid);
         if (marker->duration <= 0
-            || (marker->mon_num != 0
+            || (marker->source_mid != 0
                 && (!src || !src->alive()
                     || (src->is_monster() && src->as_monster()->pacified()))))
         {

@@ -2337,17 +2337,6 @@ void splash_corruption(coord_def centre)
             _corrupt_square_flavor(cenv, *ai);
 }
 
-static void _cleanup_temp_terrain_at(coord_def pos)
-{
-    for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
-    {
-        map_terrain_change_marker *marker =
-                dynamic_cast<map_terrain_change_marker*>(mark);
-        if (mark->pos == pos)
-            revert_terrain_change(pos, marker->change_type);
-    }
-}
-
 /// If the player has earned enough XP, spawn an exit or stairs down.
 void abyss_maybe_spawn_xp_exit()
 {
@@ -2364,7 +2353,7 @@ void abyss_maybe_spawn_xp_exit()
                         && coinflip()
                         && you.props[ABYSS_SPAWNED_XP_EXIT_KEY].get_bool();
 
-    _cleanup_temp_terrain_at(you.pos());
+    revert_terrain_change(you.pos());
     destroy_wall(you.pos()); // fires listeners etc even if it wasn't a wall
     env.grid(you.pos()) = stairs ? DNGN_ABYSSAL_STAIR : DNGN_EXIT_ABYSS;
     big_cloud(CLOUD_TLOC_ENERGY, &you, you.pos(), 3 + random2(3), 3, 3);

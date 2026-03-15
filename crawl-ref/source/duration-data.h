@@ -87,7 +87,7 @@ static void _end_growing_destruction()
 
 static void _end_toxic_bog()
 {
-    end_terrain_change(TERRAIN_CHANGE_BOG);
+    end_terrain_changes(you, TERRAIN_CHANGE_BOG);
 }
 
 // properties of the duration.

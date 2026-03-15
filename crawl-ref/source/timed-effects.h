@@ -13,8 +13,8 @@ void handle_time();
 
 int count_malign_gateways();
 
-void timeout_binding_sigils();
-void end_terrain_change(terrain_change_type type);
+bool end_terrain_changes(terrain_change_type type, mid_t source_mid = MID_NOBODY);
+bool end_terrain_changes(const actor& source, terrain_change_type type = NUM_TERRAIN_CHANGE_TYPES);
 
 void end_enkindled_status();
 

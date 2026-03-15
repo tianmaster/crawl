@@ -692,8 +692,8 @@ string map_malign_gateway_marker::debug_describe() const
 map_terrain_change_marker::map_terrain_change_marker (const coord_def& p,
                     dungeon_feature_type oldfeat, dungeon_feature_type newfeat,
                     unsigned short flv_oldfeat, unsigned short flv_oldfeat_idx,
-                    int dur, terrain_change_type ctype, int mnum, int oldcol)
-    : map_marker(MAT_TERRAIN_CHANGE, p), duration(dur), mon_num(mnum),
+                    int dur, terrain_change_type ctype, mid_t mid, int oldcol)
+    : map_marker(MAT_TERRAIN_CHANGE, p), duration(dur), source_mid(mid),
       old_feature(oldfeat), new_feature(newfeat), flv_old_feature(flv_oldfeat),
       flv_old_feature_idx(flv_oldfeat_idx), change_type(ctype), colour(oldcol)
 {
@@ -708,7 +708,7 @@ void map_terrain_change_marker::write(writer &out) const
     marshallShort(out, flv_old_feature);
     marshallShort(out, flv_old_feature_idx);
     marshallUByte(out, change_type);
-    marshallShort(out, mon_num);
+    marshallInt(out, source_mid);
     marshallUByte(out, colour);
 }
 
@@ -734,7 +734,12 @@ void map_terrain_change_marker::read(reader &in)
     }
 #endif
     change_type = static_cast<terrain_change_type>(unmarshallUByte(in));
-    mon_num = unmarshallShort(in);
+#if TAG_MAJOR_VERSION == 34
+    if (in.getMinorVersion() < TAG_MINOR_TERRAIN_CHANGE_MID)
+        source_mid = unmarshallShort(in);
+    else
+#endif
+    source_mid = unmarshallInt(in);
 #if TAG_MAJOR_VERSION == 34
     if (in.getMinorVersion() < TAG_MINOR_SAVE_TERRAIN_COLOUR)
         colour = BLACK;
@@ -755,7 +760,7 @@ map_marker *map_terrain_change_marker::clone() const
     map_terrain_change_marker *mark =
         new map_terrain_change_marker(pos, old_feature, new_feature,
                                       flv_old_feature, flv_old_feature_idx,
-                                      duration, change_type, mon_num, colour);
+                                      duration, change_type, source_mid, colour);
     return mark;
 }
 

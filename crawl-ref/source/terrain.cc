@@ -2110,14 +2110,14 @@ void temp_change_terrain(coord_def pos, dungeon_feature_type newfeat, int dur,
                     if (tmarker->duration < dur)
                     {
                         tmarker->duration = dur;
-                        tmarker->mon_num = mid;
+                        tmarker->source_mid = mid;
                     }
                 }
                 else
                 {
                     tmarker->new_feature = newfeat;
                     tmarker->duration = dur;
-                    tmarker->mon_num = mid;
+                    tmarker->source_mid = mid;
                 }
                 // ensure that terrain change happens. Sometimes a terrain
                 // change marker can get stuck; this allows re-doing such

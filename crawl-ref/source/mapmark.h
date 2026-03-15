@@ -178,7 +178,7 @@ public:
                     unsigned short flv_oldfeat = 0,
                     unsigned short flv_oldfeat_idx = 0,
                     int dur = 0, terrain_change_type type = TERRAIN_CHANGE_GENERIC,
-                    int mnum = 0, int oldcol = BLACK);
+                    mid_t mid = 0, int oldcol = BLACK);
 
     void write (writer &) const override;
     void read (reader &) override;
@@ -190,7 +190,7 @@ public:
 
 public:
     int duration;
-    int mon_num;
+    mid_t source_mid;
     dungeon_feature_type old_feature;
     dungeon_feature_type new_feature;
     unsigned short flv_old_feature;

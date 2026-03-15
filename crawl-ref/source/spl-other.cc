@@ -528,7 +528,7 @@ spret cast_sigil_of_binding(int pow, bool fail, bool tracer)
     }
 
     // Remove any old sigil that may still be active.
-    timeout_binding_sigils();
+    end_terrain_changes(you, TERRAIN_CHANGE_BINDING_SIGIL);
 
     int dur = BASELINE_DELAY * random_range(5 + div_rand_round(pow, 4),
                                             8 + div_rand_round(pow, 2));
@@ -644,16 +644,7 @@ spret cast_spike_launcher(int pow, bool fail)
 
     // Remove any existing spike launcher, if we have one
     if (you.duration[DUR_SPIKE_LAUNCHER_ACTIVE])
-    {
-        for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
-        {
-            map_terrain_change_marker *marker =
-                dynamic_cast<map_terrain_change_marker*>(mark);
-
-            if (marker->change_type == TERRAIN_CHANGE_SPIKE_LAUNCHER)
-                revert_terrain_change(marker->pos, TERRAIN_CHANGE_SPIKE_LAUNCHER);
-        }
-    }
+        end_terrain_changes(TERRAIN_CHANGE_SPIKE_LAUNCHER);
 
     int dur = random_range(50, 90) + pow;
 
@@ -775,18 +766,8 @@ void handle_spike_launcher(int delay)
 
 void end_spike_launcher()
 {
-    for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
-    {
-        map_terrain_change_marker *marker =
-            dynamic_cast<map_terrain_change_marker*>(mark);
-
-        if (marker->change_type == TERRAIN_CHANGE_SPIKE_LAUNCHER)
-        {
-            mpr("Your spike launcher falls apart.");
-            revert_terrain_change(marker->pos, TERRAIN_CHANGE_SPIKE_LAUNCHER);
-            return;
-        }
-    }
+    if (end_terrain_changes(you, TERRAIN_CHANGE_SPIKE_LAUNCHER))
+        mpr("Your spike launcher falls apart.");
 }
 
 vector<coord_def> find_spike_launcher_walls()

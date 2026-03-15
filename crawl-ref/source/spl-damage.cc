@@ -4432,7 +4432,7 @@ void actor_apply_toxic_bog(actor * act)
                     dynamic_cast<map_terrain_change_marker*>(marker);
             const auto ct = tmarker->change_type;
             if (ct == TERRAIN_CHANGE_BOG || ct == TERRAIN_CHANGE_FLOOD)
-                oppressor = actor_by_mid(tmarker->mon_num);
+                oppressor = actor_by_mid(tmarker->source_mid);
         }
     }
 

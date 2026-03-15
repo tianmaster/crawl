@@ -1224,22 +1224,7 @@ void fire_monster_death_event(monster* mons,
                       mons->mid, killer));
     }
 
-    bool terrain_changed = false;
-
-    for (map_marker *mark : env.markers.get_all(MAT_TERRAIN_CHANGE))
-    {
-        map_terrain_change_marker *marker =
-                dynamic_cast<map_terrain_change_marker*>(mark);
-
-        if (marker->mon_num != 0 && monster_by_mid(marker->mon_num) == mons)
-        {
-            terrain_changed = true;
-            marker->duration = 0;
-        }
-    }
-
-    if (terrain_changed)
-        timeout_terrain_changes(0, true);
+    end_terrain_changes(*mons);
 
     if (killer == KILL_BANISHED)
         return;
