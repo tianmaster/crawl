@@ -1488,9 +1488,6 @@ bool pyrrhic_recollection(monster& nobody)
         mons_speaks_msg(&nobody, speech, MSGCH_TALK);
     }
 
-    // Heal and move.
-    if (was_injured)
-        monster_blink(&nobody, true, true);
     nobody.heal(nobody.max_hit_points);
 
     // If this was a phantom mirror copy, allow it to revive, but don't wipe out
@@ -1511,12 +1508,15 @@ bool pyrrhic_recollection(monster& nobody)
     // but we don't have that at the moment.
     mon_enchant haste = nobody.get_ench(ENCH_HASTE);
     mon_enchant might = nobody.get_ench(ENCH_MIGHT);
-    nobody.timeout_enchantments();
+    nobody.timeout_enchantments(10000, true);
     nobody.add_ench(summon_timer);
     nobody.add_ench(haste);
     nobody.add_ench(might);
 
     nobody.add_ench(mon_enchant(ENCH_PYRRHIC_RECOLLECTION, &nobody, random_range(300, 500)));
+
+    if (was_injured)
+        monster_blink(&nobody, true, true);
 
     // Don't immediately expire summons (we want them to stick around into the next phase),
     // but at least make them time out a bit faster.
