@@ -2678,6 +2678,10 @@ void world_reacts()
     }
 
     handle_time();
+    // handle_time might have scheduled on death effects for monsters killed
+    // by contamination explosions etc.
+    fire_final_effects();
+
     manage_clouds();
 
     // This needs to happen after `manage_clouds` is called as fog clouds
