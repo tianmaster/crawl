@@ -43,7 +43,8 @@ map_marker::marker_reader map_marker::readers[NUM_MAP_MARKER_TYPES] =
     &map_door_seal_marker::read,
 #endif
     &map_terrain_change_marker::read,
-    &map_cloud_spreader_marker::read
+    &map_cloud_spreader_marker::read,
+    &map_hellfire_mortar_lava_marker::read
 };
 
 map_marker::marker_parser map_marker::parsers[NUM_MAP_MARKER_TYPES] =
@@ -903,6 +904,14 @@ string map_hellfire_mortar_lava_marker::debug_describe() const
 {
     return make_stringf("Hellfire mortar marker (%u)",
                         num_mortars_supporting_lava);
+}
+
+map_marker* map_hellfire_mortar_lava_marker::read(reader& in, map_marker_type)
+{
+    map_hellfire_mortar_lava_marker* mc =
+        new map_hellfire_mortar_lava_marker();
+    mc->read(in);
+    return mc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
