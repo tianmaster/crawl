@@ -1524,7 +1524,7 @@ serpent talisman
 A jade snake coiled around a fossilised egg. Transforms the wearer into an
 amphisbaena - a legendary two-headed serpent. It is capable of wearing two
 pieces of headgear at once and its powerful coils can wind around foes and crush
-them to death, but its cold blood leaves it succeptible to being slowed by cold
+them to death, but its cold blood leaves it susceptible to being slowed by cold
 attacks.
 %%%%
 shining gem
