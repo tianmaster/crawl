@@ -3363,7 +3363,8 @@ static bool _hellfire_stops_here(bolt& beam, coord_def pos)
                   || !beam.can_affect_wall(pos));
 }
 
-void start_timing_out_hellfire_mortar_lava(const CrawlVector& path, int len)
+static void _start_timing_out_hellfire_mortar_lava(const CrawlVector& path,
+                                                   int len)
 {
     for (int i = 0; i < len; ++i)
     {
@@ -3397,6 +3398,28 @@ void start_timing_out_hellfire_mortar_lava(const CrawlVector& path, int len)
             tmarker->duration = duration;
             break;
         }
+    }
+}
+
+int hellfire_mortar_cooldown_after_mortar_gone(int lava_length)
+{
+    // This should be equal to the duration of the longest lasting lava
+    return ((lava_length - 1) * BASELINE_DELAY) / 2 + 1;
+}
+
+void hellfire_mortal_on_mortar_gone(monster& mortar)
+{
+    if (!mortar.props.exists(HELLFIRE_LAVA_LENGTH))
+        return;
+
+    const CrawlVector& path = mortar.props[HELLFIRE_PATH_KEY];
+    int lava_length = mortar.props[HELLFIRE_LAVA_LENGTH];
+    _start_timing_out_hellfire_mortar_lava(path, lava_length);
+    if (mortar.summoner == MID_PLAYER)
+    {
+        ASSERT(lava_length > 0);
+        int lava_dur = hellfire_mortar_cooldown_after_mortar_gone(lava_length);
+        you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = lava_dur;
     }
 }
 
@@ -3526,7 +3549,7 @@ spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail)
         CrawlVector path;
         for (coord_def pos : beam.path_taken)
             path.push_back(pos);
-        start_timing_out_hellfire_mortar_lava(path, len);
+        _start_timing_out_hellfire_mortar_lava(path, len);
 
         if (agent.is_player())
             mpr("Something prevents your mortar from forming!");

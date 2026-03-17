@@ -2850,20 +2850,6 @@ item_def* monster_die(monster& mons, killer_type killer,
     {
         schedule_trj_spawn_fineff(&you, &mons, mons.pos(), mons.hit_points);
     }
-    else if (mons.type == MONS_HELLFIRE_MORTAR
-             && mons.props.exists(HELLFIRE_LAVA_LENGTH))
-    {
-        const CrawlVector& path = mons.props[HELLFIRE_PATH_KEY];
-        int lava_length = mons.props[HELLFIRE_LAVA_LENGTH];
-        start_timing_out_hellfire_mortar_lava(path, lava_length);
-        if (mons.summoner == MID_PLAYER)
-        {
-            ASSERT(lava_length > 0);
-            // This should be equal to the duration of the longest lasting lava
-            int lava_dur = ((lava_length - 1) * BASELINE_DELAY) / 2 + 1;
-            you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = lava_dur;
-        }
-    }
 
     if (mons.has_ench(ENCH_MAGNETISED))
     {
@@ -3752,6 +3738,8 @@ void monster_cleanup(monster* mons)
     if (mons->type == MONS_SEISMOSAURUS_EGG)
         for (distance_iterator di(mons->pos(), false, false, 4); di; ++di)
             env.pgrid(*di) &= ~FPROP_SEISMOROCK;
+    else if (mons->type == MONS_HELLFIRE_MORTAR)
+        hellfire_mortal_on_mortar_gone(*mons);
 
     // May have been constricting something. No message because that depends
     // on the order in which things are cleaned up: If the constrictee is

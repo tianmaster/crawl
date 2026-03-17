@@ -268,7 +268,7 @@ static void _remove_unstable_monsters()
     for (auto &mons : menv_real)
     {
         if (mons_class_flag(mons.type, M_UNSTABLE) && mons.is_summoned())
-            mons.reset();
+            monster_die(mons, KILL_RESET, NON_MONSTER, true);
     }
 }
 

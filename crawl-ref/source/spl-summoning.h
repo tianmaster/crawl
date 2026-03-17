@@ -159,7 +159,8 @@ dice_def hoarfrost_cannonade_damage(int pow, bool finale);
 spret cast_hoarfrost_cannonade(const actor& agent, int pow, bool fail);
 
 dice_def hellfire_mortar_damage(int pow);
-void start_timing_out_hellfire_mortar_lava(const CrawlVector& path, int len);
+int hellfire_mortar_cooldown_after_mortar_gone(int lava_length);
+void hellfire_mortal_on_mortar_gone(monster& mortar);
 spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail);
 
 bool make_soul_wisp(const actor& agent, actor& victim);
