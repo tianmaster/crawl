@@ -67,6 +67,7 @@
 #include "spl-damage.h"
 #include "spl-goditem.h"
 #include "spl-monench.h"
+#include "spl-other.h"
 #include "spl-summoning.h"
 #include "spl-transloc.h"
 #include "spl-util.h"
@@ -143,6 +144,7 @@ static ai_action::goodness _foe_not_nearby(const monster &caster);
 static ai_action::goodness _foe_near_lava(const monster &caster);
 static ai_action::goodness _mons_likes_blinking(const monster &caster);
 static ai_action::goodness _mesmerise_is_effective(monster* mons, bool check_hearing);
+static ai_action::goodness _spike_launcher_goodness(const monster& caster);
 static void _cast_injury_mirror(monster &mons, mon_spell_slot, bolt&);
 static void _cast_smiting(monster &mons, mon_spell_slot slot, bolt&);
 static void _cast_brain_bite(monster &mons, mon_spell_slot slot, bolt&);
@@ -1056,6 +1058,12 @@ static const map<spell_type, mons_spell_logic> spell_to_logic = {
             _cast_landbreaker(caster, beam);
         },
         _zap_setup(SPELL_LANDBREAKER) } },
+    { SPELL_SPIKE_LAUNCHER, {
+        _spike_launcher_goodness,
+       [](monster &caster, mon_spell_slot, bolt&) {
+            cast_spike_launcher(caster, mons_spellpower(caster, SPELL_SPIKE_LAUNCHER), false);
+        }
+    } },
 };
 
 // Logic for special-cased Aphotic Marionette hijacking of monster buffs to
@@ -5938,6 +5946,26 @@ static coord_def _mons_boulder_tracer(const monster* mons)
             return mons->pos() + Compass[aim];
 
     return coord_def();
+}
+
+// Checks if it is a reasonable idea to cast Spike Launcher now. Will prefer not
+// to cast if one is already active and in range of something, or if nothing
+// would be in range if it did cast.
+static ai_action::goodness _spike_launcher_goodness(const monster& caster)
+{
+    vector<coord_def> spots = find_spike_launcher_walls(caster.pos());
+    if (spots.empty())
+        return ai_action::impossible();
+
+    for (map_active_feature_marker* mark : env.markers.get_active_features(DNGN_SPIKE_LAUNCHER, caster.mid))
+        if (has_adjacent_enemy(mark->pos, caster))
+            return ai_action::bad();
+
+    for (const coord_def& spot : spots)
+        if (has_adjacent_enemy(spot, caster))
+            return ai_action::good();
+
+    return ai_action::bad();
 }
 
 void setup_breath_timeout(monster* mons)

@@ -3302,6 +3302,15 @@ void get_feature_desc(const coord_def &pos, describe_info &inf, bool include_ext
                 desc_the.c_str(),
                 command_to_string(CMD_GO_DOWNSTAIRS).c_str());
     }
+    else if (feat == DNGN_SPIKE_LAUNCHER)
+    {
+        map_active_feature_marker* mark = env.markers.get_active_feature_at(pos, DNGN_SPIKE_LAUNCHER);
+        if (mark)
+        {
+            dice_def dmg = zap_damage(ZAP_SPIKE_LAUNCHER, mark->power, mark->owner != MID_PLAYER, false);
+            long_desc += make_stringf("\nIt does %dd%d damage.", dmg.num, dmg.size);
+        }
+    }
 
     // mention that permanent trees are usually flammable
     // (except for autumnal trees in Wucad Mu's Monastery)

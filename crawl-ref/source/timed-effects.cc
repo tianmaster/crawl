@@ -1106,7 +1106,111 @@ bool map_active_feature_marker::run(int time)
 
     switch (feat)
     {
-        default:
-            return true;
+        case DNGN_SPIKE_LAUNCHER:   return run_spike_launcher(time);
+        default:                    return true;
     }
+}
+
+static void _fire_spike_launcher(actor* target, const actor* agent,
+                                 const coord_def& origin, int power)
+{
+    bolt spike;
+    zappy(ZAP_SPIKE_LAUNCHER, power, !(agent && agent->is_player()), spike);
+    spike.source = target->pos();
+    spike.target = target->pos();
+    spike.seen = true;
+    spike.range = 1;
+    spike.hit_verb = "skewers";
+    spike.set_agent(agent);
+
+    dungeon_feature_type feat = orig_terrain(origin);
+    switch (feat)
+    {
+        case DNGN_STONE_WALL:
+        case DNGN_CLEAR_STONE_WALL:
+            spike.name = "stone spike";
+            break;
+
+        case DNGN_METAL_WALL:
+            spike.name = "metal spike";
+            break;
+
+        case DNGN_CRYSTAL_WALL:
+            spike.name = "crystalline spike";
+            break;
+
+        // Rock already handled by zappy()
+        default:
+            break;
+    }
+
+    flash_tile(target->pos(), CYAN);
+    spike.fire();
+}
+
+bool map_active_feature_marker::run_spike_launcher(int time)
+{
+    // Check if the owner has died or gotten too far away from their launcher.
+    const actor* act = actor_by_mid(owner);
+    if (is_dependent && (!act || !act->see_cell_no_trans(pos) || grid_distance(act->pos(), pos) > 3))
+    {
+        if (!act && you.see_cell(pos))
+            mpr("The spike launcher falls apart.");
+        else if (act && (act->is_player()) || you.see_cell(pos))
+        {
+            mprf("%s spike launcher falls apart as %s grow%s too distant to "
+                "maintain it.",
+                    act->name(DESC_ITS).c_str(),
+                    act->pronoun(PRONOUN_SUBJECTIVE).c_str(),
+                    act->is_player() ? "" : "s");
+        }
+        revert_terrain_change(pos, TERRAIN_CHANGE_SPIKE_LAUNCHER);
+        return true;
+    }
+
+    // Now, fire the launcher, if anything is in range.
+    action_timer -= time;
+    while (action_timer < 0)
+    {
+        // Don't allow friendly launchers to shoot out of the player's sight.
+        if (attitude == ATT_FRIENDLY && !you.see_cell_no_trans(pos))
+        {
+            action_timer = BASELINE_DELAY - abs(action_timer % BASELINE_DELAY);
+            break;
+        }
+
+        vector<actor*> targets;
+        for (adjacent_iterator ai(pos, false); ai; ++ai)
+        {
+            if (actor* targ = actor_at(*ai))
+            {
+                if (!act->see_cell_no_trans(*ai)
+                    || mons_atts_aligned(attitude, targ->temp_attitude())
+                    || targ->is_firewood())
+                {
+                    continue;
+                }
+                targets.push_back(targ);
+            }
+        }
+        if (targets.size() == 0)
+        {
+            action_timer = BASELINE_DELAY - abs(action_timer % BASELINE_DELAY);
+            break;
+        }
+
+        _fire_spike_launcher(targets.at(random2(targets.size())), act, pos, power);
+        action_timer += BASELINE_DELAY;
+    }
+
+    duration -= time;
+    if (duration < 0)
+    {
+        if (you.see_cell(pos))
+            mprf("%s spike launcher falls apart.", act->name(DESC_ITS).c_str());
+        revert_terrain_change(pos, TERRAIN_CHANGE_SPIKE_LAUNCHER);
+        return true;
+    }
+
+    return false;
 }

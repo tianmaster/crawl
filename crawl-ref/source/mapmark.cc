@@ -1285,6 +1285,21 @@ vector<map_active_feature_marker*> map_markers::get_active_features(dungeon_feat
     return out;
 }
 
+// Gets the most recently-added matching active feature marker at a given position.
+map_active_feature_marker* map_markers::get_active_feature_at(const coord_def& pos, dungeon_feature_type feat)
+{
+    for (int i = (int)dynamic_markers.size() - 1; i >= 0; --i)
+    {
+        if (dynamic_markers[i]->pos != pos || dynamic_markers[i]->get_type() != MAT_ACTIVE_FEATURE)
+            continue;
+
+        map_active_feature_marker* marker = dynamic_cast<map_active_feature_marker*>(dynamic_markers[i]);
+        if (feat == DNGN_UNSEEN || marker->feat == feat)
+            return marker;
+    }
+    return nullptr;
+}
+
 string map_markers::property_at(const coord_def &c, map_marker_type type,
                                 const string &key)
 {

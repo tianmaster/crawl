@@ -1574,7 +1574,7 @@ unique_ptr<targeter> find_spell_targeter(spell_type spell, int pow, int range)
 
     case SPELL_SPIKE_LAUNCHER:
     {
-        vector<coord_def> walls = find_spike_launcher_walls();
+        vector<coord_def> walls = find_spike_launcher_walls(you.pos());
         return make_unique<targeter_multiposition>(&you, walls, walls.size() > 1
                                                                     ? AFF_MAYBE
                                                                     : AFF_YES);
@@ -2645,7 +2645,7 @@ static spret _do_cast(spell_type spell, int powc, const dist& spd,
         return cast_clockwork_bee(beam.target, fail);
 
     case SPELL_SPIKE_LAUNCHER:
-        return cast_spike_launcher(powc, fail);
+        return cast_spike_launcher(you, powc, fail);
 
     case SPELL_DIAMOND_SAWBLADES:
         return cast_diamond_sawblades(powc, fail);

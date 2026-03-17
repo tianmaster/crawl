@@ -858,7 +858,6 @@ static const duration_def duration_data[] =
     { DUR_CONSTRICTION_IMMUNITY, 0, "", "", "constrict immune", "", D_NO_FLAGS, {{""}}},
     { DUR_GRAVE_CLAW_RECHARGE, 0, "", "", "grave claw recharging", "", D_NO_FLAGS},
     { DUR_TIME_WARPED_BLOOD_COOLDOWN, 0, "", "", "time-warped blood cooldown", "", D_NO_FLAGS},
-    { DUR_SPIKE_LAUNCHER_ACTIVE, 0, "", "", "spike launcher", "", D_NO_FLAGS, {{"", end_spike_launcher}}},
     { DUR_PARAGON_ACTIVE, 0, "", "", "paragon active", "", D_NO_FLAGS},
     { DUR_FORTRESS_BLAST_TIMER, 0, "", "", "fortress blast charging", "", D_DISPELLABLE},
     { DUR_PHALANX_BARRIER, 0, "", "phalanx barrier", "phalanx barrier", "", D_NO_FLAGS},
@@ -931,5 +930,6 @@ static const duration_def duration_data[] =
     { DUR_CLUMSY, 0, "", "", "old clumsy", "", D_NO_FLAGS },
     { DUR_SLEEP_IMMUNITY, 0, "", "", "old sleep immunity", "", D_NO_FLAGS, {{""}}},
     { DUR_VILE_CLUTCH_OLD, 0, "", "", "old vile clutch", "", D_NO_FLAGS, {{""}}},
+    { DUR_SPIKE_LAUNCHER_ACTIVE, 0, "", "", "old spike launcher", "", D_NO_FLAGS, {{""}}},
 #endif
 };

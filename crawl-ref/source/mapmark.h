@@ -344,6 +344,9 @@ public:
     map_marker *clone() const override;
     static map_marker *read(reader &, map_marker_type);
 
+private:
+    bool run_spike_launcher(int time);
+
 public:
     dungeon_feature_type feat;
     mid_t owner;
@@ -379,6 +382,7 @@ public:
     vector<map_marker*> get_all(const string &key, const string &val = "");
     vector<map_marker*> get_markers_at(const coord_def &c, map_marker_type type = MAT_ANY);
     vector<map_active_feature_marker*> get_active_features(dungeon_feature_type feat, mid_t owner = MID_NOBODY);
+    map_active_feature_marker* get_active_feature_at(const coord_def& pos, dungeon_feature_type feat);
     string property_at(const coord_def &c, map_marker_type type,
                        const string &key);
     string property_at(const coord_def &c, map_marker_type type,

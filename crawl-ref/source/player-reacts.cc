@@ -1346,9 +1346,6 @@ void player_reacts()
 
     actor_apply_toxic_bog(&you);
 
-    if (you.duration[DUR_SPIKE_LAUNCHER_ACTIVE])
-        handle_spike_launcher(you.time_taken);
-
     if (you.duration[DUR_RIME_YAK_AURA])
         frigid_walls_damage(you.time_taken);
 
