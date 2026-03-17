@@ -46,6 +46,7 @@ map_marker::marker_reader map_marker::readers[NUM_MAP_MARKER_TYPES] =
     &map_cloud_spreader_marker::read,
     &map_hellfire_mortar_lava_marker::read,
     &map_malign_gateway_marker::read,
+    &map_active_feature_marker::read,
 };
 
 map_marker::marker_parser map_marker::parsers[NUM_MAP_MARKER_TYPES] =
@@ -956,6 +957,63 @@ string map_position_marker::debug_describe() const
     return make_stringf("position (%d,%d)", dest.x, dest.y);
 }
 
+////////////////////////////////////////////////////////////////////////////
+// map_active_feature_marker
+
+map_active_feature_marker::map_active_feature_marker(
+    const coord_def &p, dungeon_feature_type _feat, mid_t _owner,
+    mon_attitude_type att, int _power, int _duration, int timer,
+    bool _is_dependent)
+    : map_marker(MAT_ACTIVE_FEATURE, p), feat(_feat), owner(_owner),
+      attitude(att), power(_power), duration(_duration), action_timer(timer),
+      is_dependent(_is_dependent)
+{
+}
+
+void map_active_feature_marker::write(writer &outf) const
+{
+    map_marker::write(outf);
+    marshallShort(outf, feat);
+    marshallInt(outf, owner);
+    marshallUByte(outf, attitude);
+    marshallShort(outf, power);
+    marshallShort(outf, duration);
+    marshallShort(outf, action_timer);
+    marshallBoolean(outf, is_dependent);
+}
+
+void map_active_feature_marker::read(reader &inf)
+{
+    map_marker::read(inf);
+    feat          = static_cast<dungeon_feature_type>(unmarshallShort(inf));
+    owner         = unmarshallInt(inf);
+    attitude      = static_cast<mon_attitude_type>(unmarshallUByte(inf));
+    power         = unmarshallShort(inf);
+    duration      = unmarshallShort(inf);
+    action_timer  = unmarshallShort(inf);
+    is_dependent  = unmarshallBoolean(inf);
+}
+
+map_marker *map_active_feature_marker::clone() const
+{
+    map_active_feature_marker* marker = new map_active_feature_marker(
+        pos, feat, owner, attitude, power, duration, action_timer, is_dependent);
+    return marker;
+}
+
+map_marker *map_active_feature_marker::read(reader &inf, map_marker_type)
+{
+    map_marker *mapf = new map_active_feature_marker();
+    mapf->read(inf);
+    return mapf;
+}
+
+string map_active_feature_marker::debug_describe() const
+{
+    return make_stringf("active feature (%s, owner: %d, power: %d)",
+            dungeon_feature_name(feat), (int)owner, power);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Map markers in env.
 
@@ -1207,6 +1265,24 @@ vector<map_marker*> map_markers::get_markers_at(const coord_def &c, map_marker_t
         if (type == MAT_ANY || i->second->get_type() == type)
             rmarkers.push_back(i->second);
     return rmarkers;
+}
+
+vector<map_active_feature_marker*> map_markers::get_active_features(dungeon_feature_type feat, mid_t owner)
+{
+    vector<map_active_feature_marker*> out;
+    for (map_marker* mark : dynamic_markers)
+    {
+        if (mark->get_type() != MAT_ACTIVE_FEATURE)
+            continue;
+
+        map_active_feature_marker* marker = dynamic_cast<map_active_feature_marker*>(mark);
+        if ((feat == DNGN_UNSEEN || marker->feat == feat)
+            && (owner == MID_NOBODY || marker->owner == owner))
+        {
+            out.push_back(marker);
+        }
+    }
+    return out;
 }
 
 string map_markers::property_at(const coord_def &c, map_marker_type type,

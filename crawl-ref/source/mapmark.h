@@ -15,6 +15,7 @@
 #include "clua.h"
 #include "dgn-event.h"
 #include "map-marker-type.h"
+#include "mon-attitude-type.h"
 #include "tag-version.h"
 #include "terrain-change-type.h"
 
@@ -324,6 +325,35 @@ public:
 
 };
 
+class map_active_feature_marker : public map_marker
+{
+
+public:
+    map_active_feature_marker(const coord_def &pos = coord_def(0, 0),
+                              dungeon_feature_type feat = DNGN_UNSEEN,
+                              mid_t owner = MID_NOBODY,
+                              mon_attitude_type attitude = ATT_HOSTILE,
+                              int power = 0, int duration = 0,
+                              int action_timer = 10,
+                              bool is_dependent = false);
+    bool is_dynamic() const override { return true; }
+    bool run(int time) override;
+    void write(writer &) const override;
+    void read(reader &) override;
+    string debug_describe() const override;
+    map_marker *clone() const override;
+    static map_marker *read(reader &, map_marker_type);
+
+public:
+    dungeon_feature_type feat;
+    mid_t owner;
+    mon_attitude_type attitude;
+    int power;
+    int duration;
+    int action_timer;
+    bool is_dependent;
+};
+
 class map_markers
 {
 public:
@@ -348,6 +378,7 @@ public:
     vector<map_marker*> get_all(map_marker_type type = MAT_ANY);
     vector<map_marker*> get_all(const string &key, const string &val = "");
     vector<map_marker*> get_markers_at(const coord_def &c, map_marker_type type = MAT_ANY);
+    vector<map_active_feature_marker*> get_active_features(dungeon_feature_type feat, mid_t owner = MID_NOBODY);
     string property_at(const coord_def &c, map_marker_type type,
                        const string &key);
     string property_at(const coord_def &c, map_marker_type type,

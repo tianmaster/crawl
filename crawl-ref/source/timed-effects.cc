@@ -1091,3 +1091,22 @@ int speed_to_duration(int speed)
 
     return div_rand_round(100, speed);
 }
+
+// Active feature handling
+bool map_active_feature_marker::run(int time)
+{
+    // Only run while the current feature matches the marker (which it may not,
+    // due to temporary terrain changes stacked on top of it), but still time
+    // out the marker.
+    if (env.grid(pos) != feat)
+    {
+        duration -= time;
+        return duration < 0;
+    }
+
+    switch (feat)
+    {
+        default:
+            return true;
+    }
+}
