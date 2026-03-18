@@ -1396,11 +1396,8 @@ void dungeon_terrain_changed(const coord_def &pos,
 void dungeon_change_base_terrain(coord_def pos, dungeon_feature_type nfeat)
 {
     bool temp_terrain = false;
-    for (map_marker* marker : env.markers.get_markers_at(pos))
+    for (map_marker* marker : env.markers.get_markers_at(pos, MAT_TERRAIN_CHANGE))
     {
-        if (marker->get_type() != MAT_TERRAIN_CHANGE)
-            continue;
-
         map_terrain_change_marker* tmarker =
             dynamic_cast<map_terrain_change_marker*>(marker);
         tmarker->old_feature = nfeat;
@@ -2005,20 +2002,17 @@ void set_terrain_changed(const coord_def p)
     else if (env.grid(p) == DNGN_OPEN_DOOR)
     {
         // Restore colour from door-change markers
-        for (map_marker *marker : env.markers.get_markers_at(p))
+        for (map_marker *marker : env.markers.get_markers_at(p, MAT_TERRAIN_CHANGE))
         {
-            if (marker->get_type() == MAT_TERRAIN_CHANGE)
-            {
-                map_terrain_change_marker* tmarker =
-                    dynamic_cast<map_terrain_change_marker*>(marker);
+            map_terrain_change_marker* tmarker =
+                dynamic_cast<map_terrain_change_marker*>(marker);
 
-                if (tmarker->change_type == TERRAIN_CHANGE_DOOR_SEAL
-                    && tmarker->colour != BLACK)
-                {
-                    // Restore the unsealed colour.
-                    dgn_set_grid_colour_at(p, tmarker->colour);
-                    break;
-                }
+            if (tmarker->change_type == TERRAIN_CHANGE_DOOR_SEAL
+                && tmarker->colour != BLACK)
+            {
+                // Restore the unsealed colour.
+                dgn_set_grid_colour_at(p, tmarker->colour);
+                break;
             }
         }
     }
@@ -2103,43 +2097,40 @@ void temp_change_terrain(coord_def pos, dungeon_feature_type newfeat, int dur,
         return;
 
     tile_flavour old_flv = tile_env.flv(pos);
-    for (map_marker *marker : env.markers.get_markers_at(pos))
+    for (map_marker *marker : env.markers.get_markers_at(pos, MAT_TERRAIN_CHANGE))
     {
-        if (marker->get_type() == MAT_TERRAIN_CHANGE)
-        {
-            map_terrain_change_marker* tmarker =
-                    dynamic_cast<map_terrain_change_marker*>(marker);
+        map_terrain_change_marker* tmarker =
+                dynamic_cast<map_terrain_change_marker*>(marker);
 
-            // If change type matches, just modify old one; no need to add new one
-            if (tmarker->change_type == type)
+        // If change type matches, just modify old one; no need to add new one
+        if (tmarker->change_type == type)
+        {
+            if (tmarker->new_feature == newfeat)
             {
-                if (tmarker->new_feature == newfeat)
+                if (tmarker->duration < dur)
                 {
-                    if (tmarker->duration < dur)
-                    {
-                        tmarker->duration = dur;
-                        tmarker->source_mid = mid;
-                    }
-                }
-                else
-                {
-                    tmarker->new_feature = newfeat;
                     tmarker->duration = dur;
                     tmarker->source_mid = mid;
                 }
-                // ensure that terrain change happens. Sometimes a terrain
-                // change marker can get stuck; this allows re-doing such
-                // cases. Also probably needed by the else case above.
-                _current_terrain_changed(pos, newfeat, false, true, false,
-                                         0, 0);
-                return;
             }
             else
             {
-                old_feat = tmarker->old_feature;
-                old_flv.feat = tmarker->flv_old_feature;
-                old_flv.feat_idx = tmarker->flv_old_feature_idx;
+                tmarker->new_feature = newfeat;
+                tmarker->duration = dur;
+                tmarker->source_mid = mid;
             }
+            // ensure that terrain change happens. Sometimes a terrain
+            // change marker can get stuck; this allows re-doing such
+            // cases. Also probably needed by the else case above.
+            _current_terrain_changed(pos, newfeat, false, true, false,
+                                        0, 0);
+            return;
+        }
+        else
+        {
+            old_feat = tmarker->old_feature;
+            old_flv.feat = tmarker->flv_old_feature;
+            old_flv.feat_idx = tmarker->flv_old_feature_idx;
         }
     }
 
@@ -2159,29 +2150,26 @@ void temp_change_terrain(coord_def pos, dungeon_feature_type newfeat, int dur,
 static bool _revert_terrain_to(coord_def pos, dungeon_feature_type feat)
 {
     dungeon_feature_type newfeat = feat;
-    for (map_marker *marker : env.markers.get_markers_at(pos))
+    for (map_marker *marker : env.markers.get_markers_at(pos, MAT_TERRAIN_CHANGE))
     {
-        if (marker->get_type() == MAT_TERRAIN_CHANGE)
-        {
-            map_terrain_change_marker* tmarker =
-                    dynamic_cast<map_terrain_change_marker*>(marker);
+        map_terrain_change_marker* tmarker =
+                dynamic_cast<map_terrain_change_marker*>(marker);
 
-            // Don't revert sealed doors to normal doors if we're trying to
-            // remove the door altogether
-            // Same for destroyed trees and slime walls
-            if ((tmarker->change_type == TERRAIN_CHANGE_DOOR_SEAL
-                || tmarker->change_type == TERRAIN_CHANGE_FORESTED
-                || tmarker->change_type == TERRAIN_CHANGE_SLIME)
-                && newfeat == feat)
-            {
+        // Don't revert sealed doors to normal doors if we're trying to
+        // remove the door altogether
+        // Same for destroyed trees and slime walls
+        if ((tmarker->change_type == TERRAIN_CHANGE_DOOR_SEAL
+            || tmarker->change_type == TERRAIN_CHANGE_FORESTED
+            || tmarker->change_type == TERRAIN_CHANGE_SLIME)
+            && newfeat == feat)
+        {
+            env.markers.remove(tmarker);
+        }
+        else
+        {
+            newfeat = tmarker->old_feature;
+            if (tmarker->new_feature == env.grid(pos))
                 env.markers.remove(tmarker);
-            }
-            else
-            {
-                newfeat = tmarker->old_feature;
-                if (tmarker->new_feature == env.grid(pos))
-                    env.markers.remove(tmarker);
-            }
         }
     }
 
@@ -2222,35 +2210,32 @@ bool revert_terrain_change(coord_def pos, terrain_change_type ctype)
     unsigned short newfeat_flv_idx = 0;
     int colour = BLACK;
 
-    for (map_marker *marker : env.markers.get_markers_at(pos))
+    for (map_marker *marker : env.markers.get_markers_at(pos, MAT_TERRAIN_CHANGE))
     {
-        if (marker->get_type() == MAT_TERRAIN_CHANGE)
-        {
-            map_terrain_change_marker* tmarker =
-                    dynamic_cast<map_terrain_change_marker*>(marker);
+        map_terrain_change_marker* tmarker =
+                dynamic_cast<map_terrain_change_marker*>(marker);
 
-            if (tmarker->change_type == ctype || ctype == NUM_TERRAIN_CHANGE_TYPES)
+        if (tmarker->change_type == ctype || ctype == NUM_TERRAIN_CHANGE_TYPES)
+        {
+            if (tmarker->colour != BLACK)
+                colour = tmarker->colour;
+            if (!newfeat)
             {
-                if (tmarker->colour != BLACK)
-                    colour = tmarker->colour;
-                if (!newfeat)
-                {
-                    newfeat = tmarker->old_feature;
-                    newfeat_flv = tmarker->flv_old_feature;
-                    newfeat_flv_idx = tmarker->flv_old_feature_idx;
-                }
-                env.markers.remove(tmarker);
+                newfeat = tmarker->old_feature;
+                newfeat_flv = tmarker->flv_old_feature;
+                newfeat_flv_idx = tmarker->flv_old_feature_idx;
             }
-            else
-            {
-                // If we had an old colour, give it to the other marker.
-                if (colour != BLACK)
-                    tmarker->colour = colour;
-                colour = BLACK;
-                newfeat = tmarker->new_feature;
-                newfeat_flv = 0;
-                newfeat_flv_idx = 0;
-            }
+            env.markers.remove(tmarker);
+        }
+        else
+        {
+            // If we had an old colour, give it to the other marker.
+            if (colour != BLACK)
+                tmarker->colour = colour;
+            colour = BLACK;
+            newfeat = tmarker->new_feature;
+            newfeat_flv = 0;
+            newfeat_flv_idx = 0;
         }
     }
 
@@ -2280,11 +2265,7 @@ bool revert_terrain_change(coord_def pos, terrain_change_type ctype)
 
 bool is_temp_terrain(coord_def pos)
 {
-    for (map_marker *marker : env.markers.get_markers_at(pos))
-        if (marker->get_type() == MAT_TERRAIN_CHANGE)
-            return true;
-
-    return false;
+    return !env.markers.find(pos, MAT_TERRAIN_CHANGE);
 }
 
 bool plant_forbidden_at(const coord_def &p, bool connectivity_only)

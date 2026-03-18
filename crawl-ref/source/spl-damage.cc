@@ -4424,16 +4424,13 @@ void actor_apply_toxic_bog(actor * act)
 
     actor *oppressor = nullptr;
 
-    for (map_marker *marker : env.markers.get_markers_at(act->pos()))
+    for (map_marker *marker : env.markers.get_markers_at(act->pos(), MAT_TERRAIN_CHANGE))
     {
-        if (marker->get_type() == MAT_TERRAIN_CHANGE)
-        {
-            map_terrain_change_marker* tmarker =
-                    dynamic_cast<map_terrain_change_marker*>(marker);
-            const auto ct = tmarker->change_type;
-            if (ct == TERRAIN_CHANGE_BOG || ct == TERRAIN_CHANGE_FLOOD)
-                oppressor = actor_by_mid(tmarker->source_mid);
-        }
+        map_terrain_change_marker* tmarker =
+                dynamic_cast<map_terrain_change_marker*>(marker);
+        const auto ct = tmarker->change_type;
+        if (ct == TERRAIN_CHANGE_BOG || ct == TERRAIN_CHANGE_FLOOD)
+            oppressor = actor_by_mid(tmarker->source_mid);
     }
 
     if (!could_harm(oppressor, act))
