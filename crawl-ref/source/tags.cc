@@ -86,6 +86,7 @@
 #include "syscalls.h"
 #include "tag-version.h"
 #include "terrain.h"
+#include "timed-effects.h"
 #include "rltiles/tiledef-dngn.h"
 #include "rltiles/tiledef-player.h"
 #include "tilepick.h"
@@ -1488,48 +1489,6 @@ static void _fix_spectral_weapons()
         }
     }
 }
-
-static void _timeout_permanent_hellfire_mortar_lava()
-{
-    bool has_player_mortars = false;
-    map<coord_def, int> lava_mortar_counts;
-    for (monster_iterator mi; mi; ++mi)
-    {
-        if (mi->type != MONS_HELLFIRE_MORTAR)
-            continue;
-        if (!mi->props.exists(HELLFIRE_LAVA_LENGTH))
-            continue;
-
-        const CrawlVector& path = mi->props[HELLFIRE_PATH_KEY];
-        int lava_length = mi->props[HELLFIRE_LAVA_LENGTH];
-        for (int i = 0; i < lava_length; ++i)
-        {
-            coord_def pos = path[i].get_coord();
-            lava_mortar_counts[pos]++;
-        }
-        if (mi->summoner == MID_PLAYER)
-            has_player_mortars = true;
-    }
-
-    for (map_marker* marker : env.markers.get_all(MAT_HELLFIRE_MORTAR_LAVA))
-    {
-        map_hellfire_mortar_lava_marker* mortar_marker =
-            dynamic_cast<map_hellfire_mortar_lava_marker*>(marker);
-        const coord_def& pos = mortar_marker->pos;
-        int old_count = mortar_marker->num_mortars_supporting_lava;
-        int new_count = lava_mortar_counts[pos];
-        mortar_marker->num_mortars_supporting_lava = new_count;
-        if (!new_count)
-            revert_terrain_change(pos, TERRAIN_CHANGE_HELLFIRE_MORTAR);
-    }
-
-    int max_dur = hellfire_mortar_cooldown_after_mortar_gone(LOS_MAX_RANGE);
-    if (!has_player_mortars
-        && you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] > max_dur)
-    {
-        you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = 0;
-    }
-}
 #endif
 
 // Read a piece of data from inf into memory, then run the appropriate reader.
@@ -1676,8 +1635,12 @@ void tag_read(reader &inf, tag_type tag_id)
                 unequip_item(*item);
         }
 
-        if (th.getMinorVersion() < TAG_MINOR_FIX_PERMANENT_HELLFIRE_MORTAR)
-            _timeout_permanent_hellfire_mortar_lava();
+        if (th.getMinorVersion() >= TAG_MINOR_FIX_HELLFIRE_MORTAR_LAVA_DURATION
+            && th.getMinorVersion() < TAG_MINOR_REMOVE_MORTAR_MARKERS)
+        {
+            end_terrain_changes(you, TERRAIN_CHANGE_HELLFIRE_MORTAR);
+            you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = 0;
+        }
 
 #endif
         break;

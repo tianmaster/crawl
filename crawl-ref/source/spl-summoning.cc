@@ -3324,94 +3324,10 @@ static bool _hellfire_stops_here(bolt& beam, coord_def pos)
                   || !beam.can_affect_wall(pos));
 }
 
-static void _start_timing_out_hellfire_mortar_lava(const CrawlVector& path,
-                                                   int len)
-{
-    for (int i = 0; i < len; ++i)
-    {
-        coord_def pos = path[i].get_coord();
-
-        map_marker* m_marker = env.markers.find(pos, MAT_HELLFIRE_MORTAR_LAVA);
-        ASSERT(m_marker);
-        map_hellfire_mortar_lava_marker* mortar_marker =
-            dynamic_cast<map_hellfire_mortar_lava_marker*>(m_marker);
-        mortar_marker->num_mortars_supporting_lava--;
-        int marker_duration = mortar_marker->earliest_end_time
-                              - you.elapsed_time;
-        int new_duration = ((len - i - 1) * BASELINE_DELAY) / 2 + 1;
-        int duration = max(marker_duration, new_duration);
-        mortar_marker->earliest_end_time = you.elapsed_time + duration;
-
-        if (mortar_marker->num_mortars_supporting_lava > 0)
-            continue;
-
-        env.markers.remove(m_marker);
-
-        for (map_marker* marker : env.markers.get_markers_at(pos))
-        {
-            if (marker->get_type() != MAT_TERRAIN_CHANGE)
-                continue;
-            map_terrain_change_marker* tmarker =
-                dynamic_cast<map_terrain_change_marker*>(marker);
-            if (tmarker->change_type != TERRAIN_CHANGE_HELLFIRE_MORTAR)
-                continue;
-
-            tmarker->duration = duration;
-            break;
-        }
-    }
-}
-
-int hellfire_mortar_cooldown_after_mortar_gone(int lava_length)
+int hellfire_mortar_cooldown_length(int lava_length)
 {
     // This should be equal to the duration of the longest lasting lava
     return ((lava_length - 1) * BASELINE_DELAY) / 2 + 1;
-}
-
-void hellfire_mortal_on_mortar_gone(monster& mortar)
-{
-    if (!mortar.props.exists(HELLFIRE_LAVA_LENGTH))
-        return;
-
-    const CrawlVector& path = mortar.props[HELLFIRE_PATH_KEY];
-    int lava_length = mortar.props[HELLFIRE_LAVA_LENGTH];
-    _start_timing_out_hellfire_mortar_lava(path, lava_length);
-    if (mortar.summoner == MID_PLAYER)
-    {
-        ASSERT(lava_length > 0);
-        int lava_dur = hellfire_mortar_cooldown_after_mortar_gone(lava_length);
-        you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = lava_dur;
-    }
-}
-
-static void _add_hellfire_mortar_lava_marker(coord_def pos)
-{
-    map_marker* m_marker = env.markers.find(pos, MAT_HELLFIRE_MORTAR_LAVA);
-    if (m_marker)
-    {
-        map_hellfire_mortar_lava_marker* mortar_marker =
-            dynamic_cast<map_hellfire_mortar_lava_marker*>(m_marker);
-        mortar_marker->num_mortars_supporting_lava++;
-        return;
-    }
-
-    int earliest_end_time = 0;
-    for (map_marker* marker : env.markers.get_markers_at(pos))
-    {
-        if (marker->get_type() != MAT_TERRAIN_CHANGE)
-            continue;
-        map_terrain_change_marker* tmarker =
-            dynamic_cast<map_terrain_change_marker*>(marker);
-        if (tmarker->change_type != TERRAIN_CHANGE_HELLFIRE_MORTAR)
-            continue;
-        earliest_end_time = you.elapsed_time + tmarker->duration;
-        break;
-    }
-
-    map_hellfire_mortar_lava_marker* mortar_marker =
-        new map_hellfire_mortar_lava_marker(pos, earliest_end_time);
-    env.markers.add(mortar_marker);
-    env.markers.clear_need_activate();
 }
 
 spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail)
@@ -3479,10 +3395,8 @@ spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail)
             break;
         }
 
-        _add_hellfire_mortar_lava_marker(pos);
-
-        temp_change_terrain(pos, DNGN_LAVA, INFINITE_DURATION,
-                            TERRAIN_CHANGE_HELLFIRE_MORTAR);
+        const int dur = ((len - i - 1) * BASELINE_DELAY) / 2 + 1;
+        temp_change_terrain(pos, DNGN_LAVA, dur, TERRAIN_CHANGE_HELLFIRE_MORTAR);
 
         lava_length = i + 1;
 
@@ -3491,12 +3405,12 @@ spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail)
 
     noisy(spell_effect_noise(SPELL_HELLFIRE_MORTAR), agent.pos(), agent.mid);
 
-    // The mortar will almost certainly hit the end of the lava and disappear
-    // before this unless it gets pushed back repeatedly
-    int dur = (len * 3 * BASELINE_DELAY) / 2;
     mgen_data mg = _summon_data(agent, MONS_HELLFIRE_MORTAR, 0,
                                 SPELL_HELLFIRE_MORTAR);
-    mg.set_summoned(&agent, SPELL_HELLFIRE_MORTAR, dur, false, false);
+    // Duration is arbitrarily long so that very slow actions won't cause the
+    // mortar to skip shots before disappearing. It will still end at the end
+    // of its path, no matter remaining duration.
+    mg.set_summoned(&agent, SPELL_HELLFIRE_MORTAR, 500, false, false);
     mg.flags |= MG_FORCE_PLACE;
     mg.pos = beam.path_taken[0];
     mg.hd = _hellfire_mortar_hd(pow);
@@ -3507,29 +3421,29 @@ spret cast_hellfire_mortar(const actor& agent, bolt& beam, int pow, bool fail)
     // empty), but let's guard against it anyway.
     if (!cannon)
     {
-        CrawlVector path;
-        for (coord_def pos : beam.path_taken)
-            path.push_back(pos);
-        _start_timing_out_hellfire_mortar_lava(path, len);
-
         if (agent.is_player())
             mpr("Something prevents your mortar from forming!");
         return spret::success;
     }
 
-    // Store the cannon's movement path
+    // Store the cannon's movement path and assign it ownership of the terrain change
     CrawlVector& path = cannon->props[HELLFIRE_PATH_KEY].get_vector();
-    for (coord_def pos : beam.path_taken)
-        path.push_back(pos);
-    // The path sometimes includes one square after the lava ends, so we can't
-    // use its length to know when the lava ends
-    cannon->props[HELLFIRE_LAVA_LENGTH].get_int() = lava_length;
+    for (int i = 0; i < lava_length; ++i)
+    {
+        path.push_back(beam.path_taken[i]);
+        for (map_marker* mark : env.markers.get_markers_at(beam.path_taken[i], MAT_TERRAIN_CHANGE))
+        {
+            map_terrain_change_marker* tmark = dynamic_cast<map_terrain_change_marker*>(mark);
+            if (tmark->change_type == TERRAIN_CHANGE_HELLFIRE_MORTAR)
+                tmark->source_mid = cannon->mid;
+        }
+    }
 
     mprf("With a deafening crack, the ground splits apart in the path of %s "
         "chthonic artillery!", agent.name(DESC_ITS).c_str());
 
     if (agent.is_player())
-        you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = INFINITE_DURATION;
+        you.duration[DUR_HELLFIRE_MORTAR_COOLDOWN] = lava_length * BASELINE_DELAY + hellfire_mortar_cooldown_length(lava_length);
 
     return spret::success;
 }

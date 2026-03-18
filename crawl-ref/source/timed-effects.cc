@@ -919,6 +919,18 @@ void timeout_terrain_changes(int duration, bool force)
         map_terrain_change_marker *marker =
                 dynamic_cast<map_terrain_change_marker*>(mark);
 
+        actor* src = actor_by_mid(marker->source_mid);
+
+        // Hellfire mortar lava doesn't start timing out until the mortar is
+        // dead, but shouldn't disappear instantly once it does die.
+        if (marker->change_type == TERRAIN_CHANGE_HELLFIRE_MORTAR)
+        {
+            if (src)
+                marker->duration += duration;
+            else
+                marker->source_mid = 0;
+        }
+
         if (marker->duration != INFINITE_DURATION)
             marker->duration -= duration;
 
@@ -942,7 +954,6 @@ void timeout_terrain_changes(int duration, bool force)
             marker->duration = 0;
         }
 
-        actor* src = actor_by_mid(marker->source_mid);
         if (marker->duration <= 0
             || (marker->source_mid != 0
                 && (!src || !src->alive()
