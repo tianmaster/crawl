@@ -59,7 +59,7 @@ map_marker::marker_parser map_marker::parsers[NUM_MAP_MARKER_TYPES] =
 };
 
 map_marker::map_marker(map_marker_type t, const coord_def &p)
-    : pos(p), type(t)
+    : pos(p), type(t), pending_deletion(false)
 {
 }
 
@@ -92,6 +92,16 @@ string map_marker::property(const string &pname) const
 {
     UNUSED(pname);
     return "";
+}
+
+void map_marker::flag_for_deletion()
+{
+    pending_deletion = true;
+}
+
+bool map_marker::is_deleted() const
+{
+    return pending_deletion;
 }
 
 map_marker *map_marker::read_marker(reader &inf, int size)
@@ -1114,12 +1124,18 @@ void map_markers::run_all(int time, map_marker_type type)
         if (type != MAT_ANY && dynamic_markers[i]->get_type() != type)
             continue;
 
-        if (dynamic_markers[i]->run(time))
+        // Skip any markers that are flagged for deletion (which can sometimes
+        // even happen during an invocation of this method).
+        if (!dynamic_markers[i]->is_deleted() && dynamic_markers[i]->run(time))
         {
             remove(dynamic_markers[i]);
             --i;
         }
     }
+
+    for (map_marker* mark : to_delete)
+        delete_marker(mark);
+    to_delete.clear();
 }
 
 void map_markers::add(map_marker *marker)
@@ -1150,6 +1166,12 @@ void map_markers::check_empty()
         have_inactive_markers = false;
 }
 
+void map_markers::flag_for_deletion(map_marker* marker)
+{
+    marker->flag_for_deletion();
+    to_delete.push_back(marker);
+}
+
 void map_markers::delete_marker(map_marker *marker)
 {
     if (marker->is_dynamic())
@@ -1164,7 +1186,7 @@ void map_markers::delete_marker(map_marker *marker)
 void map_markers::remove(map_marker *marker)
 {
     unlink_marker(marker);
-    delete_marker(marker);
+    flag_for_deletion(marker);
     check_empty();
 }
 
@@ -1177,7 +1199,7 @@ void map_markers::remove_markers_at(const coord_def &c,
         auto todel = i++;
         if (type == MAT_ANY || todel->second->get_type() == type)
         {
-            delete_marker(todel->second);
+            flag_for_deletion(todel->second);
             markers.erase(todel);
         }
     }
@@ -1320,10 +1342,13 @@ string map_markers::property_at(const coord_def &c, map_marker_type type,
 
 void map_markers::clear()
 {
+    for (auto &entry : to_delete)
+        delete entry;
     for (auto &entry : markers)
         delete entry.second;
     markers.clear();
     dynamic_markers.clear();
+    to_delete.clear();
     check_empty();
 }
 

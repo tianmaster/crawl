@@ -70,6 +70,9 @@ public:
     virtual string debug_describe() const = 0;
     virtual string property(const string &pname) const;
 
+    void flag_for_deletion();
+    bool is_deleted() const;
+
     static map_marker *read_marker(reader &, int size);
     /// @throws bad_map_marker if text could not be parsed.
     static map_marker *parse_marker(const string &text, const string &ctx = "");
@@ -79,6 +82,9 @@ public:
 
 protected:
     map_marker_type type;
+
+    // Transient state; flagged to be deleted at the next call of map_markers::run_all()
+    bool pending_deletion;
 
     typedef map_marker *(*marker_reader)(reader &, map_marker_type);
     typedef map_marker *(*marker_parser)(const string &, const string &);
@@ -399,6 +405,7 @@ private:
 
     void init_from(const map_markers &);
     void unlink_marker(const map_marker *);
+    void flag_for_deletion(map_marker *);
     void delete_marker(map_marker *);
     void check_empty();
 
@@ -406,6 +413,10 @@ private:
     dgn_marker_map markers;
     bool have_inactive_markers;
     vector<map_marker*> dynamic_markers;
+
+    // A list of markers that were flagged for deletion since the last call of
+    // run_all(),
+    vector<map_marker*> to_delete;
 };
 
 map_position_marker *get_position_marker_at(const coord_def &pos,
