@@ -1019,7 +1019,7 @@ void setup_environment_effects()
                 continue;
 
             const int grid = env.grid[x][y];
-            if (grid == DNGN_LAVA
+            if ((grid == DNGN_LAVA && !is_temp_terrain({x, y}))
                     || (grid == DNGN_SHALLOW_WATER
                         && player_in_branch(BRANCH_SWAMP)))
             {
