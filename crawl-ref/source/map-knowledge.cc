@@ -29,13 +29,7 @@ void set_terrain_mapped(const coord_def gc)
     map_cell* cell = &env.map_knowledge(gc);
     cell->flags &= (~MAP_CHANGED_FLAG);
     cell->flags |= MAP_MAGIC_MAPPED_FLAG;
-#ifdef USE_TILE
-    tile_draw_map_cell(gc);
-    // This may have changed the explore horizon, so update adjacent minimap
-    // squares as well.
-    for (adjacent_iterator ai(gc, false); ai; ++ai)
-        tiles.update_minimap(*ai);
-#endif
+    redraw_view_at(gc);
 }
 
 int count_detected_mons()
