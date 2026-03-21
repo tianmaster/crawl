@@ -2580,6 +2580,11 @@ static mon_spellbook_type _get_mc_spellbook(const monster_type mon_type)
     return static_cast<mon_spellbook_type>(get_monster_data(mon_type)->sec);
 }
 
+bool mon_type_has_spells(const monster_type mon_type)
+{
+    return _get_mc_spellbook(mon_type) != MST_NO_SPELLS;
+}
+
 mon_spellbook_type get_spellbook(const monster_info &mon)
 {
     // special case for vault monsters: if they have a custom book,

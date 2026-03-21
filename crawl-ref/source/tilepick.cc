@@ -31,6 +31,7 @@
 #include "options.h"
 #include "player.h"
 #include "shopping.h"
+#include "showsymb.h"
 #include "spl-book.h"
 #include "state.h"
 #include "stringutil.h"
@@ -1304,20 +1305,51 @@ void tileidx_out_of_los(tileidx_t *fg, tileidx_t *bg, tileidx_t *cloud, const co
     *cloud = mem_cloud;
 }
 
-static tileidx_t _zombie_tile_to_spectral(const tileidx_t z_tile)
+static tileidx_t _zombie_tile_to_spectral(const tileidx_t z_tile, const monster_info& mon)
 {
+    // Unique tiles that don't or can't have matching zombies.
+    if (mons_genus(mon.base_type) == MONS_TENGU)
+        return TILEP_MONS_SPECTRAL_TENGU;
+    else if (mon.base_type == MONS_TWO_HEADED_OGRE || mon.base_type == MONS_ETTIN)
+        return TILEP_MONS_SPECTRAL_TWO_HEADED;
+    else if (mons_genus(mon.base_type) == MONS_GIANT
+            && mon_type_has_spells(mon.base_type))
+    {
+        return TILEP_MONS_SPECTRAL_ELEMENTAL_GIANT;
+    }
+    else if (mon.base_type == MONS_BALL_PYTHON || mon.base_type == MONS_ANACONDA)
+        return TILEP_MONS_SPECTRAL_CONSTRICTOR;
+    else if (mons_base_char(mon.base_type) == '5')
+        return TILEP_MONS_SPECTRAL_MINOR_DEMON;
+    else if (mons_base_char(mon.base_type) == '4'
+             || mons_base_char(mon.base_type) == '3')
+    {
+        if (monster_class_flies(mon.base_type))
+            return TILEP_MONS_SPECTRAL_COMMON_DEMON_FLYING;
+        else
+            return TILEP_MONS_SPECTRAL_COMMON_DEMON;
+    }
+    else if (mons_base_char(mon.base_type) == '2'
+             || mons_base_char(mon.base_type) == '1')
+    {
+        if (monster_class_flies(mon.base_type))
+            return TILEP_MONS_SPECTRAL_GREATER_DEMON_FLYING;
+        else
+            return TILEP_MONS_SPECTRAL_GREATER_DEMON;
+    }
+    else if ((mons_class_holiness(mon.base_type) & MH_HOLY)
+            && get_mon_shape(mon.base_type) == MON_SHAPE_HUMANOID_WINGED)
+    {
+        return TILEP_MONS_SPECTRAL_ANGEL;
+    }
+
     switch (z_tile)
     {
     case TILEP_MONS_ZOMBIE_SMALL:
-    case TILEP_MONS_ZOMBIE_SPRIGGAN:
-    case TILEP_MONS_ZOMBIE_GOBLIN:
-    case TILEP_MONS_ZOMBIE_HOBGOBLIN:
     case TILEP_MONS_ZOMBIE_GNOLL:
     case TILEP_MONS_ZOMBIE_KOBOLD:
     case TILEP_MONS_ZOMBIE_ORC:
     case TILEP_MONS_ZOMBIE_HUMAN:
-    case TILEP_MONS_ZOMBIE_DRACONIAN:
-    case TILEP_MONS_ZOMBIE_ELF:
     case TILEP_MONS_ZOMBIE_FAUN:
     case TILEP_MONS_ZOMBIE_MERFOLK:
     case TILEP_MONS_ZOMBIE_MINOTAUR:
@@ -1326,29 +1358,43 @@ static tileidx_t _zombie_tile_to_spectral(const tileidx_t z_tile)
     case TILEP_MONS_ZOMBIE_LARGE:
     case TILEP_MONS_ZOMBIE_OGRE:
     case TILEP_MONS_ZOMBIE_TROLL:
-    case TILEP_MONS_ZOMBIE_JUGGERNAUT:
     case TILEP_MONS_ZOMBIE_UGLY_THING:
         return TILEP_MONS_SPECTRAL_LARGE;
+    case TILEP_MONS_ZOMBIE_GOBLIN:
+    case TILEP_MONS_ZOMBIE_HOBGOBLIN:
+        return TILEP_MONS_SPECTRAL_GOBLIN;
+    case TILEP_MONS_ZOMBIE_SPRIGGAN:
+        return TILEP_MONS_SPECTRAL_SPRIGGAN;
+    case TILEP_MONS_ZOMBIE_ELF:
+        return TILEP_MONS_SPECTRAL_ELF;
+    case TILEP_MONS_ZOMBIE_DRACONIAN:
+        return TILEP_MONS_SPECTRAL_DRACONIAN;
+    case TILEP_MONS_ZOMBIE_JUGGERNAUT:
+        return TILEP_MONS_SPECTRAL_JUGGERNAUT;
     case TILEP_MONS_ZOMBIE_QUADRUPED_SMALL:
     case TILEP_MONS_ZOMBIE_RAT:
     case TILEP_MONS_ZOMBIE_QUOKKA:
     case TILEP_MONS_ZOMBIE_JACKAL:
     case TILEP_MONS_ZOMBIE_HOUND:
     case TILEP_MONS_ZOMBIE_CRAB:
-    case TILEP_MONS_ZOMBIE_TURTLE:
     case TILEP_MONS_ZOMBIE_BEAR:
         return TILEP_MONS_SPECTRAL_QUADRUPED_SMALL;
-    case TILEP_MONS_ZOMBIE_QUADRUPED_LARGE:
-    case TILEP_MONS_ZOMBIE_ELEPHANT:
+    case TILEP_MONS_ZOMBIE_TURTLE:
+        return TILEP_MONS_SPECTRAL_TURTLE;
     case TILEP_MONS_ZOMBIE_YAK:
-    case TILEP_MONS_ZOMBIE_QUADRUPED_WINGED:
         return TILEP_MONS_SPECTRAL_QUADRUPED_LARGE;
+    case TILEP_MONS_ZOMBIE_QUADRUPED_WINGED:
+        return TILEP_MONS_SPECTRAL_QUADRUPED_WINGED;
+    case TILEP_MONS_ZOMBIE_ELEPHANT:
+        return TILEP_MONS_SPECTRAL_ELEPHANT;
     case TILEP_MONS_ZOMBIE_FROG:
         return TILEP_MONS_SPECTRAL_FROG;
     case TILEP_MONS_ZOMBIE_BAT:
-    case TILEP_MONS_ZOMBIE_BIRD: /* no bird spectral tile */
-    case TILEP_MONS_ZOMBIE_HARPY:
         return TILEP_MONS_SPECTRAL_BAT;
+    case TILEP_MONS_ZOMBIE_BIRD:
+        return TILEP_MONS_SPECTRAL_BIRD;
+    case TILEP_MONS_ZOMBIE_HARPY:
+        return TILEP_MONS_SPECTRAL_HUMANOID_WINGED;
     case TILEP_MONS_ZOMBIE_BEE:
     case TILEP_MONS_ZOMBIE_MELIAI:
     case TILEP_MONS_ZOMBIE_HORNET:
@@ -1376,20 +1422,29 @@ static tileidx_t _zombie_tile_to_spectral(const tileidx_t z_tile)
         return TILEP_MONS_SPECTRAL_SNAKE;
     case TILEP_MONS_ZOMBIE_LIZARD:
         return TILEP_MONS_SPECTRAL_LIZARD;
-    case TILEP_MONS_ZOMBIE_SCORPION:
     case TILEP_MONS_ZOMBIE_SPIDER_LARGE:
     case TILEP_MONS_ZOMBIE_SPIDER_SMALL:
         return TILEP_MONS_SPECTRAL_SPIDER;
+    case TILEP_MONS_ZOMBIE_SCORPION:
+        return TILEP_MONS_SPECTRAL_SCORPION;
     case TILEP_MONS_ZOMBIE_DRAGON:
-    case TILEP_MONS_ZOMBIE_IRON_DRAGON:
     case TILEP_MONS_ZOMBIE_GOLDEN_DRAGON:
-    case TILEP_MONS_ZOMBIE_QUICKSILVER_DRAGON:
         return TILEP_MONS_SPECTRAL_DRAGON;
+    case TILEP_MONS_ZOMBIE_IRON_DRAGON:
+        return TILEP_MONS_SPECTRAL_IRON_DRAGON;
+    case TILEP_MONS_ZOMBIE_QUICKSILVER_DRAGON:
+        return TILEP_MONS_SPECTRAL_QUICKSILVER_DRAGON;
     case TILEP_MONS_ZOMBIE_DRAKE:
     case TILEP_MONS_ZOMBIE_WYVERN:
         return TILEP_MONS_SPECTRAL_DRAKE;
     case TILEP_MONS_ZOMBIE_KRAKEN:
         return TILEP_MONS_SPECTRAL_KRAKEN;
+    case TILEP_MONS_ZOMBIE_JELLY:
+        return TILEP_MONS_SPECTRAL_JELLY;
+    case TILEP_MONS_ZOMBIE_ORB:
+        return TILEP_MONS_SPECTRAL_ORB;
+    case TILEP_MONS_ZOMBIE_X:
+        return TILEP_MONS_SPECTRAL_X;
     default:
         if (tile_player_basetile(z_tile) == TILEP_MONS_ZOMBIE_HYDRA)
         {
@@ -1722,7 +1777,6 @@ static tileidx_t _mon_to_zombie_tile(const monster_info &mon)
         { MONS_JACKAL,                  TILEP_MONS_ZOMBIE_JACKAL },
         { MONS_ADDER,                   TILEP_MONS_ZOMBIE_ADDER },
         { MONS_WOLF_SPIDER,             TILEP_MONS_ZOMBIE_SPIDER_LARGE },
-        { MONS_EMPEROR_SCORPION,        TILEP_MONS_ZOMBIE_SPIDER_LARGE },
         { MONS_HOWLER_MONKEY,           TILEP_MONS_ZOMBIE_MONKEY },
         { MONS_IRON_DRAGON,             TILEP_MONS_ZOMBIE_IRON_DRAGON },
         { MONS_GOLDEN_DRAGON,           TILEP_MONS_ZOMBIE_GOLDEN_DRAGON },
@@ -1847,7 +1901,7 @@ static tileidx_t _tileidx_monster_zombified(const monster_info& mon)
         case MONS_BOUND_SOUL:
             return _zombie_tile_to_bound_soul(zombie_tile);
         case MONS_SPECTRAL_THING:
-            return _zombie_tile_to_spectral(zombie_tile);
+            return _zombie_tile_to_spectral(zombie_tile, mon);
         case MONS_SIMULACRUM:
             return _zombie_tile_to_simulacrum(zombie_tile);
         default:

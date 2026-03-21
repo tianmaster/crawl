@@ -358,6 +358,7 @@ void mons_pacify(monster& mon, mon_attitude_type att = ATT_GOOD_NEUTRAL,
 bool mons_should_fire(const bolt &beam, const targeting_tracer& tracer,
                       bool ignore_good_idea = false);
 
+bool mon_type_has_spells(const monster_type mon_type);
 bool mons_has_los_ability(monster_type mon_type);
 bool is_offensive_spell(spell_type spell, maybe_bool needs_lof = maybe_bool::maybe);
 bool _mons_has_smite_attack(const monster* mons);
