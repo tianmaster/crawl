@@ -633,10 +633,9 @@ static const map<spell_type, mons_spell_logic> spell_to_logic = {
         MSPELL_LOGIC_NONE, 10,
     } },
     { SPELL_DIMINISH_SPELLS, { [](const monster &caster) {
-        const actor* foe = caster.get_foe();
-        ASSERT(foe);
-        return ai_action::good_or_impossible(foe->antimagic_susceptible()); },
-        _fire_simple_beam, _zap_setup(SPELL_DIMINISH_SPELLS),
+        return _foe_effect_viable(caster, DUR_DIMINISHED_SPELLS, ENCH_DIMINISHED_SPELLS); },
+        _fire_simple_beam,
+        _zap_setup(SPELL_DIMINISH_SPELLS),
         MSPELL_LOGIC_NONE, 10,
     } },
     { SPELL_VIRULENCE, _hex_logic(SPELL_VIRULENCE, [](const monster &caster) {
