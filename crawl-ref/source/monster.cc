@@ -5586,7 +5586,7 @@ void monster::finalise_movement(const actor* to_blame)
 
     // Trigger traps last (since they could cause movement that might affect
     // some of the rest of this).
-    if (feat_is_trap(env.grid(pos()))
+    if (last_move_pos != pos() && feat_is_trap(env.grid(pos()))
         && (env.grid(pos()) != DNGN_PASSAGE_OF_GOLUBRIA || !(last_move_flags & MV_GOLUBRIA)))
     {
         trigger_trap(*this);
