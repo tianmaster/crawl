@@ -394,7 +394,7 @@ void melee_attack::handle_phase_dodged()
         && defender->is_player()
         && attacker->alive()
         && !mons_aligned(attacker, defender) // confused friendlies attacking
-        && !attacker->as_monster()->neutral()) // don't anger neutrals, even if they hit you
+        && !attacker->neutral()) // don't anger neutrals, even if they hit you
     {
         // Active retaliations on the player's part require you to be able to act.
         if (you.can_see(*attacker) && !you.cannot_act() && !you.confused())
@@ -1120,7 +1120,7 @@ bool melee_attack::handle_phase_aux()
         // returns whether an aux attack successfully took place
         // additional attacks from cleave don't get aux
         const int aux_dist = you.form == transformation::aqua ? 3 : 1;
-        if (!defender->as_monster()->friendly()
+        if (!defender->friendly()
             && grid_distance(defender->pos(), attack_position) <= aux_dist)
         {
             player_do_aux_attacks();

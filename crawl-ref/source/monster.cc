@@ -3006,22 +3006,6 @@ int monster::off_level_regen_rate() const
     return max(natural_regen_rate() * 4, 10);
 }
 
-bool monster::friendly() const
-{
-    return temp_attitude() == ATT_FRIENDLY;
-}
-
-bool monster::neutral() const
-{
-    const mon_attitude_type att = temp_attitude();
-    return att == ATT_NEUTRAL || att == ATT_GOOD_NEUTRAL;
-}
-
-bool monster::good_neutral() const
-{
-    return temp_attitude() == ATT_GOOD_NEUTRAL;
-}
-
 bool monster::wont_attack() const
 {
     return friendly() || good_neutral() || attitude == ATT_MARIONETTE;

@@ -459,7 +459,7 @@ void attack::alert_defender()
 
     // If an enemy attacked a friend, set the pet target if it isn't set already.
     if (perceived_attack && attacker->alive()
-        && (defender->is_player() || defender->as_monster()->friendly())
+        && defender->friendly()
         && !attacker->is_player()
         && !crawl_state.game_is_arena()
         && !attacker->as_monster()->wont_attack())

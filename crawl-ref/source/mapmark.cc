@@ -807,7 +807,7 @@ map_cloud_spreader_marker::map_cloud_spreader_marker(const coord_def &p,
     {
         agent_mid = agent->mid;
         if (agent->is_monster())
-            kcat = (agent->as_monster()->friendly() ? KC_FRIENDLY : KC_OTHER);
+            kcat = (agent->friendly() ? KC_FRIENDLY : KC_OTHER);
         else
             kcat = KC_YOU;
     }

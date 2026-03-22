@@ -1871,9 +1871,7 @@ spret cast_battlesphere(actor* agent, int pow, bool fail)
     else
     {
         ASSERT(!find_battlesphere(agent));
-        mgen_data mg (MONS_BATTLESPHERE,
-                      agent->is_player() ? BEH_FRIENDLY
-                                         : SAME_ATTITUDE(agent->as_monster()),
+        mgen_data mg (MONS_BATTLESPHERE, SAME_ATTITUDE(agent),
                       agent->pos(), agent->mindex());
         mg.set_summoned(agent, SPELL_BATTLESPHERE, random_range(300, 500), false);
         mg.hd = _battlesphere_hd(pow);
@@ -2190,9 +2188,7 @@ spret cast_fulminating_prism(actor* caster, int pow, const coord_def& where,
     mgen_data prism_data = mgen_data(is_shadow
                                         ? MONS_SHADOW_PRISM
                                         : MONS_FULMINANT_PRISM,
-                                     caster->is_player()
-                                        ? BEH_FRIENDLY
-                                        : SAME_ATTITUDE(caster->as_monster()),
+                                     SAME_ATTITUDE(caster),
                                      where, MHITNOT, MG_FORCE_PLACE);
     prism_data.set_summoned(caster, is_shadow ? SPELL_SHADOW_PRISM
                                               : SPELL_FULMINANT_PRISM, 0, false, false);
@@ -2338,8 +2334,7 @@ monster* create_spectral_weapon(const actor &agent, coord_def pos,
                                 item_def& weapon)
 {
     mgen_data mg(MONS_SPECTRAL_WEAPON,
-                 agent.is_player() ? BEH_FRIENDLY
-                                  : SAME_ATTITUDE(agent.as_monster()),
+                 SAME_ATTITUDE(&agent),
                  pos,
                  agent.mindex(),
                  MG_FORCE_BEH | MG_FORCE_PLACE);
@@ -2886,8 +2881,7 @@ spret kiku_unearth_wretches(bool fail)
 static bool _create_foxfire(const actor &agent, coord_def pos, int pow,
                             bool marshlight = false)
 {
-    const auto att = agent.is_player() ? BEH_FRIENDLY
-                                       : SAME_ATTITUDE(agent.as_monster());
+    const auto att = SAME_ATTITUDE(&agent);
     mgen_data fox(MONS_FOXFIRE, att,
                   pos, (att != BEH_FRIENDLY && agent.is_monster())
                             ? agent.as_monster()->foe : int{MHITNOT},
@@ -3115,9 +3109,7 @@ spret cast_broms_barrelling_boulder(actor& agent, coord_def targ, int pow, bool 
     }
 
     mgen_data mg = mgen_data(MONS_BOULDER,
-                             agent.is_player()
-                                ? BEH_FRIENDLY
-                                : SAME_ATTITUDE(agent.as_monster()),
+                             SAME_ATTITUDE(&agent),
                              pos, _auto_autofoe(&agent), MG_FORCE_PLACE);
     mg.set_summoned(&agent, SPELL_BOULDER);
     mg.hp = barrelling_boulder_hp(pow);
@@ -4410,9 +4402,7 @@ spret cast_monarch_bomb(const actor& agent, int pow, bool fail)
 bool monarch_deploy_bomblet(monster& original, const coord_def& target,
                             bool quiet)
 {
-    mgen_data mg = mgen_data(MONS_BOMBLET, original.friendly()
-                                                ? BEH_FRIENDLY
-                                                : BEH_HOSTILE,
+    mgen_data mg = mgen_data(MONS_BOMBLET, SAME_ATTITUDE(&original),
                              target, MG_AUTOFOE);
     mg.set_summoned(actor_by_mid(original.summoner),
                     SPELL_MONARCH_BOMB, random_range(90, 160), false);

@@ -1926,16 +1926,7 @@ static void _cassandra_death_ambush()
 
 static bool _mons_reaped(actor &killer, monster& victim)
 {
-    beh_type beh;
-
-    if (killer.is_player())
-        beh     = BEH_FRIENDLY;
-    else
-    {
-        monster* mon = killer.as_monster();
-        beh = SAME_ATTITUDE(mon);
-    }
-
+    beh_type beh = SAME_ATTITUDE(&killer);
     string msg = victim.name(DESC_ITS) + " spirit is torn from " +
                      victim.pronoun(PRONOUN_POSSESSIVE) + " body!";
     string fail_msg = victim.name(DESC_ITS) + " spirit is momentarily torn from " +

@@ -6875,8 +6875,8 @@ static void _sheep_message(int num_sheep, int sleep_pow, bool seen, actor& foe)
         return;
 
     const string foe_name = foe.name(DESC_THE);
-    const auto chan = foe.as_monster()->friendly() ? MSGCH_MONSTER_SPELL
-                                                   : MSGCH_FRIEND_SPELL;
+    const auto chan = foe.friendly() ? MSGCH_MONSTER_SPELL
+                                     : MSGCH_FRIEND_SPELL;
     if (!seen)
     {
         if (!sleep_pow)
@@ -8605,9 +8605,8 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
 
     case SPELL_SPORULATE:
     {
-        mgen_data mgen (MONS_BALLISTOMYCETE_SPORE,
-                mons->friendly() ? BEH_FRIENDLY : BEH_HOSTILE, mons->pos(),
-                mons->foe);
+        mgen_data mgen (MONS_BALLISTOMYCETE_SPORE, SAME_ATTITUDE(mons),
+                        mons->pos(), mons->foe);
         mgen.set_summoned(mons, SPELL_SPORULATE, random_range(40, 70), false, false);
         // Add 1HD to the spore for each additional HD the spawner has.
         mgen.hd = mons_class_hit_dice(MONS_BALLISTOMYCETE_SPORE) +
@@ -8620,9 +8619,8 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
 
     case SPELL_LAUNCH_SPORANGIUM:
     {
-        mgen_data mgen (MONS_CAUSTIC_SPORANGIUM,
-                mons->friendly() ? BEH_FRIENDLY : BEH_HOSTILE, mons->pos(),
-                mons->foe, MG_FORCE_PLACE);
+        mgen_data mgen (MONS_CAUSTIC_SPORANGIUM, SAME_ATTITUDE(mons),
+                        mons->pos(), mons->foe, MG_FORCE_PLACE);
         mgen.set_summoned(mons, SPELL_LAUNCH_SPORANGIUM, random_range(90, 220), false, false);
 
         // Since this is used by a wall monster, if we're actually trying to

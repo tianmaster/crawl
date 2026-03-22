@@ -817,7 +817,7 @@ bool place_cloud(cloud_type cl_type, const coord_def& ctarget, int cl_range,
     }
     else if (agent && agent->is_monster())
     {
-        if (agent->as_monster()->friendly())
+        if (agent->friendly())
             whose = KC_FRIENDLY;
         else
             whose = KC_OTHER;
@@ -2168,7 +2168,7 @@ bool chaos_affects_actor(actor* victim, actor* source)
             : source && source->as_monster()->confused_by_you() ? KILL_YOU_CONF
                                                                 : KILL_MON;
 
-        if (beam.thrower == KILL_YOU || (source && source->as_monster()->friendly()))
+        if (beam.thrower == KILL_YOU || (source && source->friendly()))
             beam.attitude = ATT_FRIENDLY;
 
         beam.source_id = source ? source->mid : MID_NOBODY;

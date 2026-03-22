@@ -2935,11 +2935,7 @@ monster* mons_place(mgen_data mg)
         mg.flags |= MG_PERMIT_BANDS;
 
     if (mg.behaviour == BEH_COPY)
-    {
-        mg.behaviour = (mg.summoner && mg.summoner->is_player())
-                        ? BEH_FRIENDLY
-                        : SAME_ATTITUDE(mg.summoner->as_monster());
-    }
+        mg.behaviour = SAME_ATTITUDE(mg.summoner);
 
     monster* creation = place_monster(mg);
     if (!creation)

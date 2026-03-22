@@ -2744,7 +2744,7 @@ void bolt::affect_endpoint()
             break;
 
         monster* blade = create_monster(mgen_data(MONS_DANCING_WEAPON,
-                                        SAME_ATTITUDE(agent(true)->as_monster()),
+                                        SAME_ATTITUDE(agent(true)),
                                         pos(), agent(true)->as_monster()->foe)
                         .set_summoned(agent(true), SPELL_FLASHING_BALESTRA, summ_dur(1), false)
                         .set_range(1));
@@ -2766,7 +2766,7 @@ void bolt::affect_endpoint()
             p = get_last_affected_pos(0);
 
         create_monster(mgen_data(MONS_PILE_OF_FLESH,
-                       SAME_ATTITUDE(agent(true)->as_monster()),
+                       SAME_ATTITUDE(agent(true)),
                        p, agent(true)->as_monster()->foe)
                        .set_summoned(agent(true), SPELL_BOLT_OF_FLESH, summ_dur(3), false)
                        .set_range(0, 1));
@@ -2885,8 +2885,8 @@ bool bolt::found_player() const
         && dist <= 2
         && (!agent()
             || (agent()->is_monster()
-                && !agent()->as_monster()->friendly()
-                && agent()->as_monster()->attitude != ATT_MARIONETTE))
+                && !agent()->friendly()
+                && agent()->temp_attitude() != ATT_MARIONETTE))
         // No point in fuzzing to a position that could never be hit.
         && you.see_cell_no_trans(pos())
         && !cell_is_solid(pos())
