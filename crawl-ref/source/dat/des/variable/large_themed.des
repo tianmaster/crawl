@@ -564,7 +564,8 @@ MONS:   vault guard / centaur warrior w:4 / dire elephant w:2 / arcanist w:2
 MONS:   yaktaur, yaktaur captain
 MONS:   vault sentinel ; arbalest . halberd . ring mail
 MONS:   vault warden ; arbalest | hand cannon w:4 . glaive . scale mail
-SUBST:  @ = ., * = **%, | = ||*
+KITEM:  % = $, barding / %
+SUBST:  @ = ., * = **d, | = ||*
 CLEAR:  x
 :   vaults_hard_standard(_G)
 : else
@@ -2358,7 +2359,7 @@ SUBST:  3 = 3G
 : else
 MONS:   ice dragon / white very ugly thing / freezing wraith / simulacrum
 MONS:   ettin simulacrum / spriggan defender simulacrum / \
-        golden dragon simulacrum / caustic shrike simulacrum
+        storm dragon simulacrum / caustic shrike simulacrum w:5
 MONS:   orange crystal statue
 :   mons("frost giant / blizzard demon / reaper ; " .. scythe("freezing"))
 MONS:   titan w:20 / nargun

@@ -3424,7 +3424,7 @@ KITEM: F = randbook numspells:4 spells:starburst&fireball&sticky_flame&flame_wav
 KITEM: _ = manual of invocations
 COLOUR:    r = red, y = yellow, b = blue, g = green, \
            m = magenta, q = cyan, c = magenta, S = electricity
-FTILE:     .1234ST_G+ = floor_zot_diamonds
+FTILE:     .1234STDZF_G+ = floor_zot_diamonds
 TILE:      r = dngn_transparent_stone_red, y = dngn_transparent_stone_yellow, \
            b = dngn_transparent_stone_blue, m = dngn_transparent_stone_magenta, \
            g = dngn_transparent_stone_green, q = dngn_transparent_stone

@@ -215,6 +215,15 @@ function species_has_size_limits(e)
          you.race() == "Spriggan"
 end
 
+-- Not including Sphinx Form since there's too many weird spoilers attached
+-- to specifically choosing forms or skill levels for one isolated
+-- skill before entering a given trove.
+function wants_barding(e)
+  crawl.mpr("Wants barding was called!")
+  crawl.mpr(you.race())
+  return you.race() == "Gale Centaur" or you.race() == "Naga"
+end
+
 -- you.race() returns capitalized strings, you.genus() returns all lowercase.
 function no_body_armour_species(e)
   return you.genus() == "draconian" or you.race() == "Octopode" or
@@ -749,13 +758,20 @@ if you.mutation("claws") ~= 3 and you.mutation("demonic touch") < 1 then
   aux = " / pair of gloves ego:fire good_item w:2 / " ..
            "pair of gloves ego:fire randart w:2"
 end
+-- All trove barding weights add up to roughly 25% of all armour drops.
+if wants_barding(e) then
+  aux = aux .. " / barding ego:fire_resistance good_item w:22 / " ..
+                  "barding randart artprops:rF w:11"
+end
 if you.mutation("weakness stinger") < 1 then
-  aux = " / scarf ego:resistance w:4 / scarf ego:resistance randart w:2 / " ..
-           "scarf ego:harm w:4 / scarf ego:harm randart w:2"
+  aux = aux .. " / scarf ego:resistance w:4 / " ..
+               "scarf ego:resistance randart w:2 / " ..
+               "scarf ego:harm w:4 / scarf ego:harm randart w:2"
 end
 if you.mutation("no conjurations magic") ~= 1 then
   magic = magic .. " / manual of conjurations w:4"
 end
+crawl.mpr(aux)
 trove_offense(_G, trove_weap_brand(_G, "flaming", true),
                   trove_standard_magic(_G, "fire", true),
                   trove_good_talisman(_G, "rF", nil), "fire magic")
@@ -848,6 +864,10 @@ end
 if you.mutation("weakness stinger") < 1 then
   armour = armour .. " / scarf ego:resistance w:8"
 end
+if wants_barding(e) then
+  armour = armour .. " / barding ego:cold_resistance good_item w:25 / " ..
+                        "barding randart artprops:rC w:12"
+end
 -- Not really armour, but close enough to defenses. Meant to round out how
 -- the earth trove gets Armour and the air trove gets Shields.
 if you.base_skill("dodging") < 27 and you.mutation("inability to train dodging") ~= 1 then
@@ -912,6 +932,11 @@ local arm = "steam dragon scales randart artprops:rElec / " ..
 if you.mutation("weakness stinger") < 1 then
   arm = arm .. " / cloak ego:air w:4 / scarf ego:repulsion randart w:2"
 end
+if wants_barding(e) then
+  arm = arm .. " / barding ego:flying good_item w:16 / " ..
+                  "barding randart artprops:Fly w:10 / " ..
+                  "barding randart artprops:rElec w:6"
+end
 if you.mutation("no armour") < 1 and you.race ~= "Coglin" and
    you.mutation("missing a hand") < 1 and you.base_skill("Shields") < 27 then
   arm = arm .. " / manual of shields w:4 / " .. trove_ego_shield(_G, nil, "rElec")
@@ -927,15 +952,16 @@ trove_defense(_G, arm, "pair of gloves randart artprops:rElec w:2",
                              nil, nil, "lightning rod w:5"))
 local sh = you.race() == "Spriggan" or you.race() == "Kobold" or
            you.race() == "Felid" or you.mutation("missing a hand") == 1
-trove_unrand_chances(_G, "dgh", {"storm_queen's_shield", "storm_bow"},
-                         {sh, sh and you.race("Formicid") == false}, {"?", "!"})
+trove_unrand_chances(_G, "dgh", {"storm_queen's_shield", "storm_bow",
+                         "lightning scales"}, {sh, sh and you.race("Formicid") == false},
+                         wants_barding(e), {"?", "!", "Z"})
 }}
 MARKER:  V = lua:fog_machine { cloud_type = "thunder",  walk_dist=2, \
              pow_min=18, pow_max=26, delay=180, size=4, spread_rate=1 }
 KFEAT:   z = x
 : vault_metal_statue_setup(_G, "I", "iron statue")
 SUBST:   ` = x`, v = v:90 x
-FTILE:   .defghi?!VGIm = floor_salt
+FTILE:   .defghi?!ZVGIm = floor_salt
 FTILE:   `" = floor_w_marble
 TILE:    x = wall_zot_cyan
 TILE:    z = wall_pebble_cyan
@@ -998,8 +1024,11 @@ if species_has_size_limits(_G) == false and
  you.base_skill("Armour") > you.base_skill("Dodging") * 3 then
   gen_armour = "plate armour " .. pon .. " / crystal plate armour " .. pon
 end
-if you.race() == "Gale Centaur" or you.race() == "Naga" then
-  gen_armour = gen_armour .. " / barding good_item w:20 / barding randart w:4"
+if wants_barding(e) then
+  gen_armour = gen_armour .. " / barding good_item w:14 / " ..
+                             "barding ego:earth good_item w:6 / " ..
+                             "barding randart w:6 / " ..
+                             "barding ego:earth randart w:4"
 elseif you.mutation("hooves") ~= 3 and you.mutation("talons") ~= 3 then
   gen_armour = gen_armour .. " / pair of boots good_item w:6 " ..
                              " / pair of boots ego:earth good_item w:12" ..
@@ -1181,7 +1210,11 @@ if you.mutation("weakness stinger") < 1 then
             "scarf ego:shadows randart artprops:Stlth:2 w:4 / " ..
             "scarf ego:invisibility randart w:4"
 end
-if you.mutation("hooves") ~= 3 and you.mutation("talons") ~= 3 then
+if wants_barding(e) then
+  arm = arm .. " / barding ego:stealth good_item w:12 / " ..
+                  "barding randart artprops:Stlth w:6 / " ..
+                  "barding randart artprops:Rampage w:4"
+elseif you.mutation("hooves") ~= 3 and you.mutation("talons") ~= 3 then
   aux2 = " / pair of boots ego:stealth good_item w:4 / " ..
             "pair of boots randart artprops:Stlth w:2 / " ..
             "pair of boots ego:rampaging good_item w:2"
@@ -1279,7 +1312,9 @@ trove_defense(_G, "pearl dragon scales good_item / \
 local s_or_m = you.race() == "Spriggan" or you.race() == "Kobold" or
                you.race() == "Felid" or
                trove_spell_skills(_G) > trove_weapon_skills(_G) * 4
-trove_unrand_chances(_G, "df", {"sword of the dread knight"}, {s_or_m}, {"?"})
+trove_unrand_chances(_G, "df", {"sword of the dread knight",
+                                "black knight's barding"}, {s_or_m,
+                                wants_barding(e)}, {"?", "!"})
 }}
 KFEAT:   m = iron_grate
 KFEAT:   yz = x
@@ -1291,7 +1326,7 @@ TILE:    z = wall_hall_magenta
 TILE:    c = wall_stone_dark
 TILE:    n = dngn_transparent_stone_darkgray
 FTILE:   ' = floor_marble
-FTILE:   defghi?$"m = floor_pebble_red
+FTILE:   defghi?!$"m = floor_pebble_red
 KPROP:   m = bloody
 epilogue{{
             trove_milestone(_G, "The Dread Knight's Derelict Chapel")
