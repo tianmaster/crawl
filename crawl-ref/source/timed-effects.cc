@@ -929,6 +929,13 @@ void timeout_terrain_changes(int duration, bool force)
                 marker->duration += duration;
             else
                 marker->source_mid = 0;
+
+            // Don't remove the lava beneath an active mortar, even in cases
+            // where two mortars are 'competing' for the same tile.
+            // (It's harmless, but looks silly).
+            if (monster* mon = monster_at(marker->pos))
+                if (mon->type == MONS_HELLFIRE_MORTAR)
+                    marker->duration = max(marker->duration, 1);
         }
 
         if (marker->duration != INFINITE_DURATION)
