@@ -66,6 +66,8 @@ msc += $warning:whistling.*wind
 msc += $warning:rapidly growing quiet
 msc += $warning:slides
 msc += $warning:settles down
+msc += white:There is a(n entrance| portal| gateway) to.*on this level
+msc += white:caravan has stopped on this level
 
 msc += lightcyan:LOW MAGIC WARNING
 msc += $warning:no longer ripe
@@ -124,15 +126,7 @@ force_more_message += ^Careful!
 
 # Announcements of timed portal vaults:
 force_more_message += interdimensional caravan
-force_more_message += solemn chanting
-force_more_message += distant snort
-force_more_message += roar of battle
-force_more_message += wave of frost
-force_more_message += hiss of flowing sand
-force_more_message += sound of rushing water
-force_more_message += oppressive heat about you
-force_more_message += crackle of arcane power
-force_more_message += hear a distant wind
+force_more_message += There is a(n entrance| portal| gateway) to.*on this level
 force_more_message += Beware! This is a limited time offer
 
 # Religion
