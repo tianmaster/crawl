@@ -8144,7 +8144,8 @@ void player::wake_up(bool break_sleep, bool break_daze)
         redraw_evasion = true;
     }
 
-    if (break_daze && you.duration[DUR_DAZED])
+    if (break_daze && you.duration[DUR_DAZED]
+        && you.elapsed_time > you.props[DAZED_ON_KEY].get_int())
     {
         duration[DUR_DAZED] = 0;
         give_stun_immunity(1);
@@ -8496,6 +8497,9 @@ void player::daze(int dur)
     stop_channelling_spells();
 
     you.duration[DUR_DAZED] += dur * BASELINE_DELAY;
+
+    // Note the turn we were dazed so that damage won't break it until the following turn.
+    you.props[DAZED_ON_KEY].get_int() = you.elapsed_time;
 }
 
 void player::vitrify(const actor* /*attacker*/, int dur, bool quiet)
