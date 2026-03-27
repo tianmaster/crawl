@@ -1842,9 +1842,18 @@ static bool _mons_take_special_action(monster &mons, int old_energy)
     // hitting their foes.
     if (mons.berserk_or_frenzied())
     {
-        if (!is_sanctuary(mons.pos()) && _handle_reaching(mons))
+        if (is_sanctuary(mons.pos()))
+            return false;
+
+        if (_handle_reaching(mons))
         {
             DEBUG_ENERGY_USE_REF("_handle_reaching()");
+            return true;
+        }
+
+        if (_handle_swoop_or_flank(mons))
+        {
+            DEBUG_ENERGY_USE_REF("_handle_swoop_or_flank()");
             return true;
         }
 
