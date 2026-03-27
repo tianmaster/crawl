@@ -1386,7 +1386,7 @@ static const struct spell_desc spelldata[] =
 },
 
 {
-    SPELL_SUMMON_UFETUBUS, "Summon Ufetubus",
+    SPELL_UFETUBI_SWARM, "Ufetubi Swarm",
     spschool::summoning,
     spflag::unholy | spflag::monster,
     4,

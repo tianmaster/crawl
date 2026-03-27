@@ -1385,7 +1385,7 @@ Summon Tzitzimitl spell
 
 召唤一个蚀日星髅，一个疾病和绝望的恶魔。
 %%%%
-Summon Ufetubus spell
+Ufetubi Swarm spell
 
 召唤多个尖喙魔；小而恼人的恶魔。
 %%%%

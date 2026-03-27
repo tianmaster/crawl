@@ -3526,8 +3526,8 @@ A muscular yellow-scaled humanoid with a reptilian tail and small wings.
 %%%%
 ynoxinul
 
-A winged demon covered in shiny metallic scales. It has a legion of minor
-demons under its command.
+A winged demon covered in shiny metallic scales. It has a legion of minor demons
+at its command, which it impels to savage fury.
 %%%%
 zombie
 

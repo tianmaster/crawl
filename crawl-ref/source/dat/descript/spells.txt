@@ -2221,9 +2221,10 @@ Summon Tzitzimitl spell
 
 Summons a tzitzimitl, a demon of disease and despair.
 %%%%
-Summon Ufetubus spell
+Ufetubi Swarm spell
 
-Summons multiple ufetubi; small, annoying demons.
+Summons a group of berserk ufetubi; irksome minor demons who will rapidly swarm
+and surround the caster's enemies.
 %%%%
 Summon Undead spell
 

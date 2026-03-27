@@ -2436,7 +2436,7 @@ static const map<spell_type, summon_cap> summonsdata =
     // Monster-only spells
     { SPELL_SHADOW_CREATURES,         { 0, 4 } },
     { SPELL_SUMMON_SPIDERS,           { 0, 5 } },
-    { SPELL_SUMMON_UFETUBUS,          { 0, 8 } },
+    { SPELL_UFETUBI_SWARM,            { 0, 8 } },
     { SPELL_SUMMON_SIN_BEAST,         { 0, 5 } },
     { SPELL_SUMMON_UNDEAD,            { 0, 8 } },
     { SPELL_SUMMON_DRAKES,            { 0, 4 } },

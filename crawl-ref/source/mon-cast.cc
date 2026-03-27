@@ -2648,7 +2648,7 @@ bool setup_mons_cast(const monster* mons, bolt &pbolt, spell_type spell_cast,
 #endif
     case SPELL_CALL_IMP:
     case SPELL_SUMMON_MINOR_DEMON:
-    case SPELL_SUMMON_UFETUBUS:
+    case SPELL_UFETUBI_SWARM:
     case SPELL_SUMMON_SIN_BEAST:  // Geryon
     case SPELL_SUMMON_UNDEAD:
     case SPELL_SUMMON_ICE_BEAST:
@@ -7960,17 +7960,15 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
         }
         return;
 
-    case SPELL_SUMMON_UFETUBUS:
-        sumcount2 = 2 + random2(2);
-
-        duration  = min(2 + mons->spell_hd(spell_cast) / 5, 6);
-
+    case SPELL_UFETUBI_SWARM:
+        sumcount2 = random_range(3, 4);
         for (sumcount = 0; sumcount < sumcount2; ++sumcount)
         {
-            create_monster(
-                mgen_data(MONS_UFETUBUS, SAME_ATTITUDE(mons), mons->pos(),
-                          mons->foe, MG_NONE, god)
-                .set_summoned(mons, spell_cast, summ_dur(duration)));
+            mgen_data mg(MONS_UFETUBUS, SAME_ATTITUDE(mons), mons->pos(),
+                         mons->foe, MG_NONE, god);
+            mg.set_summoned(mons, spell_cast, summ_dur(3));
+            if (monster* ufetubus = create_monster(mg))
+                ufetubus->add_ench(mon_enchant(ENCH_BERSERK, ufetubus, INFINITE_DURATION));
         }
         return;
 
