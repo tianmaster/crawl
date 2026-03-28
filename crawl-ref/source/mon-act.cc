@@ -1742,30 +1742,6 @@ static void _pre_monster_move(monster& mons)
         return;
     }
 
-    if (mons_stores_tracking_data(mons))
-    {
-        actor* foe = mons.get_foe();
-        if (foe)
-        {
-            if (!mons.props.exists(FAUX_PAS_KEY))
-                mons.props[FAUX_PAS_KEY].get_coord() = foe->pos();
-            else
-            {
-                if (mons.props[FAUX_PAS_KEY].get_coord().distance_from(mons.pos())
-                    > foe->pos().distance_from(mons.pos()))
-                {
-                    mons.props[FOE_APPROACHING_KEY].get_bool() = true;
-                }
-                else
-                    mons.props[FOE_APPROACHING_KEY].get_bool() = false;
-
-                mons.props[FAUX_PAS_KEY].get_coord() = foe->pos();
-            }
-        }
-        else
-            mons.props.erase(FAUX_PAS_KEY);
-    }
-
     fedhas_neutralise(&mons);
     slime_convert(&mons);
 
@@ -2305,9 +2281,9 @@ void handle_monster_move(monster* mons)
     if (!mons->alive())
         return;
 
-    // XXX: A bit hacky, but stores where we WILL move, if we don't take
-    //      another action instead (used for decision-making)
-    if (mons_stores_tracking_data(*mons))
+    // Stores where we WILL move, if we don't take another action instead
+    // (used for decision-making)
+    if (mons->type == MONS_BOULDER_BEETLE)
         mons->props[MMOV_KEY].get_coord() = mmov;
 
     if (_mons_take_special_action(*mons, old_energy))

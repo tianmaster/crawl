@@ -1236,16 +1236,13 @@ static void _merfolk_avatar_song(monster* mons)
     // First, attempt to pull the player, if mesmerised
     if (you.beheld_by(*mons) && coinflip())
     {
-        // Don't pull the player if they walked forward voluntarily this
-        // turn (to avoid making you jump two spaces at once)
-        if (!mons->props[FOE_APPROACHING_KEY].get_bool())
-        {
-            _merfolk_avatar_movement_effect(mons);
+        const int dist_change = grid_distance(you.pos(), mons->pos())
+                                - grid_distance(you.pos_at_turn_start, mons->pos());
 
-            // Reset foe tracking position so that we won't automatically
-            // veto pulling on a subsequent turn because you 'approached'
-            mons->props[FAUX_PAS_KEY].get_coord() = you.pos();
-        }
+        // Don't pull the player if they already moved closer to use this turn
+        // (to avoid making you jump two spaces at once)
+        if (dist_change >= 0)
+            _merfolk_avatar_movement_effect(mons);
     }
 
     // Only call up drowned souls if we're largely alone; otherwise our
