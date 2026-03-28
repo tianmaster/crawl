@@ -219,8 +219,6 @@ end
 -- to specifically choosing forms or skill levels for one isolated
 -- skill before entering a given trove.
 function wants_barding(e)
-  crawl.mpr("Wants barding was called!")
-  crawl.mpr(you.race())
   return you.race() == "Gale Centaur" or you.race() == "Naga"
 end
 
