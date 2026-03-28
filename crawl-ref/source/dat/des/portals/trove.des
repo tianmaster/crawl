@@ -769,7 +769,6 @@ end
 if you.mutation("no conjurations magic") ~= 1 then
   magic = magic .. " / manual of conjurations w:4"
 end
-crawl.mpr(aux)
 trove_offense(_G, trove_weap_brand(_G, "flaming", true),
                   trove_standard_magic(_G, "fire", true),
                   trove_good_talisman(_G, "rF", nil), "fire magic")
