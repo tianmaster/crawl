@@ -191,8 +191,8 @@ static const mon_spellbook mspell_list[] =
     // ('f') Mobile plants and fungi.
     {  MST_THORN_HUNTER,
       {
-       { SPELL_THORN_VOLLEY, 43, MON_SPELL_NATURAL },
-       { SPELL_WALL_OF_BRAMBLES, 22, MON_SPELL_MAGICAL },
+       { SPELL_THORN_VOLLEY, 50, MON_SPELL_NATURAL },
+       { SPELL_CAGE_OF_BRAMBLES, 80, MON_SPELL_NATURAL },
       }
     },
 

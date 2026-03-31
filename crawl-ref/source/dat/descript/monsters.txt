@@ -3200,8 +3200,11 @@ whirls of fire and ice occasionally escape and ricochet wildly off of walls.
 thorn hunter
 
 A predatory marsh plant, possessed of motility and a rudimentary intelligence.
-It ensnares its prey with protrusions of spiny brambles and then skewers the
-trapped creatures with its razor-sharp thorns.
+It ensnares its prey in rings of spiny brambles and then skewers the trapped
+creatures with its razor-sharp thorns.
+
+When injured or approached by enemies, it can even raise these brambles as a
+barricade around itself.
 %%%%
 toadstool
 

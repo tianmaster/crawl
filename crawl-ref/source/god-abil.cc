@@ -2958,7 +2958,6 @@ bool valid_marionette_spell(spell_type spell)
         case SPELL_STILL_WINDS:
         case SPELL_DIG:
         case SPELL_SILENCE:
-        case SPELL_WALL_OF_BRAMBLES:
         case SPELL_CALL_TIDE:
         case SPELL_DRUIDS_CALL:
 

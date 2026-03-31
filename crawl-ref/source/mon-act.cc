@@ -2272,6 +2272,9 @@ void handle_monster_move(monster* mons)
         return;
     }
 
+    if (mons->type == MONS_THORN_HUNTER)
+        thorn_hunter_raise_barrier(*mons);
+
     if (_handle_pickup(mons))
     {
         DEBUG_ENERGY_USE("handle_pickup()");
@@ -2648,6 +2651,9 @@ static void _post_monster_move(monster* mons)
 
     if (mons->type == MONS_SEISMOSAURUS_EGG && egg_is_incubating(*mons))
         seismosaurus_egg_hatch(mons);
+
+    if (mons->type == MONS_THORN_HUNTER)
+        thorn_hunter_raise_barrier(*mons);
 
     update_mons_cloud_ring(mons);
 
@@ -3392,6 +3398,10 @@ bool mon_can_move_to_pos(const monster* mons, const coord_def& delta,
     // are aligned differently.
     if (monster* targmonster = monster_at(targ))
     {
+        // Thorn hunters can always freely move into their own briars
+        if (mons->type == MONS_THORN_HUNTER && targmonster->was_created_by(*mons))
+            return true;
+
         if (just_check)
         {
             if (targ == mons->pos())
@@ -3457,12 +3467,15 @@ static bool _may_cutdown(monster* mons, monster* targ)
     {
         return false;
     }
+
+    if (mons->type == MONS_THORN_HUNTER && mons->was_created_by(*mons))
+        return false;
+
     // Outside of that case, can always cut mundane plants
     // (but don't try to attack briars unless their damage will be insignificant)
     return targ->is_firewood()
         && (targ->type != MONS_BRIAR_PATCH
             || (targ->friendly() && !mons_aligned(mons, targ))
-            || mons->type == MONS_THORN_HUNTER
             || mons->armour_class() * mons->hit_points >= 400);
 }
 
@@ -3720,8 +3733,8 @@ static bool _do_move_monster(monster& mons, const coord_def& delta)
     // This includes the case where the monster attacks itself.
     if (monster* def = monster_at(f))
     {
-        mons_fight(&mons, def);
-        return true;
+        if (mons_fight(&mons, def))
+            return true;
     }
 
     if (mons.is_constricted() && !mons.cannot_move())
@@ -3808,6 +3821,15 @@ static bool _do_move_monster(monster& mons, const coord_def& delta)
 
     if (mons_is_seeker(mons))
         --mons.steps_remaining;
+
+    // Don't trample over our own briars if we're currently in range to fire
+    if (mons.type == MONS_THORN_HUNTER
+        && monster_at(f)
+        && monster_at(f)->was_created_by(mons)
+        && thorn_hunter_range_check(mons))
+    {
+        return false;
+    }
 
     mons.move_to(f, MV_DELIBERATE);
     mons.check_redraw(mons.pos() - delta);
@@ -4074,12 +4096,13 @@ static bool _monster_move(monster* mons, coord_def& delta)
             }
             else if (!delta.origin()) // confused self-hit handled below
             {
-                mons_fight(mons, targ);
-                ret = true;
+                if (mons_fight(mons, targ))
+                    ret = true;
             }
 
             // If the monster swapped places, the work's already done.
-            delta.reset();
+            if (ret)
+                delta.reset();
         }
 
         // The monster could die after a melee attack due to a mummy

@@ -1357,7 +1357,7 @@ void monster::apply_enchantment(const mon_enchant &me)
     case ENCH_DUMB:
     case ENCH_MAD:
     case ENCH_WRETCHED:
-    case ENCH_SCREAMED:
+    case ENCH_ABILITY_COOLDOWN:
     case ENCH_WEAK:
     case ENCH_FIRE_VULN:
     case ENCH_BARBS:
@@ -1403,6 +1403,7 @@ void monster::apply_enchantment(const mon_enchant &me)
     case ENCH_DRAINED:
     case ENCH_SUNDER_CHARGE:
     case ENCH_EXPOSED:
+    case ENCH_BRAMBLE_COOLDOWN:
         decay_enchantment(en);
         break;
 
@@ -2055,7 +2056,7 @@ static const char *enchant_names[] =
 #if TAG_MAJOR_VERSION == 34
     "ozocubus_armour",
 #endif
-    "wretched", "screamed", "rune_of_recall",
+    "wretched", "ability_cooldown", "rune_of_recall",
     "injury bond",
 #if TAG_MAJOR_VERSION == 34
     "drowning",
@@ -2141,6 +2142,7 @@ static const char *enchant_names[] =
     "phalanx_barrier", "figment", "paradox-touched", "warding",
     "diminished_spells", "orb_cooldown", "sunder_charge",
     "exposed",
+    "briar_cooldown",
     "buggy", // NUM_ENCHANTMENTS
 };
 

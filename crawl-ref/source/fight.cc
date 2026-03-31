@@ -551,6 +551,9 @@ bool mons_fight(monster *attacker, actor *defender, bool *did_hit, bool simu)
         return false;
     }
 
+    if (attacker->type == MONS_THORN_HUNTER && defender->was_created_by(*attacker))
+        return false;
+
     melee_attack attk(attacker, defender);
     attk.simu = simu;
     attk.launch_attack_set();

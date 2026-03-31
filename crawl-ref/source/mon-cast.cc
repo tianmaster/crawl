@@ -2693,7 +2693,7 @@ bool setup_mons_cast(const monster* mons, bolt &pbolt, spell_type spell_cast,
     case SPELL_MASS_CONFUSION:
     case SPELL_ENGLACIATION:
     case SPELL_AWAKEN_VINES:
-    case SPELL_WALL_OF_BRAMBLES:
+    case SPELL_CAGE_OF_BRAMBLES:
     case SPELL_WIND_BLAST:
     case SPELL_SUMMON_VERMIN:
     case SPELL_POLAR_VORTEX:
@@ -4235,124 +4235,60 @@ static void _cast_druids_call(const monster* mon)
         _place_druids_call_beast(mon, mon_list[i], target);
 }
 
-static double _angle_between(coord_def origin, coord_def p1, coord_def p2)
-{
-    double ang0 = atan2(p1.x - origin.x, p1.y - origin.y);
-    double ang  = atan2(p2.x - origin.x, p2.y - origin.y);
-    return min(fabs(ang - ang0), fabs(ang - ang0 + 2 * PI));
-}
-
-// Does there already appear to be a bramble wall in this direction?
-// We approximate this by seeing if there are at least two briar patches in
-// a ray between us and our target, which turns out to be a pretty decent
-// metric in practice.
-static bool _already_bramble_wall(const monster* mons, coord_def targ)
-{
-    bolt tracer;
-    tracer.source    = mons->pos();
-    tracer.target    = targ;
-    tracer.range     = 12;
-    tracer.set_is_tracer(true);
-    tracer.pierce    = true;
-    tracer.fire();
-
-    int briar_count = 0;
-    bool targ_reached = false;
-    for (coord_def p : tracer.path_taken)
-    {
-        if (!targ_reached && p == targ)
-            targ_reached = true;
-        else if (!targ_reached)
-            continue;
-
-        if (monster_at(p) && monster_at(p)->type == MONS_BRIAR_PATCH)
-            ++briar_count;
-    }
-
-    return briar_count > 1;
-}
-
-static bool _wall_of_brambles(monster* mons)
+// Attempt to create a ring of brairs at radius 2 of all hostile creatures
+// in sight, without placing any briars adjacent to any of these creatures.
+static void _cage_of_brambles(monster* mons)
 {
     mgen_data briar_mg = mgen_data(MONS_BRIAR_PATCH, SAME_ATTITUDE(mons),
                                    coord_def(-1, -1), MHITNOT, MG_FORCE_PLACE);
 
-    // We want to raise a defensive wall if we think our foe is moving to attack
-    // us, and otherwise raise a wall further away to block off their escape.
-    // (Each wall type uses different parameters)
-    bool defensive = mons->props[FOE_APPROACHING_KEY].get_bool();
-
-    coord_def aim_pos = you.pos();
-    coord_def targ_pos = mons->pos();
-
-    // A defensive wall cannot provide any cover if our target is already
-    // adjacent, so don't bother creating one.
-    if (defensive && mons->pos().distance_from(aim_pos) == 1)
-        return false;
-
-    // Don't raise a non-defensive wall if it looks like there's an existing one
-    // in the same direction already (this looks rather silly to see walls
-    // springing up in the distance behind already-closed paths, and probably
-    // is more likely to aid the player than the monster)
-    if (!defensive)
+    bool seen = false;
+    bool made = false;
+    for (actor_near_iterator mi(mons, LOS_NO_TRANS); mi; ++mi)
     {
-        if (_already_bramble_wall(mons, aim_pos))
-            return false;
-    }
+        if (mi->is_firewood() || mons_aligned(mons, *mi))
+            continue;
 
-    // Select a random radius for the circle used draw an arc from (affects
-    // both shape and distance of the resulting wall)
-    int rad = (defensive ? random_range(3, 5)
-                         : min(11, mons->pos().distance_from(you.pos()) + 6));
-
-    // Adjust the center of the circle used to draw the arc of the wall if
-    // we're raising one defensively, based on both its radius and foe distance.
-    // (The idea is the ensure that our foe will end up on the other side of it
-    // without always raising the wall in exactly the same shape and position)
-    if (defensive)
-    {
-        coord_def adjust = (targ_pos - aim_pos).sgn();
-
-        targ_pos += adjust;
-        if (rad == 5)
-            targ_pos += adjust;
-        if (mons->pos().distance_from(aim_pos) == 2)
-            targ_pos += adjust;
-    }
-
-    // XXX: There is almost certainly a better way to calculate the points
-    //      along the desired arcs, though this code produces the proper look.
-    vector<coord_def> points;
-    for (distance_iterator di(targ_pos, false, false, rad); di; ++di)
-    {
-        if (di.radius() == rad || di.radius() == rad - 1)
+        for (radius_iterator ri(mi->pos(), 2, C_SQUARE, LOS_NO_TRANS); ri; ++ri)
         {
-            if (!actor_at(*di) && !cell_is_solid(*di))
+            if (grid_distance(*ri, mi->pos()) != 2)
+                continue;
+
+            if (actor_at(*ri) || !in_bounds(*ri) || !monster_habitable_grid(MONS_BRIAR_PATCH, *ri))
+                continue;
+
+            // Don't place adjacent to any hostiles that themselves will be targeted by this
+            bool found = false;
+            for (adjacent_iterator ai(*ri); ai; ++ai)
             {
-                if (defensive && _angle_between(targ_pos, aim_pos, *di) <= PI/4.0
-                    || (!defensive
-                        && _angle_between(targ_pos, aim_pos, *di) <= PI/(4.2 + rad/6.0)))
+                if (const actor* act_at = actor_at(*ai))
                 {
-                    points.push_back(*di);
+                    if (!mons_aligned(mons, act_at) && !act_at->is_firewood())
+                    {
+                        found = true;
+                        break;
+                    }
                 }
+            }
+            if (found)
+                continue;
+
+            briar_mg.pos = *ri;
+            briar_mg.set_summoned(mons, SPELL_NO_SPELL, random_range(60, 110), false, false);
+            if (monster* briar = create_monster(briar_mg, false))
+            {
+                made = true;
+                if (you.can_see(*briar))
+                    seen = true;
             }
         }
     }
 
-    bool seen = false;
-    for (coord_def point : points)
-    {
-        briar_mg.pos = point;
-        briar_mg.set_summoned(mons, SPELL_NO_SPELL, 80 + random2(100), false, false);
-        monster* briar = create_monster(briar_mg, false);
-        if (briar && you.can_see(*briar))
-            seen = true;
-    }
+    if (made)
+        mons->add_ench(mon_enchant(ENCH_BRAMBLE_COOLDOWN, mons, random_range(70, 120)));
 
     if (seen)
         mpr("Thorny briars emerge from the ground!");
-
-    return true;
 }
 
 /**
@@ -8361,15 +8297,8 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
         _awaken_vines(mons);
         return;
 
-    case SPELL_WALL_OF_BRAMBLES:
-        // If we can't cast this for some reason (can be expensive to determine
-        // at every call to _monster_spell_goodness), refund the energy for it so that
-        // the caster can do something else
-        if (!_wall_of_brambles(mons))
-        {
-            mons->speed_increment +=
-                get_monster_data(mons->type)->energy_usage.spell;
-        }
+    case SPELL_CAGE_OF_BRAMBLES:
+        _cage_of_brambles(mons);
         return;
 
     case SPELL_WIND_BLAST:
@@ -9929,6 +9858,9 @@ ai_action::goodness monster_spell_goodness(monster* mon, spell_type spell)
         return ai_action::good_or_impossible(
             _mons_cast_hellfire_mortar(*mon, *mon->get_foe(), 100, true));
     }
+
+    case SPELL_CAGE_OF_BRAMBLES:
+        return ai_action::good_or_impossible(!mon->has_ench(ENCH_BRAMBLE_COOLDOWN));
 
 #if TAG_MAJOR_VERSION == 34
     case SPELL_SUMMON_SWARM:

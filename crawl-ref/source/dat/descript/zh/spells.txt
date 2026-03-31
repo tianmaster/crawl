@@ -1504,12 +1504,6 @@ Volley of Thorns spell
 
 射出一小束锋利的荆棘。
 %%%%
-Wall of Brambles spell
-
-使附近荆棘迅速生长。它们几乎没有结构性力量，
-但它们上面的恶刺使它们很难被清除。
-这种荆棘是稀疏的，几乎任何飞弹都可以穿过它们。
-%%%%
 Warning Cry spell
 
 发出巨大的噪音，警示周围的敌人。

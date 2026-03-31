@@ -4660,14 +4660,9 @@ void melee_attack::do_spines()
     }
     else if (defender->as_monster()->is_spiny())
     {
-        // Thorn hunters can attack their own brambles without injury
-        if (defender->type == MONS_BRIAR_PATCH
-            && attacker->type == MONS_THORN_HUNTER
-            // Don't let spines kill things out of LOS.
-            || !monster_los_is_valid(defender->as_monster(), attacker))
-        {
+        // Don't let friendly monster spines kill things out of LOS.
+        if (!monster_los_is_valid(defender->as_monster(), attacker))
             return;
-        }
 
         const bool cactus = defender->type == MONS_CACTUS_GIANT;
         if (attacker->alive() && (cactus || one_chance_in(3)))

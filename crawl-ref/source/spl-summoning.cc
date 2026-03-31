@@ -2615,8 +2615,8 @@ static bool _create_briar_patch(coord_def& target)
 {
     mgen_data mgen = mgen_data(MONS_BRIAR_PATCH, BEH_FRIENDLY, target,
             MHITNOT, MG_FORCE_PLACE, GOD_FEDHAS);
-    mgen.hd = mons_class_hit_dice(MONS_BRIAR_PATCH) +
-        you.skill_rdiv(SK_INVOCATIONS);
+    mgen.hd = mons_class_hit_dice(MONS_BRIAR_PATCH) / 2 +
+                you.skill_rdiv(SK_INVOCATIONS, 1, 2);
     mgen.set_summoned(&you, SPELL_NO_SPELL,
                         summ_dur(min(2 + you.skill_rdiv(SK_INVOCATIONS, 1, 5), 6)));
 
