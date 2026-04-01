@@ -353,7 +353,7 @@ private:
     bool is_big_cloud() const; // expands into big_cloud at endpoint
     int range_used_on_hit() const;
     bool bush_immune(const monster &mons) const;
-    bool at_blocking_monster() const;
+
     int apply_to_hit_modifiers(int base_hit, const actor &target) const;
 
     void do_ranged_attack(actor& target);

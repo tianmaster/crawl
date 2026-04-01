@@ -1256,50 +1256,6 @@ void bolt::do_fire()
 
         const dungeon_feature_type feat = env.grid(pos());
 
-        if (in_bounds(target)
-            // Starburst beams are essentially untargeted; some might even hit
-            // a victim if others have LOF blocked.
-            && origin_spell != SPELL_STARBURST
-            // We ran into a solid wall with a real beam...
-            && (feat_is_solid(feat)
-                && flavour != BEAM_DIGGING && flavour <= BEAM_LAST_REAL
-                && !cell_is_solid(target)
-            // Or hit a monster that'll stop our beam...
-                || at_blocking_monster())
-            // and it's a player tracer that cares about blocked paths...
-            && is_tracer() && tracer->is_collecting_warnings() && YOU_KILL(thrower)
-            // and we're actually between you and the target...
-            && !passed_target && pos() != target && pos() != source
-            // ?
-            && !tracer->has_hit_foe() && bounces == 0 && reflections == 0
-            // and you aren't shooting out of LOS.
-            && you.see_cell(target))
-        {
-            // Okay, with all those tests passed, this is probably an instance
-            // of the player manually targeting something whose line of fire
-            // is blocked, even though its line of sight isn't blocked. Give
-            // a warning about this fact.
-            const monster* mon = monster_at(target);
-
-            string blockee;
-            if (mon && mon->observable())
-                blockee = mon->name(DESC_THE);
-            else
-            {
-                blockee = "the targeted "
-                        + feature_description_at(target, false, DESC_PLAIN);
-            }
-
-            const string blocker = feat_is_solid(feat) ?
-                        feature_description_at(pos(), false, DESC_A) :
-                        monster_at(pos())->name(DESC_A);
-
-            tracer->blocked("Your line of fire to " + blockee
-                            + " is blocked by " + blocker + ".");
-            finish_beam();
-            return;
-        }
-
         // If requested to stop before hitting allies (or neutrals our god would
         // object to us harming), do so now.
         const actor* act_at = actor_at(pos());
@@ -5501,27 +5457,6 @@ bool bolt::bush_immune(const monster &mons) const
         // We allow hitting the bush-like monster with a bolt when it's the
         // target.
         && target != mons.pos();
-}
-
-// Is there a visible monster at this position which will keep the beam from
-// continuing onward? (And, if so, is it firewood or something else we'd never
-// actually want to bother hitting?)
-bool bolt::at_blocking_monster() const
-{
-    const monster *mon = monster_at(pos());
-    if (!mon || !you.can_see(*mon))
-        return false;
-
-    if (!pierce && !ignores_monster(mon) && mon->is_firewood())
-        return true;
-    if (have_passive(passive_t::neutral_slimes)
-        && mons_is_slime(*mon)
-        && mon->wont_attack()
-        && flavour != BEAM_VILE_CLUTCH)
-    {
-        return true;
-    }
-    return false;
 }
 
 void bolt::affect_monster(monster* mon)
