@@ -2750,7 +2750,7 @@ item_def* monster_die(monster& mons, killer_type killer,
         coord_def aim;
         if (!invalid_monster_index(killer_index) && env.mons[killer_index].alive())
             aim = env.mons[killer_index].pos();
-        else if (killer_index == MHITYOU)
+        else if (YOU_KILL(killer))
             aim = you.pos();
 
         if (!aim.origin())

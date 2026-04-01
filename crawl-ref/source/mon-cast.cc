@@ -195,6 +195,7 @@ static ai_action::goodness _sojourning_bolt_goodness(const monster &caster);
 static bool _cast_dominate_undead(const monster& caster, int pow, bool check_only);
 static bool _mon_cast_tempering(const monster& caster, bool check_only);
 static coord_def _mons_boulder_tracer(const monster* mons);
+static bool _mons_splinterfrost_shell(const monster& caster, bool check_only = false);
 
 enum spell_logic_flag
 {
@@ -1061,6 +1062,14 @@ static const map<spell_type, mons_spell_logic> spell_to_logic = {
         _spike_launcher_goodness,
        [](monster &caster, mon_spell_slot, bolt&) {
             cast_spike_launcher(caster, mons_spellpower(caster, SPELL_SPIKE_LAUNCHER), false);
+        }
+    } },
+    { SPELL_SPLINTERFROST_SHELL, {
+        [](const monster &caster) {
+            return ai_action::good_or_impossible(_mons_splinterfrost_shell(caster, true));
+        },
+        [](monster& caster, mon_spell_slot, bolt&) {
+            _mons_splinterfrost_shell(caster);
         }
     } },
 };
@@ -2110,6 +2119,7 @@ static int _mons_power_hd_factor(spell_type spell)
         case SPELL_FOXFIRE:
         case SPELL_MANIFOLD_ASSAULT:
         case SPELL_SHADOW_PRISM:
+        case SPELL_SPLINTERFROST_SHELL:
             return 6;
 
         case SPELL_SUMMON_DRAGON:
@@ -7484,6 +7494,36 @@ static bool _mon_cast_tempering(const monster& caster, bool check_only)
 
     const int pow = mons_spellpower(caster, SPELL_ALL_PURPOSE_TEMPERING);
     cast_percussive_tempering(caster, *targ, pow, false);
+
+    return true;
+}
+
+static bool _mons_splinterfrost_shell(const monster& caster, bool check_only)
+{
+    const actor* foe = caster.get_foe();
+    const coord_def aim = caster.pos() + (foe->pos() - caster.pos()).sgn();
+
+    if (check_only)
+    {
+        // Don't raise a barrier if our foe is the player and they are retreating.
+        if (foe->is_player() && grid_distance(you.pos(), caster.pos())
+                                > grid_distance(you.pos_at_turn_start, caster.pos()))
+        {
+            return false;
+        }
+
+        // Do a quick check to ensure that there is (probably) at least one placeable wall.
+        // (This can still fail in very crowded places where actors cannot be
+        // shifted away, but should generally be sufficient.)
+        vector<coord_def> spots = get_wall_ring_spots(caster.pos(), aim, 4, true);
+        for (coord_def& spot : spots)
+            if (!actor_at(spot) || !actor_at(spot)->is_stationary())
+                return true;
+
+        return false;
+    }
+
+    cast_splinterfrost_shell(caster, aim, mons_spellpower(caster, SPELL_SPLINTERFROST_SHELL), false);
 
     return true;
 }

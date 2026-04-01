@@ -6557,6 +6557,14 @@ static string _desc_shooting_star_dam(const monster_info &mi)
     return make_stringf("%dd%d", beam.damage.num, beam.damage.size);
 }
 
+static string _desc_splinterfrost_dam(const monster_info &mi)
+{
+    bolt beam;
+    const int pow = mi.props[SPLINTERFROST_POWER_KEY].get_int();
+    zappy(ZAP_SPLINTERFROST_FRAGMENT, pow, mi.summoner_id != MID_PLAYER, beam);
+    return make_stringf("%dd%d", beam.damage.num, beam.damage.size);
+}
+
 // Fetches the monster's database description and reads it into inf.
 void get_monster_db_desc(const monster_info& mi, describe_info &inf,
                          bool &has_stat_desc, bool mark_spells)
@@ -6670,6 +6678,10 @@ void get_monster_db_desc(const monster_info& mi, describe_info &inf,
 
     case MONS_SHOOTING_STAR:
         inf.body << "\nIt deals " << _desc_shooting_star_dam(mi) << " damage.\n";
+        break;
+
+    case MONS_SPLINTERFROST_BARRICADE:
+        inf.body << "\nIt deals " << _desc_splinterfrost_dam(mi) << " damage when destroyed.\n";
         break;
 
     case MONS_PROGRAM_BUG:

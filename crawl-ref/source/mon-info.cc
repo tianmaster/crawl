@@ -254,7 +254,8 @@ static bool _is_public_key(string key)
      || key == VAULT_HD_KEY
      || key == POLY_SET_KEY
      || key == NOBODY_MEMORIES_KEY
-     || key == ORIGINAL_TYPE_KEY)
+     || key == ORIGINAL_TYPE_KEY
+     || key == SPLINTERFROST_POWER_KEY)
     {
         return true;
     }

@@ -4564,7 +4564,16 @@ spret cast_splinterfrost_shell(const actor& agent, const coord_def& aim,
     }
 
     if (num_created > 0)
-        mprf("You construct a shell of ice in front of yourself.");
+    {
+        if (agent.is_player())
+            mprf("You construct a shell of ice in front of yourself.");
+        else if (you.can_see(agent))
+        {
+            mprf("%s constructs a shell of ice in front of %s.",
+                    agent.name(DESC_THE).c_str(),
+                    agent.pronoun(PRONOUN_REFLEXIVE).c_str());
+        }
+    }
     else
         canned_msg(MSG_NOTHING_HAPPENS);
 
@@ -4577,12 +4586,13 @@ bool splinterfrost_block_fragment(monster& block, const coord_def& aim)
     actor* agent = actor_by_mid(block.summoner);
 
     bolt beam;
-    zappy(ZAP_SPLINTERFROST_FRAGMENT, pow, false, beam);
+    zappy(ZAP_SPLINTERFROST_FRAGMENT, pow, !agent->is_player(), beam);
     beam.source = block.pos();
     beam.attitude = block.attitude;
     beam.set_agent(agent);
     beam.target = aim;
     beam.range = LOS_RADIUS;
+    beam.seen = true;
     beam.stop_at_allies = true;
 
     string msg;

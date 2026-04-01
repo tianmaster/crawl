@@ -3434,6 +3434,9 @@ bool mon_can_move_to_pos(const monster* mons, const coord_def& delta,
 // to get to the player if necessary.
 static bool _may_cutdown(monster* mons, monster* targ)
 {
+    if (!targ->is_firewood())
+        return false;
+
     // Save friendly plants from allies.
     // [ds] I'm deliberately making the alignment checks symmetric here.
     // The previous check involved good-neutrals never attacking friendlies
@@ -3444,15 +3447,24 @@ static bool _may_cutdown(monster* mons, monster* targ)
         return false;
     }
 
-    if (mons->type == MONS_THORN_HUNTER && mons->was_created_by(*mons))
+    // Hostile monsters will always attack the player's briars, but otherwise
+    // avoid doing so unless the damage would be insignificant.
+    if (targ->type == MONS_BRIAR_PATCH)
+    {
+        if (mons->type == MONS_THORN_HUNTER && targ->was_created_by(*mons))
+            return false;
+        else
+        {
+            return targ->friendly() && !mons_aligned(mons, targ)
+                   || mons->armour_class() * mons->hit_points >= 400;
+        }
+    }
+    // Don't attack aligned barricades
+    else if (targ->type == MONS_SPLINTERFROST_BARRICADE && mons_aligned(mons, targ))
         return false;
 
-    // Outside of that case, can always cut mundane plants
-    // (but don't try to attack briars unless their damage will be insignificant)
-    return targ->is_firewood()
-        && (targ->type != MONS_BRIAR_PATCH
-            || (targ->friendly() && !mons_aligned(mons, targ))
-            || mons->armour_class() * mons->hit_points >= 400);
+    // Outside of these cases, can always cut mundane plants
+    return true;
 }
 
 static void _find_good_alternate_move(monster* mons, coord_def& delta,
