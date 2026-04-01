@@ -1082,16 +1082,12 @@ namespace quiver
 
         bool use_autofight_targeting() const override
         {
-            return is_dynamic_targeted();
+            return false;
         }
 
         bool allow_autofight() const override
         {
-            if (!is_enabled())
-                return false;
-            if (_spell_needs_manual_targeting(spell))
-                return false;
-            return is_autofight_combat_spell(spell);
+            return false;
         }
 
         bool uses_mp() const override
