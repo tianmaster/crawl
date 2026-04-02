@@ -4081,16 +4081,17 @@ static bool _monster_move(monster* mons, coord_def& delta)
                      || mons->confused()))
             {
                 ret = _monster_swaps_places(mons, delta);
+                delta.reset();  // Swapping can fail, but even if it does, we
+                                // shouldn't try hitting our ally later on.
             }
             else if (!delta.origin()) // confused self-hit handled below
             {
                 if (mons_fight(mons, targ))
+                {
                     ret = true;
+                    delta.reset();
+                }
             }
-
-            // If the monster swapped places, the work's already done.
-            if (ret)
-                delta.reset();
         }
 
         // The monster could die after a melee attack due to a mummy
