@@ -7766,18 +7766,11 @@ void player_beam_tracer::monster_hit(const bolt& beam, const monster& mon)
     }
 }
 
-void player_beam_tracer::blocked(string message) noexcept
-{
-    blocked_message = std::move(message);
-    blocked_count++;
-}
-
 // Returns true if there is anything this tracer might possibly want to prompt
 // the player about.
 bool player_beam_tracer::has_any_warnings() noexcept
 {
-    return blocked_count > 0
-            || god_hated_target
+    return god_hated_target
             || bad_charm_target
             || hit_self_count > 0
             || !bad_attack_targets.empty();
@@ -7816,16 +7809,8 @@ int targeting_tracer::player_hit_count() noexcept
 }
 
 // returns true if the player wishes to cancel firing the bolt, false otherwise
-bool cancel_beam_prompt(const bolt& beam, const player_beam_tracer& tracer,
-                        int beams_fired)
+bool cancel_beam_prompt(const bolt& beam, const player_beam_tracer& tracer)
 {
-    ASSERT(beams_fired >= tracer.blocked_count);
-    if (tracer.blocked_count >= beams_fired)
-    {
-        mpr(tracer.blocked_message);
-        return true;
-    }
-
     const spell_type spell = beam.origin_spell;
 
     if (tracer.god_hated_target
