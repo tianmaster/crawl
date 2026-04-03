@@ -950,8 +950,8 @@ trove_defense(_G, arm, "pair of gloves randart artprops:rElec w:2",
 local sh = you.race() == "Spriggan" or you.race() == "Kobold" or
            you.race() == "Felid" or you.mutation("missing a hand") == 1
 trove_unrand_chances(_G, "dgh", {"storm_queen's_shield", "storm_bow",
-                         "lightning scales"}, {sh, sh and you.race("Formicid") == false},
-                         wants_barding(e), {"?", "!", "Z"})
+                         "lightning scales"}, {sh, sh and you.race("Formicid") == false,
+                         wants_barding(e)}, {"?", "!", "Z"})
 }}
 MARKER:  V = lua:fog_machine { cloud_type = "thunder",  walk_dist=2, \
              pow_min=18, pow_max=26, delay=180, size=4, spread_rate=1 }
